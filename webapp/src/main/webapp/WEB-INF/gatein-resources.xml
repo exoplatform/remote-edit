@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<gatein-resources xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://www.gatein.org/xml/ns/gatein_resources_1_3 http://www.gatein.org/xml/ns/gatein_resources_1_3"
+                  xmlns="http://www.gatein.org/xml/ns/gatein_resources_1_3">
+
+  <portlet>
+    <name>OpenDocument</name>
+    <module>
+      <depends>
+        <module>ecm-webdav</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <module>
+    <name>ecm-webdav</name>
+    <as>ecm-webdav</as>
+    <script>
+      <path>/js/ITHitWebDAVClient.js</path>
+    </script>
+  </module>
+
+</gatein-resources>
