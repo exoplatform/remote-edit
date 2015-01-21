@@ -11,6 +11,6 @@ import java.io.IOException;
 public class UIOpenDocumentPortlet extends GenericPortlet {
 
   @RenderMode(name = "view")
-  public void OpenDocument(RenderRequest request, RenderResponse response) throws IOException, PortletException {}
+  public void openDocument(RenderRequest request, RenderResponse response) throws IOException, PortletException {}
 
 }
