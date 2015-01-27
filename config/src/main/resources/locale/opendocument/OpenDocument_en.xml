@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bundle>
+  <UITabForm>
+    <label>
+      <openDocument>Remote Edit</openDocument>
+    </label>
+  </UITabForm>
+  <UIActionBar>
+    <tooltip>
+      <OpenDocument>Remote Edit</OpenDocument>
+    </tooltip>
+  </UIActionBar>
+</bundle>
