@@ -22,9 +22,16 @@
   <name>eXo Open Document In Office Extension</name>
   <description>A addon to open document in desktop application of eXo.</description>
 
+  <scm>
+    <connection>scm:git:git://github.com/exo-addons/remote-edit.git</connection>
+    <developerConnection>scm:git:git@github.com:exo-addons/remote-edit.git</developerConnection>
+    <url>https://github.com/exo-addons/remote-edit</url>
+    <tag>HEAD</tag>
+  </scm>
+
   <properties>
-    <exoplatform.version>4.2.x-ecms-open-doc-in-office-SNAPSHOT</exoplatform.version>
-    <exoplatform.kernel.version>2.4.x-SNAPSHOT</exoplatform.kernel.version>
+    <exoplatform.version>4.2.0-RC1</exoplatform.version>
+    <exoplatform.kernel.version>2.4.13-GA</exoplatform.kernel.version>
   </properties>
 
 </project>
