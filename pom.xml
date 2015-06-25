@@ -28,8 +28,8 @@
   </scm>
 
   <properties>
-    <exoplatform.version>4.2.x-SNAPSHOT</exoplatform.version>
-    <exoplatform.kernel.version>2.4.x-SNAPSHOT</exoplatform.kernel.version>
+    <exoplatform.version>4.2.0</exoplatform.version>
+    <exoplatform.kernel.version>2.4.13-GA</exoplatform.kernel.version>
   </properties>
 
 </project>
