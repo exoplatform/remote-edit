@@ -27,9 +27,4 @@
     <tag>HEAD</tag>
   </scm>
 
-  <properties>
-    <exoplatform.version>4.2.x-SNAPSHOT</exoplatform.version>
-    <exoplatform.kernel.version>2.4.x-SNAPSHOT</exoplatform.kernel.version>
-  </properties>
-
 </project>
