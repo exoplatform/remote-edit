@@ -1,7 +1,1592 @@
 (function() {
   var ECMWebDav = function() {}
-	  //console.log("ITHit license detected!");
-if("undefined"===typeof ITHit){(function(){this.ITHit={_oComponents:{},_oNamespace:{},Define:function(_1){this._oComponents[_1]=true;},Defined:function(_2){return !!this._oComponents[_2];},Add:function(_3,_4){var _5=_3.split(".");var _6=this;var _7=_5.length;for(var i=0;i<_7;i++){if("undefined"===typeof _6[_5[i]]){if(i<(_7-1)){_6[_5[i]]={};}else{_6[_5[i]]=_4;}}else{if(!(_6[_5[i]] instanceof Object)){return;}}_6=_6[_5[i]];}},Temp:{}};})();}ITHit.Config={Global:window,ShowOriginalException:true,PreventCaching:false};ITHit.Add("GetNamespace",function(_9,_a,_b){var _c=ITHit.Utils;if(!_c.IsString(_9)&&!_c.IsArray(_9)){throw new ITHit.Exception("ITHit.GetNamespace() expected string as first parameter of method.");}var _d=_c.IsArray(_9)?_9:_9.split(".");var _e=_b||ITHit.Config.Global;for(var i=0,_10="";_e&&(_10=_d[i]);i++){if(_10 in _e){_e=_e[_10];}else{if(_a){_e[_10]={};_e=_e[_10];}else{_e=undefined;}}}return _e;});ITHit.Add("Namespace",function(_11,_12){return ITHit.GetNamespace(_11,false,_12);});ITHit.Add("Declare",function(_13,_14){return ITHit.GetNamespace(_13,true,_14);});ITHit.Add("DetectOS",function(){var _15=navigator.platform,_16={Windows:(-1!=_15.indexOf("Win")),MacOS:(-1!=_15.indexOf("Mac")),Linux:(-1!=_15.indexOf("Linux")),UNIX:(-1!=_15.indexOf("X11")),OS:null};if(_16.Windows){_16.OS="Windows";}else{if(_16.Linux){_16.OS="Linux";}else{if(_16.MacOS){_16.OS="MacOS";}else{if(_16.UNIX){_16.OS="UNIX";}}}}return _16;}());ITHit.Add("DetectBrowser",function(){var _17=navigator.userAgent,_18={IE:false,FF:false,Chrome:false,Safari:false,Opera:false,Browser:null,Mac:false},_19={IE:{Search:"MSIE",Browser:"IE"},IE11:{Search:"Trident/7",Version:"rv",Browser:"IE"},FF:{Search:"Firefox",Browser:"FF"},Chrome:{Search:"Chrome",Browser:"Chrome"},Safari:{Search:"Safari",Version:"Version",Browser:"Safari",Mac:"Macintosh",iPad:"iPad",iPhone:"iPhone"},Opera:{Search:"Opera",Browser:"Opera"}};for(var _1a in _19){var pos=_17.indexOf(_19[_1a].Search);if(-1!=pos){_18.Browser=_19[_1a].Browser;_18.Mac=navigator.platform.indexOf("Mac")==0;_18.iPad=(_19[_1a].iPad&&_17.indexOf(_19[_1a].iPad)!=-1);_18.iPhone=(_19[_1a].iPhone&&_17.indexOf(_19[_1a].iPhone)!=-1);var _1c=_19[_1a].Version||_19[_1a].Search,_1d=_17.indexOf(_1c);if(-1==_1d){_18[_19[_1a].Browser]=true;break;}_18[_19[_1a].Browser]=parseFloat(_17.substring(_1d+_1c.length+1));break;}}return _18;}());ITHit.Add("DetectDevice",function(){var _1e=navigator.userAgent;var _1f={};var _20={Android:{Search:"Android"},BlackBerry:{Search:"BlackBerry"},iOS:{Search:"iPhone|iPad|iPod"},Opera:{Search:"Opera Mini"},Windows:{Search:"IEMobile"},Mobile:{}};for(var _21 in _20){var _22=_20[_21];if(!_22.Search){continue;}var _23=new RegExp(_22.Search,"i");_1f[_21]=_23.test(_1e);if(!_1f.Mobile&&_1f[_21]){_1f.Mobile=true;}}return _1f;}());ITHit.Add("HttpRequest",function(_24,_25,_26,_27,_28,_29){if(!ITHit.Utils.IsString(_24)){throw new ITHit.Exception("Expexted string href in ITHit.HttpRequest. Passed: \""+_24+"\"","sHref");}if(!ITHit.Utils.IsObjectStrict(_26)&&!ITHit.Utils.IsNull(_26)&&!ITHit.Utils.IsUndefined(_26)){throw new ITHit.Exception("Expexted headers list as object in ITHit.HttpRequest.","oHeaders");}this.Href=_24;this.Method=_25;this.Headers=_26;this.Body=_27;this.User=_28||null;this.Password=_29||null;});ITHit.Add("HttpResponse",function(){var _2a=function(_2b,_2c,_2d,_2e){if(!ITHit.Utils.IsString(_2b)){throw new ITHit.Exception("Expexted string href in ITHit.HttpResponse. Passed: \""+_2b+"\"","sHref");}if(!ITHit.Utils.IsInteger(_2c)){throw new ITHit.Exception("Expexted integer status in ITHit.HttpResponse.","iStatus");}if(!ITHit.Utils.IsString(_2d)){throw new ITHit.Exception("Expected string status description in ITHit.HttpResponse.","sStatusDescription");}if(_2e&&!ITHit.Utils.IsObjectStrict(_2e)){throw new ITHit.Exception("Expected object headers in ITHit.HttpResponse.","oHeaders");}else{if(!_2e){_2e={};}}this.Href=_2b;this.Status=_2c;this.StatusDescription=_2d;this.Headers=_2e;this.BodyXml=null;this.BodyText="";};_2a.prototype._SetBody=function(_2f,_30){this.BodyXml=_2f||null;this.BodyText=_30||"";};_2a.prototype.SetBodyText=function(_31){this.BodyXml=null;this.BodyText=_31;};_2a.prototype.SetBodyXml=function(_32){this.BodyXml=_32;this.BodyText="";};_2a.prototype.ParseXml=function(_33){if(!ITHit.Utils.IsString(_33)){throw new ITHit.Exception("Expected XML string in ITHit.HttpResponse.ParseXml","sXml");}var _34=new ITHit.XMLDoc();_34.load(_33);this.BodyXml=_34._get();this.BodyText=_33;};_2a.prototype.GetResponseHeader=function(_35,_36){if(!_36){return this.Headers[_35];}else{var _35=String(_35).toLowerCase();for(var _37 in this.Headers){if(_35===String(_37).toLowerCase()){return this.Headers[_37];}}return undefined;}};return _2a;}());ITHit.Add("XMLRequest",(function(){var _38;var _39=function(){if(ITHit.DetectBrowser.IE&&ITHit.DetectBrowser.IE<10&&window.ActiveXObject){if(_38){return new ActiveXObject(_38);}else{var _3a=["MSXML2.XmlHttp.6.0","MSXML2.XmlHttp.3.0"];for(var i=0;i<_3a.length;i++){try{var _3c=new ActiveXObject(_3a[i]);_38=_3a[i];return _3c;}catch(e){}}}}else{if("undefined"!=typeof XMLHttpRequest){return new XMLHttpRequest();}}throw new ITHit.Exception("XMLHttpRequest (AJAX) not supported");};var _3d=function(_3e){var _3f={};if(!_3e){return _3f;}var _40=_3e.split("\n");for(var i=0;i<_40.length;i++){if(!ITHit.Trim(_40[i])){continue;}var _42=_40[i].split(":");var _43=_42.shift();_3f[_43]=ITHit.Trim(_42.join(":"));}return _3f;};var _44=function(_45,_46){this.bAsync=_46===true;this.OnData=null;this.OnError=null;this.OnProgress=null;this.oHttpRequest=_45;this.oError=null;if(!_45.Href){throw new ITHit.Exception("Server url had not been set.");}if(ITHit.Logger&&ITHit.LogLevel){ITHit.Logger.WriteMessage("["+_45.Href+"]");}this.oRequest=_39();var _47=String(_45.Href);var _48=_45.Method||"GET";try{this.oRequest.open(_48,ITHit.DecodeHost(_47),this.bAsync,_45.User||null,_45.Password||null);if(ITHit.DetectBrowser.IE&&ITHit.DetectBrowser.IE>=10){try{this.oRequest.responseType="msxml-document";}catch(e){}}}catch(e){var _49=_47.match(/(?:\/\/)[^\/]+/);if(_49){var _4a=_49[0].substr(2);if(_44.Host!=_4a){throw new ITHit.Exception(ITHit.Phrases.CrossDomainRequestAttempt.Paste(window.location,_47,String(_48)),e);}else{throw e;}}}for(var _4b in _45.Headers){this.oRequest.setRequestHeader(_4b,_45.Headers[_4b]);}if(this.bAsync){try{this.oRequest.withCredentials=true;}catch(e){}}if(this.bAsync){var _4c=this;this.oRequest.onreadystatechange=function(){if(_4c.oRequest.readyState!=4){return;}var _4d=_4c.GetResponse();if(typeof _4c.OnData==="function"){_4c.OnData.call(_4c,_4d);}};if("onprogress" in this.oRequest){this.oRequest.onprogress=function(_4e){if(typeof _4c.OnProgress==="function"){_4c.OnProgress.call(_4c,_4e);}};}}};_44.prototype.Send=function(){var _4f=this.oHttpRequest.Body;_4f=_4f||(ITHit.Utils.IsUndefined(_4f)||ITHit.Utils.IsNull(_4f)||ITHit.Utils.IsBoolean(_4f)?"":_4f);_4f=String(_4f);if(_4f===""){_4f=null;}try{this.oRequest.send(_4f);}catch(e){this.oError=e;if(typeof this.OnError==="function"){this.OnError.call(this,e);}}};_44.prototype.Abort=function(){if(this.oRequest){try{this.oRequest.abort();}catch(e){this.oError=e;if(typeof this.OnError==="function"){this.OnError.call(this,e);}}}};_44.prototype.GetResponse=function(){var _50=this.oHttpRequest;var _51=this.oRequest;var _52=String(_50.Href);if(this.bAsync&&_51.readyState!=4){throw new ITHit.Exception("Request sended as asynchronous, please register callback through XMLRequest.OnData() method for get responce object.");}if((404==_51.status)&&(-1!=_52.indexOf(".js")&&(_50.Method!=="PROPFIND"))){ITHit.debug.loadTrace.failed(ITHit.debug.loadTrace.FAILED_LOAD);throw new ITHit.Exception("Failed to load script (\""+_52+"\"). Request returned status: "+_51.status+(_51.statusText?" ("+_51.statusText+")":"")+".",this.oError||undefined);}var _53=this.FixResponseStatus(_51.status,_51.statusText);var _54=new ITHit.HttpResponse(_52,_53.Status,_53.StatusDescription,_3d(_51.getAllResponseHeaders()));_54._SetBody(_51.responseXML,_51.responseText);return _54;};_44.prototype.FixResponseStatus=function(_55,_56){var _57={Status:_55,StatusDescription:_56};if(1223==_55){_57.Status=204;_57.StatusDescription="No Content";}return _57;};_44.Host=window.location.host;return _44;})());ITHit.Add("Utils",{IsString:function(_58){return (("string"==typeof _58)||(_58 instanceof String));},IsNumber:function(_59){return ("number"==typeof _59);},IsBoolean:function(_5a){return (("boolean"==typeof _5a)||(_5a instanceof Boolean));},IsInteger:function(_5b){return this.IsNumber(_5b)&&(-1==String(_5b).indexOf("."));},IsArray:function(_5c){return (_5c instanceof Array||("array"==typeof _5c));},IsFunction:function(_5d){return (_5d instanceof Function);},IsObject:function(_5e){return ("object"==typeof _5e);},IsDate:function(_5f){return (_5f instanceof Date);},IsRegExp:function(_60){return (_60 instanceof RegExp);},IsObjectStrict:function(_61){return this.IsObject(_61)&&!this.IsArray(_61)&&!this.IsString(_61)&&!this.IsNull(_61)&&!this.IsNumber(_61)&&!this.IsDate(_61)&&!this.IsRegExp(_61)&&!this.IsBoolean(_61)&&!this.IsFunction(_61)&&!this.IsNull(_61);},IsUndefined:function(_62){return (undefined===_62);},IsNull:function(_63){return (null===_63);},IsDOMObject:function(_64){return _64&&this.IsObject(_64)&&!this.IsUndefined(_64.nodeType);},HtmlEscape:function(_65){return String(_65).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;");},IndexOf:function(_66,_67,_68){var i=0,_6a=_66&&_66.length;if(typeof _68=="number"){i=_68<0?Math.max(0,_6a+_68):_68;}for(;i<_6a;i++){if(_66[i]===_67){return i;}}return -1;},CreateDOMElement:function(_6b,_6c){var _6d=ITHit.Utils;if(_6d.IsObject(_6b)){if(!_6b.nodeName){throw new ITHit.Exception("nodeName property does not specified.");}_6c=_6b;_6b=_6b.nodeName;delete _6c.nodeName;}var _6e=document.createElement(_6b);if(_6c&&_6d.IsObject(_6c)){for(var _6f in _6c){if(!_6c.hasOwnProperty(_6f)){continue;}switch(_6f){case "class":if(_6c[_6f]){_6e.className=_6c[_6f];}break;case "style":var _70=_6c[_6f];for(var _71 in _70){if(!_70.hasOwnProperty(_71)){continue;}_6e.style[_71]=_70[_71];}break;case "childNodes":for(var i=0,l=_6c[_6f].length;i<l;i++){var _74=_6c[_6f][i];if(_6d.IsString(_74)||_6d.IsNumber(_74)||_6d.IsBoolean(_74)){_74=document.createTextNode(_74);}else{if(!_74){continue;}}if(!_6d.IsDOMObject(_74)){_74=ITHit.Utils.CreateDOMElement(_74);}_6e.appendChild(_74);}break;default:_6e[_6f]=_6c[_6f];}}}return _6e;},GetComputedStyle:function(_75){ITHit.Utils.GetComputedStyle=ITHit.Components.dojo.getComputedStyle;return ITHit.Utils.GetComputedStyle(_75);},MakeScopeClosure:function(_76,_77,_78){if(this.IsUndefined(_78)){return this._GetClosureFunction(_76,_77);}else{if(!this.IsArray(_78)){_78=[_78];}return this._GetClosureParamsFunction(_76,_77,_78);}},_GetClosureParamsFunction:function(_79,_7a,_7b){return function(){var _7c=[];for(var i=0,l=_7b.length;i<l;i++){_7c.push(_7b[i]);}if(arguments.length){for(var i=0,l=arguments.length;i<l;i++){_7c.push(arguments[i]);}}_79[_7a].apply(_79,_7c);};},_GetClosureFunction:function(_7f,_80){return function(){return _7f[_80].apply(_7f,arguments);};}});ITHit.Add("Trim",function(_81,_82,_83){if(("string"!=typeof _81)&&!(_81 instanceof String)){if(!_83){return _81;}else{throw new ITHit.Exception("ITHit.Trim() expected string as first prametr.");}}switch(_82){case ITHit.Trim.Left:return _81.replace(/^\s+/,"");break;case ITHit.Trim.Right:return _81.replace(/\s+$/,"");break;default:return _81.replace(/(?:^\s+|\s+$)/g,"");}});ITHit.Add("Trim.Left","Left");ITHit.Add("Trim.Right","Right");ITHit.Add("Trim.Both","Both");ITHit.Add("Exception",(function(){var _84=function(_85,_86){this.Message=_85;this.InnerException=_86;if(ITHit.Logger.GetCount(ITHit.LogLevel.Error)){var _87="Exception: "+this.Name+"\n"+"Message: "+this.Message+"\n";if(_86){_87+=((!_86 instanceof Error)?"Inner exception: ":"")+this.GetExceptionsStack(_86);}ITHit.Logger.WriteMessage(_87,ITHit.LogLevel.Error);}};_84.prototype.Name="Exception";_84.prototype.GetExceptionsStack=function(_88,_89){if("undefined"===typeof _88){var _88=this;}var _89=_89?_89:0;var _8a="";var _8b="      ";var _8c="";for(var i=0;i<_89;i++){_8c+=_8b;}if(_88 instanceof ITHit.Exception){_8a+=_8c+(_88.Message?_88.Message:_88)+"\n";}else{if(ITHit.Config.ShowOriginalException){_8a+="\nOriginal exception:\n";if(("string"!=typeof _88)&&!(_88 instanceof String)){for(var _8e in _88){_8a+="\t"+_8e+": \""+ITHit.Trim(_88[_8e])+"\"\n";}}else{_8a+="\t"+_88+"\n";}}}return _8a;};_84.prototype.toString=function(){return this.GetExceptionsStack();};return _84;})());ITHit.Add("Extend",function(_8f,_90){function inheritance(){}inheritance.prototype=_90.prototype;_8f.prototype=new inheritance();_8f.prototype.constructor=_8f;_8f.baseConstructor=_90;if(_90.base){_90.prototype.base=_90.base;}_8f.base=_90.prototype;});ITHit.Add("Events",function(){var _91=function(){this._Listeners=this._NewObject();this._DispatchEvents={};this._DelayedDelete={};};_91.prototype._NewObject=function(){var obj={};for(var _93 in obj){delete obj[_93];}return obj;};_91.prototype.AddListener=function(_94,_95,_96,_97){var _98=_94.__instanceName;var _99;var _9a=ITHit.EventHandler;if(!(_96 instanceof ITHit.EventHandler)){_99=new ITHit.EventHandler(_97||null,_96);}else{_99=_96;}var _9b=this._Listeners[_98]||(this._Listeners[_98]=this._NewObject());var _9c=_9b[_95]||(_9b[_95]=[]);var _9d=false;for(var i=0,l=_9c.length;i<l;i++){if(_9c[i].IsEqual(_99)){_9d=true;break;}}if(!_9d){_9c.push(_99);}};_91.prototype.DispatchEvent=function(_a0,_a1,_a2){var _a3=_a0.__instanceName;if(!this._Listeners[_a3]||!this._Listeners[_a3][_a1]||!this._Listeners[_a3][_a1].length){return undefined;}var _a4=ITHit.EventHandler;var _a5;var _a6=[];for(var i=0,l=this._Listeners[_a3][_a1].length;i<l;i++){_a6.push(this._Listeners[_a3][_a1][i]);}this._DispatchEvents[_a3]=(this._DispatchEvents[_a3]||0)+1;this._DispatchEvents[_a3+":"+_a1]=(this._DispatchEvents[_a3+":"+_a1]||0)+1;for(var i=0;i<_a6.length;i++){var _a9;if(_a6[i] instanceof _a4){try{_a9=_a6[i].CallHandler(_a0,_a1,_a2);}catch(e){throw e;}}if(_a6[i] instanceof Function){try{_a9=_a6[i](_a0,_a1,_a2);}catch(e){throw e;}}if(!ITHit.Utils.IsUndefined(_a9)){_a5=_a9;}}this._DispatchEvents[_a3]--;this._DispatchEvents[_a3+":"+_a1]--;this._CheckDelayedDelete(_a0,_a1);return _a5;};_91.prototype.RemoveListener=function(_aa,_ab,_ac,_ad){var _ae=_aa.__instanceName;_ad=_ad||null;if(!this._Listeners[_ae]||!this._Listeners[_ae][_ab]||!this._Listeners[_ae][_ab].length){return true;}var _af=this._Listeners[_ae][_ab];for(var i=0,l=_af.length;i<l;i++){if(_af[i].IsEqual(_ad,_ac)){this._Listeners[_ae][_ab].splice(i,1);break;}}};_91.prototype.RemoveAllListeners=function(_b2,_b3){var _b4=_b2.__instanceName;if(!ITHit.Utils.IsUndefined(_b3)){if(ITHit.Utils.IsUndefined(this._DispatchEvents[_b4+":"+_b3])){delete this._Listeners[_b4][_b3];}else{this._DelayedDelete[_b4+":"+_b3]=true;}}else{if(ITHit.Utils.IsUndefined(this._DispatchEvents[_b4])){delete this._Listeners[_b4];}else{this._DelayedDelete[_b4]=true;}}};_91.prototype._CheckDelayedDelete=function(_b5,_b6){var _b7=_b5.__instanceName;if(!this._DispatchEvents[_b7+":"+_b6]){delete this._DispatchEvents[_b7+":"+_b6];if(!ITHit.Utils.IsUndefined(this._DelayedDelete[_b7+":"+_b6])){this.RemoveAllListeners(_b5,_b6);}}if(!this._DispatchEvents[_b7]){delete this._DispatchEvents[_b7];if(!ITHit.Utils.IsUndefined(this._DelayedDelete[_b7])){this.RemoveAllListeners(_b5);}}};_91.prototype.ListenersLength=function(_b8,_b9){var _ba=_b8.__instanceName;if(!this._Listeners[_ba]||!this._Listeners[_ba][_b9]){return 0;}return this._Listeners[_ba][_b9].length;};_91.prototype.Fix=function(e){e=e||window.event;if(!e.target&&e.srcElement){e.target=e.srcElement;}if((null==e.pageX)&&(null!=e.clientX)){var _bc=document.documentElement,_bd=document.body;e.pageX=e.clientX+(_bc&&_bc.scrollLeft||_bd&&_bd.scrollLeft||0)-(_bc.clientLeft||0);e.pageY=e.clientY+(_bc&&_bc.scrollTop||_bd&&_bd.scrollTop||0)-(_bc.clientTop||0);}if(!e.which&&e.button){e.which=e.button&1?1:(e.button&2?3:(e.button&4?2:0));}return e;};_91.prototype.AttachEvent=function(_be,_bf,_c0){_bf=_bf.replace(/^on/,"");if(_be.addEventListener){_be.addEventListener(_bf,_c0,false);}else{if(_be.attachEvent){_be.attachEvent("on"+_bf,_c0);}else{_be["on"+_bf]=_c0;}}};_91.prototype.DettachEvent=function(_c1,_c2,_c3){_c2=_c2.replace(/^on/,"");if(_c1.removeEventListener){_c1.removeEventListener(_c2,_c3,false);}else{if(_c1.detachEvent){_c1.detachEvent("on"+_c2,_c3);}else{_c1["on"+_c2]=null;}}};_91.prototype.Stop=function(e){e=e||window.event;if(e.stopPropagation){e.stopPropagation();}if(e.preventDefault){e.preventDefault();}else{e.returnValue=false;}e.cancelBubble=true;return false;};return new _91();}());ITHit.Add("EventHandler",function(){var _c5=function(_c6,_c7){var _c8=ITHit.Utils;if(!_c8.IsObjectStrict(_c6)&&!_c8.IsNull(_c6)){throw new ITHit.Exception("Event handler scope expected to be an object.");}if(!_c8.IsFunction(_c7)&&(_c6&&!_c8.IsString(_c7))){throw new ITHit.Exception("Method handler expected to be a string or function.");}if(_c6){this.Scope=_c6;this.Name=_c6.__instanceName;}else{this.Scope=window;this.Name="window";}this.Method=_c7;};_c5.prototype.IsEqual=function(_c9,_ca){if(_c9 instanceof ITHit.EventHandler){return this.GetCredentials()===_c9.GetCredentials();}else{return ((_c9||null)===this.Scope)&&(_ca===this.Method);}};_c5.prototype.GetCredentials=function(){return this.Name+"::"+this.Method;};_c5.prototype.CallHandler=function(_cb,_cc,_cd){if(!(_cd instanceof Array)){_cd=[_cd];}if(this.Scope){if(this.Method instanceof Function){return this.Method.apply(this.Scope||window,_cd.concat([_cb]));}else{try{return this.Scope[this.Method].apply(this.Scope,_cd.concat([_cb]));}catch(e){throw new ITHit.Exception(e);}}}else{return this.Method.apply({},_cd.concat([_cb]));}};return _c5;}());ITHit.Add("HtmlEncode",function(_ce){return _ce.replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/'/g,"&amp;").replace(/"/g,"&quot;");});ITHit.Add("HtmlDecode",function(_cf){return _cf.replace(/&quot;/,"\"").replace(/&amp;/g,"'").replace(/&gt;/g,">").replace(/&lt;/g,"<");});ITHit.Add("Encode",function(_d0){if(!_d0){return _d0;}return ITHit.EncodeURI(_d0.replace(/%/g,"%25")).replace(/~/g,"%7E").replace(/!/g,"%21").replace(/@/g,"%40").replace(/#/g,"%23").replace(/\$/g,"%24").replace(/&/g,"%26").replace(/\*/g,"%2A").replace(/\(/g,"%28").replace(/\)/g,"%29").replace(/\-/g,"%2D").replace(/_/g,"%5F").replace(/\+/g,"%2B").replace(/\=/g,"%3D").replace(/'/g,"%27").replace(/;/g,"%3B").replace(/\,/g,"%2C").replace(/\?/g,"%3F");});ITHit.Add("EncodeURI",function(_d1){if(!_d1){return _d1;}return encodeURI(_d1).replace(/%25/g,"%");});ITHit.Add("Decode",function(_d2){if(!_d2){return _d2;}var _d2=_d2.replace(/%7E/gi,"~").replace(/%21/g,"!").replace(/%40/g,"@").replace(/%23/g,"#").replace(/%24/g,"$").replace(/%26/g,"&").replace(/%2A/gi,"*").replace(/%28/g,"(").replace(/%29/g,")").replace(/%2D/gi,"-").replace(/%5F/gi,"_").replace(/%2B/gi,"+").replace(/%3D/gi,"=").replace(/%27/g,"'").replace(/%3B/gi,";").replace(/%2E/gi,".").replace(/%2C/gi,",").replace(/%3F/gi,"?");return ITHit.DecodeURI(_d2);});ITHit.Add("DecodeURI",function(_d3){if(!_d3){return _d3;}return decodeURI(_d3.replace(/%([^0-9A-F]|.(?:[^0-9A-F]|$)|$)/gi,"%25$1"));});ITHit.Add("DecodeHost",function(_d4){if(/^(http|https):\/\/[^:\/]*?%/.test(_d4)){var _d5=_d4.match(/^(?:http|https):\/\/[^\/:]+/);if(_d5&&_d5[0]){var _d6=_d5[0].replace(/^(http|https):\/\//,"");_d4=_d4.replace(_d6,ITHit.Decode(_d6));}}return _d4;});(function(){var _d7=function(){};var _d8=function(_d9,_da){for(var key in _da){if(!_da.hasOwnProperty(key)){continue;}var _dc=_da[key];if(typeof _dc=="function"&&typeof _d9[key]=="function"&&_d9[key]!==_d7){_d9[key]=_dd(_dc,_d9[key]);}else{_d9[key]=_dc;}}if(!_d9._super){_d9._super=_d7;}};var _dd=function(_de,_df){return function(){var old=this._super;this._super=_df;var r=_de.apply(this,arguments);this._super=old;return r;};};var _e2=0;ITHit.Add("DefineClass",function(_e3,_e4,_e5,_e6){_e4=_e4!==null?_e4:function(){};if(!_e4){throw new Error("Not found extended class for "+_e3);}if(_e5.hasOwnProperty("__static")){_e6=_e5.__static;delete _e5.__static;}var _e7;if(_e5&&_e5.hasOwnProperty("constructor")){_e7=function(){this.__instanceName=this.__className+_e2++;return _dd(_e5.constructor,_e4).apply(this,arguments);};}else{_e7=function(){this.__instanceName=this.__className+_e2++;return _e4.apply(this,arguments);};}for(var _e8 in _e4){_e7[_e8]=_e4[_e8];}_d8(_e7,_e6);var _e9=function(){this.constructor=_e7;};_e9.prototype=_e4.prototype;_e7.prototype=new _e9;for(var key in _e9.prototype){if(!_e9.prototype.hasOwnProperty(key)){continue;}var _eb=_e9.prototype[key];if(!_eb){continue;}if(_eb instanceof Array){if(_eb.length===0){_e7.prototype[key]=[];}}else{if(typeof _eb==="object"){var _ec=true;for(var k in _eb){_ec=_ec&&_eb.hasOwnProperty(k);}if(_ec){_e7.prototype[key]={};}}}}if(_e5){_d8(_e7.prototype,_e5);}_e7.__className=_e7.prototype.__className=_e3;var _ee=_e3.lastIndexOf("."),_ef=_e3.substr(_ee+1);return ITHit.Declare(_e3.substr(0,_ee))[_ef]=_e7;});})();
+// Declare ITHit core.
+if ('undefined' === typeof ITHit) {
+	
+	(function () {
+		
+		this.ITHit = {
+			
+			_oComponents: {},
+			_oNamespace: {},
+			
+			// Define new modules.
+			Define: function (sComponentName) {
+				this._oComponents[sComponentName] = true;
+			},
+			
+			// Check whether module has already been defined.
+			Defined: function (sComponentName) {
+				return !!this._oComponents[sComponentName];
+			},
+			
+			// Add new modules.
+			Add: function (sLable, mValue) {
+				
+				var aLable  = sLable.split('.');
+				var oObj    = this;
+				var iLength = aLable.length;
+				
+				for (var i = 0; i < iLength; i++) {
+					
+					if ('undefined' === typeof oObj[aLable[i]]) {
+						if (i < (iLength - 1)) {
+							oObj[aLable[i]] = {};
+						} else {
+							oObj[aLable[i]] = mValue;
+						}
+					} else {
+						if (!(oObj[aLable[i]] instanceof Object)) {
+							return;
+						}
+					}
+					
+					oObj = oObj[aLable[i]];
+				}
+			},
+			
+			// Temporary object.
+			Temp: {}
+		};
+	})();
+	
+}
+
+// Declare ITHit Config.
+ITHit.Config = {
+	Global: window,
+	ShowOriginalException: true,
+	// Whether UNIX timestamp needs to be added to URI for XMLHttpRequest for prevanting caching.
+	PreventCaching: false
+};
+
+/*
+* Method for getting namespace.
+* @class
+*
+* @param {String/Array mNamespace} Namespace for getting/creating
+* @param {Boolean} bCreate If whether namespace need to be created
+* @param {Object} oContext Context from witch will be created namespace
+* @returns Namespace object if exists or "undefined" otherwise
+*/
+ITHit.Add('GetNamespace', 
+	function(mNamespace, bCreate, oContext) {
+		
+		var utilsNs = ITHit.Utils;
+		
+		// Namespace type checking
+		if ( !utilsNs.IsString(mNamespace)
+			&& !utilsNs.IsArray(mNamespace)
+		) {
+			throw new ITHit.Exception('ITHit.GetNamespace() expected string as first parameter of method.');
+		}
+			
+		var aNamespace = utilsNs.IsArray(mNamespace) ? mNamespace : mNamespace.split('.');
+		
+		// Context
+		var oObj = oContext || ITHit.Config.Global;
+		
+		// Creating or selecting namespace
+		for (var i = 0, sPart = ''; oObj && (sPart = aNamespace[i]); i++) {
+			
+			if (sPart in oObj) {
+				oObj = oObj[sPart];
+			} else {
+				if (bCreate) {
+					oObj[sPart] = {};
+					oObj = oObj[sPart];
+				} else {
+					oObj = undefined;
+				}
+			}
+		}
+		
+		// Return selected namespace
+		return oObj;
+	}
+);
+
+/*
+*
+* @method ITHit.Namespace
+* 
+* @param {String} sNamespace 
+* @param {Object} oOntext 
+* @returns Namespace object if exists or "undefined" otherwise
+*/
+ITHit.Add('Namespace',
+	function (sNamespace, oContext) {
+		return ITHit.GetNamespace(sNamespace, false, oContext);
+	}
+);
+
+/*
+* 
+* @method ITHit.Declare
+* 
+* @param {String} sNamespace 
+* @param {Object} oOntext 
+* @returns Namespace object if exists or "undefined" otherwise
+*/
+ITHit.Add('Declare',
+	function (sNamespace, oContext) {
+		return ITHit.GetNamespace(sNamespace, true, oContext);
+	}
+);
+
+ITHit.Add('DetectOS',
+	function () {
+	    var _plat = navigator.platform,
+		    detectOS = {
+		        Windows: (-1 != _plat.indexOf('Win')),
+		        MacOS: (-1 != _plat.indexOf('Mac')),
+		        Linux: (-1 != _plat.indexOf('Linux')),
+		        UNIX: (-1 != _plat.indexOf('X11')),
+		        OS: null
+		    };
+
+	    if (detectOS.Windows) {
+	        detectOS.OS = 'Windows';
+	    } else if (detectOS.Linux) {
+	        detectOS.OS = 'Linux';
+	    } else if (detectOS.MacOS) {
+	        detectOS.OS = 'MacOS';
+	    } else if (detectOS.UNIX) {
+	        detectOS.OS = 'UNIX';
+	    }
+
+	    return detectOS;
+	}()
+);
+
+ITHit.Add('DetectBrowser',
+	function () {
+	    var _nav = navigator.userAgent,
+			detectBrowser = {
+			    IE: false,
+			    FF: false,
+			    Chrome: false,
+			    Safari: false,
+			    Opera: false,
+			    Browser: null,
+			    Mac: false
+			},
+			browsers = {
+			    /*IE 10 and earlier*/
+			    IE: {
+			        Search: 'MSIE',
+			        Browser: 'IE'
+			    },
+			    /*IE 11 and later*/
+			    IE11: {
+			        Search: 'Trident/7',
+			        Version: 'rv',
+			        Browser: 'IE'
+			    },
+			    FF: {
+			        Search: 'Firefox',
+			        Browser: 'FF'
+			    },
+			    Chrome: {
+			        Search: 'Chrome',
+			        Browser: 'Chrome'
+			    },
+			    Safari: {
+			        Search: 'Safari',
+			        Version: 'Version',
+			        Browser: 'Safari',
+			        Mac: 'Macintosh',
+			        iPad: 'iPad',
+					iPhone: 'iPhone'
+			    },
+			    Opera: {
+			        Search: 'Opera',
+			        Browser: 'Opera'
+			    }
+			};
+
+	    for (var check in browsers) {
+	        var pos = _nav.indexOf(browsers[check].Search);
+	        if (-1 != pos) {
+	            detectBrowser.Browser = browsers[check].Browser;
+	            detectBrowser.Mac = navigator.platform.indexOf('Mac') == 0; //(browsers[check].Mac && _nav.indexOf(browsers[check].Mac) != -1);
+	            detectBrowser.iPad = (browsers[check].iPad && _nav.indexOf(browsers[check].iPad) != -1);
+				detectBrowser.iPhone = (browsers[check].iPhone && _nav.indexOf(browsers[check].iPhone) != -1);
+
+	            var versionSearch = browsers[check].Version || browsers[check].Search,
+					index = _nav.indexOf(versionSearch);
+
+	            if (-1 == index) {
+	                detectBrowser[browsers[check].Browser] = true;
+	                break;
+	            }
+
+	            detectBrowser[browsers[check].Browser] = parseFloat(_nav.substring(index + versionSearch.length + 1));
+
+	            break;
+	        }
+	    }
+
+	    return detectBrowser;
+	}()
+);
+
+ITHit.Add('DetectDevice',
+	function() {
+		var sUserAgent = navigator.userAgent;
+		var resultDevices = {};
+		var devices = {
+			Android: {
+				Search: 'Android'
+			},
+			BlackBerry: {
+				Search: 'BlackBerry'
+			},
+			iOS: {
+				Search: 'iPhone|iPad|iPod'
+			},
+			Opera: {
+				Search: 'Opera Mini'
+			},
+			Windows: {
+				Search: 'IEMobile'
+			},
+			Mobile: {
+			}
+		};
+
+		for (var name in devices) {
+			var oParams = devices[name];
+			if (!oParams.Search) {
+				continue;
+			}
+
+			// Detect device
+			var oRegExp = new RegExp(oParams.Search, 'i');
+			resultDevices[name] = oRegExp.test(sUserAgent);
+
+			// Set any
+			if (!resultDevices.Mobile && resultDevices[name]) {
+				resultDevices.Mobile = true;
+			}
+		}
+
+		return resultDevices;
+	}()
+);
+
+ITHit.Add('HttpRequest',
+	function(sHref, sMethod, oHeaders, sBody, sUser, sPass) {
+		
+		if (!ITHit.Utils.IsString(sHref)) {
+			throw new ITHit.Exception('Expexted string href in ITHit.HttpRequest. Passed: "'+ sHref +'"', 'sHref');
+		}
+		
+		if (!ITHit.Utils.IsObjectStrict(oHeaders) && !ITHit.Utils.IsNull(oHeaders) && !ITHit.Utils.IsUndefined(oHeaders)) {
+			throw new ITHit.Exception('Expexted headers list as object in ITHit.HttpRequest.', 'oHeaders');
+		}
+		
+		this.Href     = sHref;
+		this.Method   = sMethod;
+		this.Headers  = oHeaders;
+		this.Body     = sBody;
+		this.User     = sUser || null;
+		this.Password = sPass || null;
+	}
+);
+
+ITHit.Add('HttpResponse',
+	function() {
+		
+		var HttpResponse = function(sHref, iStatus, sStatusDescription, oHeaders) {
+			
+			if (!ITHit.Utils.IsString(sHref)) {
+				throw new ITHit.Exception('Expexted string href in ITHit.HttpResponse. Passed: "'+ sHref +'"', 'sHref');
+			}
+			
+			if (!ITHit.Utils.IsInteger(iStatus)) {
+				throw new ITHit.Exception('Expexted integer status in ITHit.HttpResponse.', 'iStatus');
+			}
+			
+			if (!ITHit.Utils.IsString(sStatusDescription)) {
+				throw new ITHit.Exception('Expected string status description in ITHit.HttpResponse.', 'sStatusDescription');
+			}
+			
+			if (oHeaders && !ITHit.Utils.IsObjectStrict(oHeaders)) {
+				throw new ITHit.Exception('Expected object headers in ITHit.HttpResponse.', 'oHeaders');
+			}
+			else if (!oHeaders) {
+				oHeaders = {};
+			}
+			
+			this.Href              = sHref;
+			this.Status            = iStatus;
+			this.StatusDescription = sStatusDescription;
+			this.Headers           = oHeaders;
+			this.BodyXml           = null;
+			this.BodyText          = '';
+		}
+		
+		HttpResponse.prototype._SetBody = function(oBodyXml, sBodyText) {
+			this.BodyXml  = oBodyXml  || null;
+			this.BodyText = sBodyText || '';
+		}
+		
+		HttpResponse.prototype.SetBodyText = function(sBody) {
+			this.BodyXml  = null;
+			this.BodyText = sBody;
+		}
+		
+		HttpResponse.prototype.SetBodyXml = function(oBody) {
+			this.BodyXml  = oBody;
+			this.BodyText = '';
+		}
+		
+		HttpResponse.prototype.ParseXml = function(sXml) {
+			
+			if (!ITHit.Utils.IsString(sXml)) {
+				throw new ITHit.Exception('Expected XML string in ITHit.HttpResponse.ParseXml', 'sXml');
+			}
+			
+			var oXml = new ITHit.XMLDoc();
+			oXml.load(sXml);
+			
+			this.BodyXml  = oXml._get();
+			this.BodyText = sXml;
+		}
+		
+		HttpResponse.prototype.GetResponseHeader = function(sHeader, bToLowerCase) {
+			
+			if (!bToLowerCase) {
+				return this.Headers[sHeader];
+			}
+			else {
+				var sHeader = String(sHeader).toLowerCase();
+				
+				for (var sHeaderName in this.Headers) {
+					if (sHeader === String(sHeaderName).toLowerCase()) {
+						return this.Headers[sHeaderName];
+					}
+				}
+				
+				return undefined;
+			}
+		}
+		
+		return HttpResponse;
+	}()
+);
+
+ITHit.Add('XMLRequest',
+	(function() {
+
+	    var XMLObjectVersion;
+
+	    /*
+		* Get XMLHttpRequest method.
+		* @method XMLRequest
+		*
+		* @throws {Object} Exception Whether object cannot be created.
+		*/
+	    var GetXMLObject = function () {
+	        // Get XMLHttpRequest object in IE.
+	        if (ITHit.DetectBrowser.IE && ITHit.DetectBrowser.IE < 10 && window.ActiveXObject) {
+
+	            if (XMLObjectVersion) {
+	                return new ActiveXObject(XMLObjectVersion)
+	            }
+	            else {
+	                var aVers = ["MSXML2.XmlHttp.6.0", "MSXML2.XmlHttp.3.0"];
+	                for (var i = 0; i < aVers.length; i++) {
+	                    try {
+	                        var oXmlObj = new ActiveXObject(aVers[i]);
+	                        XMLObjectVersion = aVers[i];
+	                        return oXmlObj;
+	                    }
+	                    catch (e) {
+	                    }
+	                }
+	            }
+
+	            // Get XMLHttpRequest object in W3C compatible browsers.
+	        } else if ('undefined' != typeof XMLHttpRequest) {
+	            return new XMLHttpRequest();
+	        }
+
+	        // Whether XMLHttpRequest object has not been created.
+	        throw new ITHit.Exception('XMLHttpRequest (AJAX) not supported');
+	    }
+
+	    var parseResponseHeaders = function (sHeaders) {
+
+	        var oHeaders = {};
+
+	        if (!sHeaders) {
+	            return oHeaders;
+	        }
+
+	        var aHeaders = sHeaders.split('\n');
+	        for (var i = 0; i < aHeaders.length; i++) {
+
+	            if (!ITHit.Trim(aHeaders[i])) {
+	                continue;
+	            }
+
+	            var aParts = aHeaders[i].split(':');
+	            var sHeaderName = aParts.shift();
+
+	            oHeaders[sHeaderName] = ITHit.Trim(aParts.join(':'));
+	        }
+
+	        return oHeaders;
+	    }
+
+        var XMLRequest = function(oHttpRequest, bAsync) {
+
+            // Set true, if need async request and register callback through XMLRequest.OnData() method
+            this.bAsync = bAsync === true;
+
+            // Listeners for async requests
+			this.OnData = null;
+			this.OnError = null;
+			this.OnProgress = null;
+
+            this.oHttpRequest = oHttpRequest;
+            this.oError = null;
+
+            // Check whether url is empty.
+            if (!oHttpRequest.Href) {
+                throw new ITHit.Exception('Server url had not been set.');
+            }
+
+            if (ITHit.Logger && ITHit.LogLevel) {
+                ITHit.Logger.WriteMessage('[' + oHttpRequest.Href + ']');
+            }
+
+            this.oRequest = GetXMLObject();
+
+            var sHref   = String(oHttpRequest.Href);
+            var sMethod = oHttpRequest.Method || 'GET';
+
+            try {
+                this.oRequest.open(sMethod, ITHit.DecodeHost(sHref), this.bAsync, oHttpRequest.User || null, oHttpRequest.Password || null);
+
+                if (ITHit.DetectBrowser.IE && ITHit.DetectBrowser.IE >= 10) {
+                    try {
+                        this.oRequest.responseType = 'msxml-document';
+                    } catch (e) {
+                    }
+                }
+                // Initialization failed.
+            } catch(e) {
+
+                // Get host of requested page.
+                var aDestHost = sHref.match(/(?:\/\/)[^\/]+/);
+
+                // Check whether host is found.
+                if (aDestHost) {
+                    var sDestHost = aDestHost[0].substr(2);
+
+                    // Check whether root host and destination host is not the same.
+                    if (XMLRequest.Host != sDestHost) {
+                        // Cross-domain request, throw an exception.
+                        throw new ITHit.Exception(ITHit.Phrases.CrossDomainRequestAttempt.Paste(window.location, sHref, String(sMethod)), e);
+
+                        // Another reason.
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+
+            // Set headers.
+            for (var sHeader in oHttpRequest.Headers) {
+                this.oRequest.setRequestHeader(sHeader, oHttpRequest.Headers[sHeader]);
+            }
+
+			if (this.bAsync) {
+				try {
+					this.oRequest.withCredentials = true;
+				} catch(e) {}
+			}
+
+            if (this.bAsync) {
+                var self = this;
+                this.oRequest.onreadystatechange = function() {
+                    if (self.oRequest.readyState != 4) {
+                        return;
+                    }
+
+                    var oResponse = self.GetResponse();
+					if (typeof self.OnData === 'function') {
+						self.OnData.call(self, oResponse);
+					}
+                };
+				if ('onprogress' in this.oRequest) {
+					this.oRequest.onprogress = function(oEvent) {
+						if (typeof self.OnProgress === 'function') {
+							self.OnProgress.call(self, oEvent);
+						}
+					};
+				}
+            }
+        }
+
+        XMLRequest.prototype.Send = function() {
+            // Get body as string.
+            var sBody = this.oHttpRequest.Body;
+            sBody = sBody || (ITHit.Utils.IsUndefined(sBody) || ITHit.Utils.IsNull(sBody) || ITHit.Utils.IsBoolean(sBody) ? '' : sBody);
+            sBody = String(sBody);
+
+            if (sBody === ''){
+                sBody = null;
+            }
+
+            // Try to send request.
+            try {
+                this.oRequest.send(sBody);
+            } catch (e) {
+                this.oError = e;
+
+				if (typeof this.OnError === 'function') {
+					this.OnError.call(this, e);
+				}
+            }
+        }
+
+		XMLRequest.prototype.Abort = function() {
+			if (this.oRequest) {
+				try {
+					this.oRequest.abort();
+				} catch (e) {
+					this.oError = e;
+
+					if (typeof this.OnError === 'function') {
+						this.OnError.call(this, e);
+					}
+				}
+			}
+		}
+
+        XMLRequest.prototype.GetResponse = function() {
+            var oHttpRequest = this.oHttpRequest;
+            var oRequest = this.oRequest;
+            var sHref   = String(oHttpRequest.Href);
+
+            if (this.bAsync && oRequest.readyState != 4) {
+                throw new ITHit.Exception('Request sended as asynchronous, please register callback through XMLRequest.OnData() method for get responce object.');
+            }
+
+            // Throw an exception whether module is not loaded. But ignore error if we are uploading JS file with PROPFIND method.
+            if ((404 == oRequest.status) && (-1 != sHref.indexOf('.js') && (oHttpRequest.Method !== "PROPFIND"))) {
+                ITHit.debug.loadTrace.failed(ITHit.debug.loadTrace.FAILED_LOAD);
+                throw new ITHit.Exception('Failed to load script ("' + sHref + '"). Request returned status: '+ oRequest.status + (oRequest.statusText ? ' ('+ oRequest.statusText +')' :'') +'.', this.oError || undefined);
+            }
+
+            // Fix request status whether it is necessary.
+            var oStatus   = this.FixResponseStatus(oRequest.status, oRequest.statusText);
+            var oResponse = new ITHit.HttpResponse(sHref, oStatus.Status, oStatus.StatusDescription, parseResponseHeaders(oRequest.getAllResponseHeaders()));
+            oResponse._SetBody(oRequest.responseXML, oRequest.responseText);
+
+            return oResponse;
+        }
+
+        /*
+         * Fix response status. Whether it is necessary and can be done.
+         * @function {Object} ITHit.XMLRequest.fixResponseStatus
+         *
+         * @param {Integer} iStatus Response status.
+         * @param {String} sStatusText Status text.
+         */
+        XMLRequest.prototype.FixResponseStatus = function(iStatus, sStatusText) {
+
+            var oStatus = {
+                Status: iStatus,
+                StatusDescription: sStatusText
+            };
+
+            // Fix for IE7 browser for PUT method 204 status code.
+            if (1223 == iStatus) {
+                oStatus.Status            = 204;
+                oStatus.StatusDescription = 'No Content';
+            }
+
+            return oStatus;
+        }
+
+        XMLRequest.Host = window.location.host;
+		
+
+		
+		return XMLRequest;
+	})()
+);
+
+ITHit.Add('Utils',
+	{
+		// Check variable type.
+		
+		IsString: function(mValue) {
+			return ( ('string' == typeof mValue) || (mValue instanceof String) );
+		},
+		
+		IsNumber: function(mValue) {
+			return ('number' == typeof mValue);
+		},
+		
+		IsBoolean: function(mValue) {
+			return ( ('boolean' == typeof mValue) || (mValue instanceof Boolean) );
+		},
+		
+		IsInteger: function(mValue) {
+			return this.IsNumber(mValue) && (-1 == String(mValue).indexOf('.'));
+		},
+		
+		IsArray: function(mValue) {
+			return (mValue instanceof Array || ('array' == typeof mValue));
+		},
+		
+		IsFunction: function(mValue) {
+			return (mValue instanceof Function);
+		},
+		
+		IsObject: function(mValue) {
+			return ('object' == typeof mValue);
+		},
+		
+		IsDate: function(mValue) {
+			return (mValue instanceof Date)
+		},
+		
+		IsRegExp: function(mValue) {
+			return (mValue instanceof RegExp);
+		},
+		
+		IsObjectStrict: function(mValue) {
+			return this.IsObject(mValue) && !this.IsArray(mValue) && !this.IsString(mValue) && !this.IsNull(mValue) && !this.IsNumber(mValue) && !this.IsDate(mValue) && !this.IsRegExp(mValue) && !this.IsBoolean(mValue) && !this.IsFunction(mValue) && !this.IsNull(mValue);
+		},
+		
+		IsUndefined: function(mValue) {
+			return (undefined === mValue);
+		},
+		
+		IsNull: function(mValue) {
+			return (null === mValue);
+		},
+		
+		IsDOMObject: function(mValue) {
+			return mValue && this.IsObject(mValue) && !this.IsUndefined(mValue.nodeType);
+		},
+
+		HtmlEscape: function(text) {
+			return String(text)
+				.replace(/&/g, '&amp;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#39;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;');
+		},
+
+		IndexOf: function(array, item, isSorted) {
+			var i = 0, length = array && array.length;
+			if (typeof isSorted == 'number') {
+				i = isSorted < 0 ? Math.max(0, length + isSorted) : isSorted;
+			}
+			for (; i < length; i++) if (array[i] === item) return i;
+			return -1;
+		},
+		
+		/*
+		 * Create DOM Element.
+		 * @function CreateDOMElement
+		 * 
+		 * @paramset Syntax 1
+		 * @param {string} elem  Node name.
+		 * @param {String} props Node propertyes.
+		 * @paramset Syntax 2
+		 * @param {Object} elem Node object. Node name must be specified in nodeName property.
+		 */
+		CreateDOMElement: function(elem, props) {
+	
+			var utilsNs = ITHit.Utils;
+			
+			if (utilsNs.IsObject(elem)) {
+				if (!elem.nodeName) {
+					throw new ITHit.Exception('nodeName property does not specified.');
+				}
+				props = elem;
+				elem = elem.nodeName;
+				delete props.nodeName;
+			}
+			
+			// Create new element.
+			var newElem = document.createElement(elem);
+			
+			// Assign properties.
+			if (props && utilsNs.IsObject(props)) {
+				for (var propName in props) {
+					if (!props.hasOwnProperty(propName)) 
+						continue;
+					
+					switch (propName) {
+					
+						// Replace property class with className.
+						case 'class':
+							if (props[propName]) {
+								newElem.className = props[propName];
+							}
+							break;
+							
+						// Style
+						case 'style':
+							var stylesList = props[propName];
+							for (var style in stylesList) {
+								if (!stylesList.hasOwnProperty(style)) 
+									continue;
+								
+								newElem.style[style] = stylesList[style];
+							}
+							break;
+							
+						// Append child nodes.
+						case 'childNodes':
+							for (var i = 0, l = props[propName].length; i < l; i++) {
+								var child = props[propName][i];
+								
+								// Create text node and continue.
+								if (utilsNs.IsString(child) || utilsNs.IsNumber(child) || utilsNs.IsBoolean(child)) {
+									child = document.createTextNode(child);
+									
+								// Continue loop whether value is not set.
+								}
+								else 
+									if (!child) {
+										continue;
+									}
+								
+								if (!utilsNs.IsDOMObject(child)) {
+									child = ITHit.Utils.CreateDOMElement(child);
+								}
+								
+								// Add child node.
+								newElem.appendChild(child);
+							}
+							break;
+							
+						default:
+							newElem[propName] = props[propName];
+					}
+				}	
+			}
+			
+			return newElem;
+		},
+		
+		GetComputedStyle: function(node) {
+			
+			// First call binding.
+			ITHit.Utils.GetComputedStyle = ITHit.Components.dojo.getComputedStyle;
+			
+			return ITHit.Utils.GetComputedStyle(node);
+		},
+		
+		MakeScopeClosure: function(scope, method, params) {
+			if (this.IsUndefined(params)) {
+				return this._GetClosureFunction(scope, method);
+			} else {
+				if (!this.IsArray(params)) {
+					params = [params];
+				}
+				return this._GetClosureParamsFunction(scope, method, params);
+			} 
+		},
+		
+		_GetClosureParamsFunction: function(scope, method, params) {
+			return function() {
+					
+					var args = [];
+					for (var i = 0, l = params.length; i < l; i++) {
+						args.push(params[i]);
+					}
+					
+					if (arguments.length) {
+						for (var i = 0, l = arguments.length; i < l; i++) {
+							args.push(arguments[i]);
+						}
+					}
+					
+					scope[method].apply(scope, args);
+				};
+		},
+		
+		_GetClosureFunction: function(scope, method) {
+			return function() {
+					return scope[method].apply(scope, arguments);
+				};
+		}
+	}
+);
+
+/*
+ * Removes initial and final space characters.
+ * @function {static String} ITHit.Trim
+ * 
+ * @param {Object} sText Text to trim.
+ * @param {Object} sType Trim type.
+ * @param {Object} bHardCheck Whether first parameter must be string type. Default is false.
+ * 
+ * @throw {ITHit.Exception} If not string passed as first parameter and bHardCheck is set to true.
+ */
+ITHit.Add('Trim',
+	function (sText, sType, bHardCheck) {
+		
+		if ( ('string' != typeof sText) && !(sText instanceof String) ) {
+			if (!bHardCheck) {
+				return sText;
+			} else {
+				throw new ITHit.Exception('ITHit.Trim() expected string as first prametr.');
+			}
+		}
+		
+		switch (sType) {
+		
+			case ITHit.Trim.Left:
+				return sText.replace(/^\s+/, '');
+				break;
+				
+			case ITHit.Trim.Right:
+				return sText.replace(/\s+$/, '');
+				break;
+				
+			default:
+				return sText.replace(/(?:^\s+|\s+$)/g, '');
+		}
+	}
+);
+
+/*
+ * Trim only initial space chars.
+ * @property {String} ITHit.Trim.Left
+ */
+ITHit.Add('Trim.Left',  'Left');
+
+/*
+ * Trim only final space chars.
+ * @property {String} ITHit.Trim.Right
+ */
+ITHit.Add('Trim.Right', 'Right');
+
+/*
+ * Trim initial and final space chars.
+ * @property {String} ITHit.Trim.Both
+ */
+ITHit.Add('Trim.Both',  'Both');
+
+/**
+ * Base class for exceptions.
+ * @class ITHit.Exception
+ */
+ITHit.Add('Exception',
+	(function () {
+		
+		/*
+		 * Create instance of Exception class.
+		 * @constructor Exception
+		 * 
+		 * @param {String} sMessage Exception message.
+		 * @param {optional Object} oInnerException Original exception.
+		 */
+		var Exception = function (sMessage, oInnerException) {
+			
+			/**
+			 * Exception message.
+			 * @property {String} ITHit.Exception.Message
+			 */
+			this.Message = sMessage;
+			
+			/**
+			 * Original exception that caused this exception.
+			 * @property {ITHit.Exception}  ITHit.Exception.InnerException
+			 */
+			this.InnerException = oInnerException;
+			
+			// Whether exception must be logged.
+			if (ITHit.Logger.GetCount(ITHit.LogLevel.Error)) {
+				
+				var sException =
+					'Exception: '+ this.Name +'\n'
+					+ 'Message: '+ this.Message +'\n';
+				
+				if (oInnerException) {
+					sException += ((!oInnerException instanceof Error) ? 'Inner exception: ' : '')
+						+ this.GetExceptionsStack(oInnerException);
+					
+				}
+				
+				// Log exception.
+				ITHit.Logger.WriteMessage(sException, ITHit.LogLevel.Error);
+			}
+		}
+		
+		/*
+		 * Exception title.
+		 * @property {private String} ITHit.Exception.Name
+		 */
+		Exception.prototype.Name = 'Exception';
+		
+		/*
+		 * Returns oririginal exceptions.
+		 * @function {private String} ITHit.Exception.GetExceptionsStack
+		 * 
+		 * @param {Object} oException 
+		 * @param {Integer} iLevel 
+		 * 
+		 * @returns Stack of original exceptions.
+		 */
+		Exception.prototype.GetExceptionsStack = function (oException, iLevel) {
+			
+			if ('undefined' === typeof oException) {
+				var oException = this;
+			}
+			
+			var iLevel = iLevel ? iLevel : 0;
+			var sStr = '';
+			var sSingleMargin = '      ';
+			var sMargin = '';
+			for (var i = 0; i < iLevel; i++) {
+				sMargin += sSingleMargin;
+			}
+			
+			if (oException instanceof ITHit.Exception) {
+				sStr += sMargin + (oException.Message ? oException.Message : oException) + '\n';
+			} else {
+				if (ITHit.Config.ShowOriginalException) {
+					sStr += '\nOriginal exception:\n';
+					if ( ('string' != typeof oException) && !(oException instanceof String) ) {
+						for (var sProp in oException) {
+							sStr += '\t' + sProp + ': "' + ITHit.Trim(oException[sProp]) + '"\n';
+						}
+					} else {
+						sStr += '\t' + oException +'\n';
+					}
+				}
+			}
+			
+			return sStr;
+		}
+		
+		/*
+		 * Convert object to string.
+		 * @function {String} ITHit.Exception.toString
+		 * 
+		 * @returns Stack of original exceptions.
+		 */
+		Exception.prototype.toString = function () {
+			return this.GetExceptionsStack();
+		}
+		
+		return Exception;
+	})()
+);
+
+/*
+ * Method for emulating classical inharitance for javascript.
+ * @function {static} ITHit.Extend
+ * 
+ * @param {Object} subClass Class to extend.
+ * @param {Object} baseClass Base class.
+ */
+ITHit.Add('Extend',
+	function (subClass, baseClass){
+		
+		function inheritance(){};
+		
+		inheritance.prototype = baseClass.prototype;
+		
+		// set prototype to new instance of baseClass
+		// _without_ the constructor
+		subClass.prototype = new inheritance();
+		subClass.prototype.constructor = subClass;
+		subClass.baseConstructor = baseClass;
+		
+		// enable multiple inheritance
+		if (baseClass.base) {
+			baseClass.prototype.base = baseClass.base;
+		}
+		
+		subClass.base = baseClass.prototype;
+	}
+);
+
+ITHit.Add('Events',
+	function() {
+
+		var Events = function() {
+			this._Listeners      = this._NewObject();
+			this._DispatchEvents = {};
+			this._DelayedDelete  = {};
+		}
+
+		Events.prototype._NewObject = function() {
+
+			var obj = {};
+			for (var prop in obj) {
+				delete obj[prop];
+			}
+
+			return obj;
+		}
+
+		Events.prototype.AddListener = function(oObject, sEventName, mHandler, mHandlerScope) {
+
+			var sInstanceName = oObject.__instanceName;
+
+			var oHandler;
+			var oNsHandler = ITHit.EventHandler;
+
+			if (!(mHandler instanceof ITHit.EventHandler)) {
+				oHandler = new ITHit.EventHandler(mHandlerScope || null, mHandler);
+			}
+			else {
+				oHandler = mHandler;
+			}
+
+			var oListeners = this._Listeners[sInstanceName] || (this._Listeners[sInstanceName] = this._NewObject());
+			var oEventHandlers = oListeners[sEventName] || (oListeners[sEventName] = []);
+
+			var bFounded = false;
+			for (var i = 0, l = oEventHandlers.length; i < l; i++) {
+				if (oEventHandlers[i].IsEqual(oHandler)) {
+					bFounded = true;
+					break;
+				}
+			}
+
+			if (!bFounded) {
+				oEventHandlers.push(oHandler);
+			}
+		}
+
+		Events.prototype.DispatchEvent = function(oObject, sEventName, mData) {
+
+			var sInstanceName = oObject.__instanceName;
+
+			if (!this._Listeners[sInstanceName] || !this._Listeners[sInstanceName][sEventName] || !this._Listeners[sInstanceName][sEventName].length) {
+				return undefined;
+			}
+
+			var oNsHandler = ITHit.EventHandler;
+			var bRet;
+			var oHandlers  = [];
+			for (var i = 0, l = this._Listeners[sInstanceName][sEventName].length; i < l; i++) {
+				oHandlers.push(this._Listeners[sInstanceName][sEventName][i]);
+			}
+
+			this._DispatchEvents[sInstanceName] = (this._DispatchEvents[sInstanceName] || 0) + 1;
+			this._DispatchEvents[sInstanceName+':'+sEventName] = (this._DispatchEvents[sInstanceName+':'+sEventName] || 0) + 1;
+
+			for (var i = 0; i < oHandlers.length; i++) {
+
+				var bForRet;
+
+				if (oHandlers[i] instanceof oNsHandler) {
+					try {
+						bForRet = oHandlers[i].CallHandler(oObject, sEventName, mData);
+					} catch(e) {
+						throw e;
+					}
+				}
+				if (oHandlers[i] instanceof Function) {
+					try {
+						bForRet = oHandlers[i](oObject, sEventName, mData);
+					} catch(e) {
+						throw e;
+					}
+				}
+
+				if (!ITHit.Utils.IsUndefined(bForRet)) {
+					bRet = bForRet;
+				}
+			}
+
+			this._DispatchEvents[sInstanceName]--;
+			this._DispatchEvents[sInstanceName+':'+sEventName]--;
+
+			this._CheckDelayedDelete(oObject, sEventName);
+
+			return bRet;
+		}
+
+		Events.prototype.RemoveListener = function(oObject, sEventName, mHandler, mHandlerScope) {
+
+			var sInstanceName = oObject.__instanceName;
+
+			mHandlerScope = mHandlerScope || null;
+
+			if (!this._Listeners[sInstanceName] || !this._Listeners[sInstanceName][sEventName] || !this._Listeners[sInstanceName][sEventName].length) {
+				return true;
+			}
+
+			var aHandlers = this._Listeners[sInstanceName][sEventName];
+			for (var i = 0, l = aHandlers.length; i < l; i++) {
+				if (aHandlers[i].IsEqual(mHandlerScope, mHandler)) {
+					this._Listeners[sInstanceName][sEventName].splice(i, 1);
+					break;
+				}
+			}
+		}
+
+		Events.prototype.RemoveAllListeners = function(oObject, sEventName) {
+
+			var sInstanceName = oObject.__instanceName;
+
+			if (!ITHit.Utils.IsUndefined(sEventName)) {
+				if (ITHit.Utils.IsUndefined(this._DispatchEvents[sInstanceName +':'+ sEventName])) {
+					delete this._Listeners[sInstanceName][sEventName];
+				} else {
+					this._DelayedDelete[sInstanceName +':'+ sEventName] = true;
+				}
+
+			} else {
+				if (ITHit.Utils.IsUndefined(this._DispatchEvents[sInstanceName])) {
+					delete this._Listeners[sInstanceName];
+				} else {
+					this._DelayedDelete[sInstanceName] = true;
+				}
+			}
+
+		}
+
+		Events.prototype._CheckDelayedDelete = function(oObject, sEventName) {
+
+			var sInstanceName = oObject.__instanceName;
+
+			if (!this._DispatchEvents[sInstanceName+':'+sEventName]) {
+				delete this._DispatchEvents[sInstanceName+':'+sEventName];
+				if (!ITHit.Utils.IsUndefined(this._DelayedDelete[sInstanceName +':'+ sEventName])) {
+					this.RemoveAllListeners(oObject, sEventName);
+				}
+			}
+			if (!this._DispatchEvents[sInstanceName]) {
+				delete this._DispatchEvents[sInstanceName];
+				if (!ITHit.Utils.IsUndefined(this._DelayedDelete[sInstanceName])) {
+					this.RemoveAllListeners(oObject);
+				}
+			}
+		}
+
+		Events.prototype.ListenersLength = function(oObject, sEventName) {
+
+			var sInstanceName = oObject.__instanceName;
+
+			if (!this._Listeners[sInstanceName] || !this._Listeners[sInstanceName][sEventName]) {
+				return 0;
+			}
+
+			return this._Listeners[sInstanceName][sEventName].length;
+		}
+
+		Events.prototype.Fix = function(e) {
+
+			// Get event.
+			e = e || window.event;
+
+			// Get target element.
+			if (!e.target && e.srcElement) {
+				e.target = e.srcElement;
+			}
+
+			// Calculate pageX, pageY if not defined.
+			if ((null == e.pageX) && (null != e.clientX)) {
+				var html = document.documentElement,
+					body = document.body;
+				e.pageX = e.clientX + (html && html.scrollLeft || body && body.scrollLeft || 0) - (html.clientLeft || 0);
+				e.pageY = e.clientY + (html && html.scrollTop || body && body.scrollTop || 0) - (html.clientTop || 0);
+			}
+
+			// Fix mouse button definition.
+			if (!e.which && e.button) {
+				e.which = e.button & 1 ? 1 : ( e.button & 2 ? 3 : ( e.button & 4 ? 2 : 0 ) );
+			}
+
+			return e;
+		}
+
+		Events.prototype.AttachEvent = function(elem, eventName, handler) {
+
+			eventName = eventName.replace(/^on/, '');
+
+			if (elem.addEventListener) {
+				elem.addEventListener(eventName, handler, false);
+			} else if(elem.attachEvent) {
+				elem.attachEvent('on'+ eventName, handler);
+			} else {
+				elem['on'+ eventName] = handler;
+			}
+		}
+
+		Events.prototype.DettachEvent = function(elem, eventName, handler) {
+
+			eventName = eventName.replace(/^on/, '');
+
+			if (elem.removeEventListener) {
+				elem.removeEventListener(eventName, handler, false);
+			} else if(elem.detachEvent) {
+				elem.detachEvent('on'+ eventName, handler);
+			} else {
+				elem['on'+ eventName] = null;
+			}
+		}
+
+		Events.prototype.Stop = function(e) {
+			e = e || window.event;
+
+			if (e.stopPropagation) {
+				e.stopPropagation();
+			}
+
+			if (e.preventDefault) {
+				e.preventDefault();
+			} else {
+				e.returnValue  = false;
+			}
+
+			e.cancelBubble = true;
+
+			return false;
+		}
+
+		return new Events();
+
+	}()
+);
+
+ITHit.Add('EventHandler',
+	function() {
+		var EventHandler = function(oScope, mMethod) {
+
+			var oNsUtils = ITHit.Utils;
+
+			if (!oNsUtils.IsObjectStrict(oScope) && !oNsUtils.IsNull(oScope)) {
+				throw new ITHit.Exception('Event handler scope expected to be an object.');
+			}
+
+			if (!oNsUtils.IsFunction(mMethod) && (oScope && !oNsUtils.IsString(mMethod))) {
+				throw new ITHit.Exception('Method handler expected to be a string or function.');
+			}
+
+			if (oScope) {
+				this.Scope = oScope;
+				this.Name = oScope.__instanceName;
+			} else {
+				this.Scope = window;
+				this.Name = 'window';
+			}
+
+			this.Method = mMethod;
+		}
+
+		EventHandler.prototype.IsEqual = function(oScopeOrEventHandler, mMethod) {
+
+			if (oScopeOrEventHandler instanceof ITHit.EventHandler) {
+				return this.GetCredentials() === oScopeOrEventHandler.GetCredentials();
+			}
+			else {
+				return ((oScopeOrEventHandler || null) === this.Scope) && (mMethod === this.Method);
+			}
+		}
+
+		EventHandler.prototype.GetCredentials = function() {
+			return this.Name + '::' + this.Method;
+		}
+		
+		EventHandler.prototype.CallHandler = function(oScope, sEvent, aParams) {
+				
+			if ( !(aParams instanceof Array) ) {
+				aParams = [aParams];
+			}
+			
+			if (this.Scope) {
+				
+				if (this.Method instanceof Function) {
+					return this.Method.apply(this.Scope || window, aParams.concat([oScope]));
+				}
+				else {
+					try {
+						return this.Scope[this.Method].apply(this.Scope, aParams.concat([oScope]));
+					} catch(e) {
+						throw new ITHit.Exception(e);
+					}
+				}
+				
+			}
+			else {
+				return this.Method.apply({}, aParams.concat([oScope]));
+			}
+		}
+		
+		return EventHandler;
+	}()
+);
+
+ITHit.Add('HtmlEncode',
+	function (sText) {
+		return sText.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/'/g, '&amp;').replace(/"/g, '&quot;');
+	}
+);
+	
+ITHit.Add('HtmlDecode',
+	function (sText) {
+		return sText.replace(/&quot;/, '"').replace(/&amp;/g, '\'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+	}
+);
+
+ITHit.Add('Encode',
+	function(sText) {
+		
+		if (!sText) {
+			return sText;
+		}
+		
+		return ITHit.EncodeURI(sText.replace(/%/g,  "%25"))
+			.replace(/~/g,  "%7E")
+			.replace(/!/g,  "%21")
+			.replace(/@/g,  "%40")
+			.replace(/#/g,  "%23")
+			.replace(/\$/g, "%24")
+			.replace(/&/g,  "%26")
+			.replace(/\*/g, "%2A")
+			.replace(/\(/g, "%28")
+			.replace(/\)/g, "%29")
+			.replace(/\-/g, "%2D")
+			.replace(/_/g,  "%5F")
+			.replace(/\+/g, "%2B")
+			.replace(/\=/g, "%3D")
+			.replace(/'/g,  "%27")
+			.replace(/;/g,  "%3B")
+			.replace(/\,/g, "%2C")
+			.replace(/\?/g, "%3F");
+	}
+);
+
+ITHit.Add('EncodeURI',
+	function(sText) {
+		
+		if (!sText) {
+			return sText;
+		}
+		
+		return encodeURI(sText).replace(/%25/g, "%");
+	}
+);
+
+ITHit.Add('Decode',
+	function(sText) {
+		
+		if (!sText) {
+			return sText;
+		}
+		
+		var sText = sText
+			.replace(/%7E/gi, "~")
+			.replace(/%21/g,  "!")
+			.replace(/%40/g,  "@")
+			.replace(/%23/g,  "#")
+			.replace(/%24/g,  "$")
+			.replace(/%26/g,  "&")
+			.replace(/%2A/gi, "*")
+			.replace(/%28/g,  "(")
+			.replace(/%29/g,  ")")
+			.replace(/%2D/gi, "-")
+			.replace(/%5F/gi, "_")
+			.replace(/%2B/gi, "+")
+			.replace(/%3D/gi, "=")
+			.replace(/%27/g,  "'")
+			.replace(/%3B/gi, ";")
+			.replace(/%2E/gi, ".")
+			.replace(/%2C/gi, ",")
+			.replace(/%3F/gi, "?");
+		
+		return ITHit.DecodeURI(sText);
+	}
+);
+
+ITHit.Add('DecodeURI',
+	function(sText) {
+		
+		if (!sText) {
+			return sText;
+		}
+		
+		return decodeURI(sText.replace(/%([^0-9A-F]|.(?:[^0-9A-F]|$)|$)/gi, "%25$1"));
+	}
+);
+
+ITHit.Add('DecodeHost',
+	function(sHref) {
+		
+		// Check whether host contains encoded characters.
+		if (/^(http|https):\/\/[^:\/]*?%/.test(sHref)) {
+			
+			var aMatchRes = sHref.match(/^(?:http|https):\/\/[^\/:]+/);
+			if (aMatchRes && aMatchRes[0]) {
+				var sMatch = aMatchRes[0].replace(/^(http|https):\/\//, '');
+				
+				// Decode characters to prevent crossdomain restriction.
+				sHref = sHref.replace(sMatch, ITHit.Decode(sMatch));
+			}
+		}
+		
+		return sHref;
+	}
+);
+
+
+(function() {
+
+	var fNoop = function() {
+	};
+
+	var extendWithSuper = function (childClass, newProperties) {
+		// Extend and setup virtual methods
+		for (var key in newProperties) {
+			if (!newProperties.hasOwnProperty(key)) {
+				continue;
+			}
+
+			var value = newProperties[key];
+			if (typeof value == 'function' && typeof childClass[key] == 'function' && childClass[key] !== fNoop) {
+				childClass[key] = coverVirtual(value, childClass[key]);
+			} else {
+				childClass[key] = value;
+			}
+		}
+
+		// Default state
+		if (!childClass._super) {
+			childClass._super = fNoop;
+		}
+	};
+
+	var coverVirtual = function (childMethod, parentMethod) {
+		return function () {
+			var old = this._super;
+			this._super = parentMethod;
+			var r = childMethod.apply(this, arguments);
+			this._super = old;
+			return r;
+		};
+	};
+
+	var instanceUniqueCounter = 0;
+
+	/**
+	 * @name ITHit.DefineClass
+	 * @param {String} globalName
+	 * @param {Function} parentClass
+	 * @param {Object} [prototypeProperties]
+	 * @param {Object} [staticProperties]
+	 */
+	ITHit.Add('DefineClass', function (globalName, parentClass, prototypeProperties, staticProperties) {
+		parentClass = parentClass !== null ? parentClass : function() {};
+
+		if (!parentClass) {
+			throw new Error('Not found extended class for ' + globalName);
+		}
+
+		if (prototypeProperties.hasOwnProperty('__static')) {
+			staticProperties = prototypeProperties.__static;
+			delete prototypeProperties.__static;
+		}
+
+		var childClass;
+
+		// The constructor function for the new subclass is either defined by you
+		// (the "constructor" property in your `extend` definition), or defaulted
+		// by us to simply call the parent's constructor.
+		if (prototypeProperties && prototypeProperties.hasOwnProperty('constructor')) {
+			childClass = function() {
+				this.__instanceName = this.__className + instanceUniqueCounter++;
+				return coverVirtual(prototypeProperties.constructor, parentClass).apply(this, arguments);
+			};
+		} else {
+			childClass = function () {
+				this.__instanceName = this.__className + instanceUniqueCounter++;
+				return parentClass.apply(this, arguments);
+			};
+		}
+
+		// Add static properties to the constructor function, if supplied.
+		for (var prop in parentClass) {
+			childClass[prop] = parentClass[prop];
+		}
+		extendWithSuper(childClass, staticProperties);
+
+		// Set the prototype chain to inherit from `parent`, without calling
+		// `parent`'s constructor function.
+		var Surrogate = function () {
+			this.constructor = childClass;
+		};
+		Surrogate.prototype = parentClass.prototype;
+		childClass.prototype = new Surrogate;
+
+		// Clone empty objects
+		for (var key in Surrogate.prototype) {
+			if (!Surrogate.prototype.hasOwnProperty(key)) {
+				continue;
+			}
+
+			var value = Surrogate.prototype[key];
+			if (!value) {
+				continue;
+			}
+
+			if (value instanceof Array) {
+				if (value.length === 0) {
+					childClass.prototype[key] = [];
+				}
+			} else if (typeof value === 'object') {
+				var isEmpty = true;
+				for (var k in value) {
+					isEmpty = isEmpty && value.hasOwnProperty(k);
+				}
+				if (isEmpty) {
+					childClass.prototype[key] = {};
+				}
+			}
+		}
+
+		// Add prototype properties (instance properties) to the subclass,
+		// if supplied.
+		if (prototypeProperties) extendWithSuper(childClass.prototype, prototypeProperties);
+
+		// Share class name
+		childClass.__className = childClass.prototype.__className = globalName;
+
+		// Split namespace
+		var iPos = globalName.lastIndexOf('.'),
+			sLocalName = globalName.substr(iPos + 1);
+		return ITHit.Declare(globalName.substr(0, iPos))[sLocalName] = childClass;
+	});
+
+})();
+
+/*
+ * Base namespace for exceptions.
+ * @namespace ITHit.Exceptions
+ */
+
+/**
+ * This namespace provides classes for accessing WebDAV server items, file structure management, properties management and items locking.
+ * @namespace ITHit.WebDAV.Client
+ */
+
+/**
+ * The ITHit.WebDav.Client.Exceptions namespace provides classes that represent various WebDAV client library exceptions, erroneous server responses and HTTP errors.
+ * @namespace ITHit.WebDAV.Client.Exceptions
+ */
+
+
 ITHit.Temp.WebDAV_Phrases={
 	CrossDomainRequestAttempt: 'Attempting to make cross-domain request.\nRoot URL: {0}\nDestination URL: {1}\nMethod: {2}',
 	
@@ -76,7 +1661,12536 @@ ITHit.Temp.WebDAV_Phrases={
 	}
 };
 
-ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.LoggerException=function(_f0,_f1){ITHit.Exceptions.LoggerException.baseConstructor.call(this,_f0,_f1);};ITHit.Extend(ITHit.oNS.LoggerException,ITHit.Exception);ITHit.oNS.LoggerException.prototype.Name="LoggerException";ITHit.DefineClass("ITHit.LogLevel",null,{},{All:32,Debug:16,Info:8,Warn:4,Error:2,Fatal:1,Off:0});(function(){var _f2={};var _f3={};var _f4={};for(var _f5 in ITHit.LogLevel){_f2[ITHit.LogLevel[_f5]]=[];_f4[ITHit.LogLevel[_f5]]=[];}var _f6=function(_f7,_f8,iTo,_fa){for(var _fb in ITHit.LogLevel){if(ITHit.LogLevel[_fb]>iTo){continue;}if(!ITHit.LogLevel[_fb]||(_f8>=ITHit.LogLevel[_fb])){continue;}if(_f7){_f4[ITHit.LogLevel[_fb]].push(_fa);}else{for(var i=0;i<_f4[ITHit.LogLevel[_fb]].length;i++){if(_f4[ITHit.LogLevel[_fb]][i]==_fa){_f4[ITHit.LogLevel[_fb]].splice(i,1);}}}}};_f6.add=function(iTo,_fe){_f6.increase(ITHit.LogLevel.Off,iTo,_fe);};_f6.del=function(iTo,_100){_f6.decrease(ITHit.LogLevel.Off,iTo,_100);};_f6.increase=function(_101,iTo,_103){_f6(true,_101,iTo,_103);};_f6.decrease=function(_104,iTo,_106){_f6(false,_104,iTo,_106);};ITHit.DefineClass("ITHit.Logger",null,{},{Level:ITHit.Config.LogLevel||ITHit.LogLevel.Debug,AddListener:function(_107,_108){if(_108==ITHit.LogLevel.Off){this.RemoveListener();}var _109=0;var _10a=0;outer:for(var _10b in _f2){for(var i=0;i<_f2[_10b].length;i++){if(_f2[_10b][i]==_107){_109=_10b;_10a=i;break outer;}}}if(!_109){_f2[_108].push(_107);_f6.add(_108,_107);}else{if(_108!=_109){_f2[_109].splice(_10a,1);_f2[_108].push(_107);if(_108>_109){_f6.increase(_109,_108,_107);}else{_f6.decrease(_108,_109,_107);}}}},RemoveListener:function(_10d){outer:for(var _10e in _f2){for(var i=0;i<_f2[_10e].length;i++){if(_f2[_10e][i]==_10d){_f2[_10e].splice(i,1);_f6.del(_10e,_10d);break outer;}}}return true;},SetLogLevel:function(_110,_111){return this.AddListener(_110,_111,true);},GetLogLevel:function(_112){for(var _113 in _f2){for(var i=0;i<_f2[_113].length;i++){if(_f2[_113][i]==_112){return _113;}}}return false;},GetListenersForLogLevel:function(_115){return _f4[_115];},GetCount:function(_116){return _f4[_116].length;},WriteResponse:function(_117){if(Logger.GetCount(ITHit.LogLevel.Info)){var sStr="";if(_117 instanceof HttpWebResponse){sStr+="\n"+_117.StatusCode+" "+_117.StatusDescription+"\n";}sStr+=_117.ResponseUri+"\n";for(var _119 in _117.Headers){sStr+=_119+": "+_117.Headers[_119]+"\n";}sStr+=_117.GetResponse();this.WriteMessage(sStr);}},WriteMessage:function(_11a,_11b){_11b=("undefined"==typeof _11b)?ITHit.LogLevel.Info:parseInt(_11b);if(ITHit.Logger.GetCount(_11b)){var _11c=this.GetListenersForLogLevel(_11b);var _11a=String(_11a).replace(/([^\n])$/,"$1\n");for(var i=0;i<_11c.length;i++){try{_11c[i](_11a,ITHit.LogLevel.Info);}catch(e){if(!_11c[i] instanceof Function){throw new ITHit.Exceptions.LoggerException("Log listener expected function, passed: \""+_11c[i]+"\"",e);}else{throw new ITHit.Exceptions.LoggerException("Message could'not be logged.",e);}}}}},StartLogging:function(){},FinishLogging:function(){},StartRequest:function(){},FinishRequest:function(){}});})();ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.PhraseException=function(_11e,_11f){ITHit.Exceptions.PhraseException.baseConstructor.call(this,_11e,_11f);};ITHit.Extend(ITHit.oNS.PhraseException,ITHit.Exception);ITHit.oNS.PhraseException.prototype.Name="PhraseException";ITHit.Phrases=(function(){var _120={};var _121=function(_122){this._arguments=_122;};_121.prototype.Replace=function(_123){var _124=_123.substr(1,_123.length-2);return ("undefined"!=typeof this._arguments[_124])?this._arguments[_124]:_123;};var _125=function(_126){this._phrase=_126;};_125.prototype.toString=function(){return this._phrase;};_125.prototype.Paste=function(){var _127=this._phrase;if(/\{\d+?\}/.test(_127)){var _128=new _121(arguments);_127=_127.replace(/\{(\d+?)\}/g,function(args){return _128.Replace(args);});}return _127;};var _12a=function(){};_12a.prototype.LoadJSON=function(_12b,_12c){var _12d=ITHit.Utils;if(_12c&&!_12d.IsString(_12c)){throw new ITHit.Exceptions.PhraseException("Namespace expected to be a string.");}var _12e=this;if(_12c){_12e=ITHit.Declare(_12c);}try{var _12f=_12b;if(_12d.IsString(_12f)){_12f=eval("("+_12b+")");}this._AddPhrases(_12f,_12e);}catch(e){console.dir(e);throw new ITHit.Exceptions.PhraseException("Wrong text structure.",e);}};_12a.prototype.LoadLocalizedJSON=function(_130,_131,_132){var _133=ITHit.Utils,_134=_133.IsUndefined,_135=_133.IsObject;if(!_130||!_133.IsObjectStrict(_130)){throw new ITHit.Exceptions.PhraseException("Default phrases expected to be an JSON object.");}if(_131&&!_133.IsObjectStrict(_131)){throw new ITHit.Exceptions.PhraseException("Default phrases expected to be an JSON object");}var _136;if(_131){_136={};this._MergePhrases(_136,_131);this._MergePhrases(_136,_130);}else{_136=_130;}this.LoadJSON(_136,_132);};_12a.prototype._MergePhrases=function(dest,_138){var _139=ITHit.Utils,_13a=_139.IsUndefined,_13b=_139.IsObject;for(var prop in _138){if(!_138.hasOwnProperty(prop)){continue;}if(_13a(dest[prop])){dest[prop]=_138[prop];}else{if(_13b(dest[prop])){this._MergePhrases(dest[prop],_138[prop]);}}}};_12a.prototype._AddPhrases=function(_13d,_13e){_13e=_13e||this;for(var _13f in _13d){if(("object"!=typeof _13d[_13f])||!(_13d[_13f] instanceof Object)){switch(_13f){case "_AddPhrases":case "LoadJSON":case "LoadLocalizedJSON":case "_Merge":case "prototype":case "toString":throw new ITHit.Exceptions.PhraseException("\""+_13f+"\" is reserved word.");break;}_13e[_13f]=new _125(_13d[_13f]);}else{this._AddPhrases(_13d[_13f],_13e[_13f]?_13e[_13f]:(_13e[_13f]={}));}}};return new _12a();})();ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.XPathException=function(_140,_141){ITHit.Exceptions.XPathException.baseConstructor.call(this,_140,_141);};ITHit.Extend(ITHit.oNS.XPathException,ITHit.Exception);ITHit.oNS.XPathException.prototype.Name="XPathException";ITHit.XPath={_component:null,_version:null};ITHit.XPath.evaluate=function(_142,_143,_144,_145,_146){if(("string"!=typeof _142)&&!(_142 instanceof String)){throw new ITHit.Exceptions.XPathException("Expression was expected to be a string in ITHit.XPath.eveluate.");}if(!(_143 instanceof ITHit.XMLDoc)){throw new ITHit.Exceptions.XPathException("Element was expected to be an ITHit.XMLDoc object in ITHit.XPath.evaluate.");}if(_144&&!(_144 instanceof ITHit.XPath.resolver)){throw new ITHit.Exceptions.XPathException("Namespace resolver was expected to be an ITHit.XPath.resolver object in ITHit.XPath.evaluate.");}if(_145&&!(_145 instanceof ITHit.XPath.result)){throw new ITHit.Exceptions.XPathException("Result expected to be an ITHit.XPath.result object in ITHit.XPath.evaluate.");}_144=_144||null;_145=_145||null;if(document.implementation.hasFeature("XPath","3.0")&&document.evaluate){var _147=_143._get();var _148=_147.ownerDocument||_147;if(_145){_148.evaluate(_142,_147,_144,ITHit.XPath.result.UNORDERED_NODE_SNAPSHOT_TYPE,_145._res);return;}var oRes=new ITHit.XPath.result(_148.evaluate(_142,_147,_144,ITHit.XPath.result.UNORDERED_NODE_SNAPSHOT_TYPE,null));if(!_146){return oRes;}else{return oRes.iterateNext();}}else{if(undefined!==window.ActiveXObject){var _147=_143._get();var _14a=false;try{_147.getProperty("SelectionNamespaces");_14a=true;}catch(e){}var _14b=false;if(3==ITHit.XMLDoc._version){var sXml=_147.xml.replace(/^\s+|\s+$/g,"");var _14d="urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/";var _14e="cutted";if(-1!=sXml.indexOf(_14d)||true){var _14f=sXml.replace(_14d,_14e);var _150=new ITHit.XMLDoc();_150.load(_14f);if(_144){var oNs=_144.getAll();for(var _152 in oNs){if(_14d==oNs[_152]){oNs.add(_152,_14e);break;}}}_147=_150._get();_14a=true;_14b=true;}}if(_14a&&_144&&_144.length()){var _153=_144.getAll();var aNs=[];for(var _152 in _153){aNs.push("xmlns:"+_152+"='"+_153[_152]+"'");}_147.setProperty("SelectionNamespaces",aNs.join(" "));}if(_14b){_147=_147.documentElement;}try{if(!_146){if(!_145){return new ITHit.XPath.result(_147.selectNodes(_142));}else{_145._res=_147.selectNodes(_142);return;}}else{var mOut=_147.selectSingleNode(_142);if(mOut){return new ITHit.XMLDoc(mOut);}else{return mOut;}}}catch(e){if(!_14a&&(-1!=e.message.indexOf("Reference to undeclared namespace prefix"))&&_144&&_144.length()){var sEl=new ITHit.XMLDoc(_147).toString();var oEl=new ITHit.XMLDoc();oEl.load(sEl);_147=oEl._get();var _153=_144.getAll();var aNs=[];for(var _152 in _153){aNs.push("xmlns:"+_152+"='"+_153[_152]+"'");}_147.setProperty("SelectionNamespaces",aNs.join(" "));_147=_147.documentElement;if(!_146){if(!_145){return new ITHit.XPath.result(_147.selectNodes(_142));}else{_145._res=_147.selectNodes(_142);return;}}else{var mOut=_147.selectSingleNode(_142);if(mOut){return new ITHit.XMLDoc(mOut);}else{return mOut;}}}else{throw new ITHit.Exceptions.XPathException("Evaluation failed for searching \""+_142+"\".",e);}}}}throw new ITHit.Exceptions.XPathException("XPath support is not implemented for your browser.");};ITHit.XPath.selectSingleNode=function(_158,_159,_15a){return ITHit.XPath.evaluate(_158,_159,_15a,false,true);};ITHit.XPath.resolver=function(){this._ns={};this._length=0;};ITHit.XPath.resolver.prototype.add=function(_15b,sNs){this._ns[_15b]=sNs;this._length++;};ITHit.XPath.resolver.prototype.remove=function(_15d){delete this._ns[_15d];this._length--;};ITHit.XPath.resolver.prototype.get=function(_15e){return this._ns[_15e]||null;};ITHit.XPath.resolver.prototype.lookupNamespaceURI=ITHit.XPath.resolver.prototype.get;ITHit.XPath.resolver.prototype.getAll=function(){var oOut={};for(var _160 in this._ns){oOut[_160]=this._ns[_160];}return oOut;};ITHit.XPath.resolver.prototype.length=function(){return this._length;};ITHit.XPath.result=function(_161){this._res=_161;this._i=0;this.length=_161.length?_161.length:_161.snapshotLength;};ITHit.XPath.result.ANY_TYPE=0;ITHit.XPath.result.NUMBER_TYPE=1;ITHit.XPath.result.STRING_TYPE=2;ITHit.XPath.result.BOOLEAN_TYPE=3;ITHit.XPath.result.UNORDERED_NODE_ITERATOR_TYPE=4;ITHit.XPath.result.ORDERED_NODE_ITERATOR_TYPE=5;ITHit.XPath.result.UNORDERED_NODE_SNAPSHOT_TYPE=6;ITHit.XPath.result.ORDERED_NODE_SNAPSHOT_TYPE=7;ITHit.XPath.result.ANY_UNORDERED_NODE_TYPE=8;ITHit.XPath.result.FIRST_ORDERED_NODE_TYPE=9;ITHit.XPath.result.prototype.iterateNext=function(_162){var mOut;if(!_162){if(!this._res.snapshotItem){try{mOut=this._res[this._i++];}catch(e){return null;}}else{mOut=this._res.snapshotItem(this._i++);}}else{mOut=this._res[_162];}if(mOut){return new ITHit.XMLDoc(mOut);}else{return mOut;}};ITHit.XPath.result.prototype.snapshotItem=ITHit.XPath.result.prototype.iterateNext;ITHit.XPath.result.prototype.type=function(){return this._res.resultType;};ITHit.XPath.result.prototype._get=function(){return this._res;};ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.XMLDocException=function(_164,_165){ITHit.Exceptions.XMLDocException.baseConstructor.call(this,_164,_165);};ITHit.Extend(ITHit.oNS.XMLDocException,ITHit.Exception);ITHit.oNS.XMLDocException.prototype.Name="XMLDocException";ITHit.XMLDoc=(function(){var _166;var _167=1;var _168=2;var _169=3;var _16a=4;var _16b=5;var _16c=6;var _16d=7;var _16e=8;var _16f=9;var _170=10;var _171=11;var _172=12;var _173=function(_174){this._xml=null;this._encoding=null;if(null!==_174){if(!_174||("object"!=typeof _174)){if(undefined!==window.ActiveXObject){if(_166){this._xml=new window.ActiveXObject(_166);}else{var _175=["Msxml2.DOMDocument.6.0","Msxml2.DOMDocument.4.0","Msxml2.DOMDocument.3.0"];var _176=[6,4,3];for(var i=0;i<_175.length;i++){try{this._xml=new window.ActiveXObject(_175[i]);_173._version=_176[i];_166=_175[i];break;}catch(e){if(3==_176[i]){throw new ITHit.Exception("XML component is not supported.");}}}}}else{if(document.implementation&&document.implementation.createDocument){this._xml=document.implementation.createDocument("","",null);}}if(undefined===this._xml){throw new ITHit.Exceptions.XMLDocException("XML support for current browser is not implemented.");}this._xml.async=false;}else{this._xml=_174;}}else{this._xml=null;return null;}};_173._version=0;_173.prototype.contentEncoding=function(_178){if(undefined!==_178){this._encoding=_178;}return this._encoding;};_173.prototype.load=function(_179){if(!ITHit.Utils.IsString(_179)){throw new ITHit.Exceptions.XMLDocException("String was expected for xml parsing.");}if(!_179){return new _173();}var oDoc;if(undefined!==window.ActiveXObject){try{if(3==_173._version){_179=_179.replace(/(?:urn\:uuid\:c2f41010\-65b3\-11d1\-a29f\-00aa00c14882\/)/g,"cutted");}if(_173._version){this._xml.loadXML(_179);}else{var _17b=new _173();if(3==_173._version){_179=_179.replace(/(?:urn\:uuid\:c2f41010\-65b3\-11d1\-a29f\-00aa00c14882\/)/g,"cutted");}_17b.load(_179);this._xml=_17b._get();}}catch(e){var _17c=e;}}else{if(document.implementation.createDocument){try{var _17d=new DOMParser();oDoc=_17d.parseFromString(_179,"text/xml");this._xml=oDoc;}catch(e){var _17c=e;}}else{throw new ITHit.Exceptions.XMLDocException("Cannot create XML parser object. Support for current browser is not implemented.");}}if(undefined!==_17c){throw new ITHit.Exceptions.XMLDocException("ITHit.XMLDoc.load() method failed.\nPossible reason: syntax error in passed XML string.",_17c);}};_173.prototype.appendChild=function(_17e){if(!_17e instanceof ITHit.XMLDoc){throw ITHit.Exceptions.XMLDocException("Instance of XMLDoc was expected in appendChild method.");}this._xml.appendChild(_17e._get());};_173.prototype.createElement=function(_17f){return new _173(this._xml.createElement(_17f));};_173.prototype.createElementNS=function(sNS,_181){if(this._xml.createElementNS){var _182=this._xml.createElementNS(sNS,_181,"");return new ITHit.XMLDoc(_182);}else{try{return new _173(this._xml.createNode(_167,_181,sNS));}catch(e){throw new ITHit.Exceptions.XMLDocException("Node is not created.",e);}}throw new ITHit.Exceptions.XMLDocException("createElementNS for current browser is not implemented.");};_173.prototype.createTextNode=function(_183){return new _173(this._xml.createTextNode(_183));};_173.prototype.getElementById=function(sId){return new _173(this._xml.getElementById(sId));};_173.prototype.getElementsByTagName=function(_185){return new _173(this._xml.getElementsByTagName(_185));};_173.prototype.childNodes=function(){var _186=this._xml.childNodes;var _187=[];for(var i=0;i<_186.length;i++){_187.push(new ITHit.XMLDoc(_186[i]));}return _187;};_173.prototype.getElementsByTagNameNS=function(_189,_18a){if(this._xml.getElementsByTagNameNS){var _18b=this._xml.getElementsByTagNameNS(_189,_18a);}else{var _18c=this.toString();var _18d=new ITHit.XMLDoc();_18d.load(_18c);var _18e=new ITHit.XPath.resolver();_18e.add("a",_189);var oRes=ITHit.XPath.evaluate(("//a:"+_18a),_18d,_18e);var _18b=oRes._get();}var aRet=[];for(var i=0;i<_18b.length;i++){var _192=new ITHit.XMLDoc(_18b[i]);aRet.push(_192);}return aRet;};_173.prototype.setAttribute=function(_193,_194){this._xml.setAttribute(_193,_194);};_173.prototype.hasAttribute=function(_195){return this._xml.hasAttribute(_195);};_173.prototype.getAttribute=function(_196){return this._xml.getAttribute(_196);};_173.prototype.removeAttribute=function(_197){this._xml.removeAttribute(_197);};_173.prototype.hasAttributeNS=function(_198){return this._xml.hasAttribute(_198);};_173.prototype.getAttributeNS=function(_199){return this._xml.getAttribute(_199);};_173.prototype.removeAttributeNS=function(_19a){this._xml.removeAttribute(_19a);};_173.prototype.removeChild=function(_19b){if(!_19b instanceof ITHit.XMLDoc){throw ITHit.Exceptions.XMLDocException("Instance of XMLDoc was expected in ITHit.XMLDoc.removeChild() method.");}this._xml.removeChild(_19b);return new ITHit.XMLDoc(_19b);};_173.prototype.removeNode=function(_19c){if(!_19c instanceof ITHit.XMLDoc){throw ITHit.Exceptions.XMLDocException("Instance of XMLDoc was expected in ITHit.XMLDoc.removeNode() method.");}_19c=_19c._get();if(_19c.removeNode){return new _173(_19c.removeNode(true));}else{return new _173(_19c.parentNode.removeChild(_19c));}};_173.prototype.cloneNode=function(_19d){if(undefined===_19d){_19d=true;}return new ITHit.XMLDoc(this._xml.cloneNode(_19d));};_173.prototype.getProperty=function(_19e){return this._xml[_19e];};_173.prototype.setProperty=function(_19f,_1a0){this._xml[_19f]=_1a0;};_173.prototype.nodeName=function(){return this._xml.nodeName;};_173.prototype.nextSibling=function(){return new ITHit.XMLDoc(this._xml.nextSibling);};_173.prototype.namespaceURI=function(){return this._xml.namespaceURI;};_173.prototype.hasChildNodes=function(){return (this._xml&&this._xml.hasChildNodes());};_173.prototype.firstChild=function(){return new _173(this._xml.firstChild);};_173.prototype.localName=function(){return this._xml.localName||this._xml.baseName;};_173.prototype.nodeValue=function(){var _1a1="";if(this._xml){_1a1=this._xml.nodeValue;}if("object"!=typeof _1a1){return _1a1;}else{return new ITHit.XMLDoc(_1a1);}};_173.prototype.nodeType=function(){return this._xml.nodeType;};_173.prototype._get=function(){return this._xml;};_173.prototype.toString=function(_1a2){return _173.toString(this._xml,this._encoding,_1a2);};_173.toString=function(_1a3,_1a4,_1a5){if(!_1a3){throw new ITHit.Exceptions.XMLDocException("ITHit.XMLDoc: XML object expected.");}var _1a6="";var _1a7=true;if(undefined!==_1a3.xml){_1a6=_1a3.xml.replace(/^\s+|\s+$/g,"");_1a7=false;}else{if(document.implementation.createDocument&&(undefined!==XMLSerializer)){_1a6=new XMLSerializer().serializeToString(_1a3);_1a7=false;}}if(_1a6){if(_1a4){_1a4=" encoding=\""+this._encoding+"\"";}else{_1a4="";}var sOut=((!_1a5)?"<?xml version=\"1.0\""+_1a4+"?>":"")+_1a6.replace(/^<\?xml[^?]+\?>/,"");return sOut;}if(_1a7){throw new ITHit.Exceptions.XMLDocException("XML parser object is not created.");}return _1a6;};return _173;})();ITHit.XMLDoc.nodeTypes={NODE_ELEMENT:1,NODE_ATTRIBUTE:2,NODE_TEXT:3,NODE_CDATA_SECTION:4,NODE_ENTITY_REFERENCE:5,NODE_ENTITY:6,NODE_PROCESSING_INSTRUCTION:7,NODE_COMMENT:8,NODE_DOCUMENT:9,NODE_DOCUMENT_TYPE:10,NODE_DOCUMENT_FRAGMENT:11,NODE_NOTATION:12};ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.ArgumentException=function(_1a9,_1aa){_1a9+=" Variable name: \""+_1aa+"\"";ITHit.Exceptions.ArgumentException.baseConstructor.call(this,_1a9);};ITHit.Extend(ITHit.oNS.ArgumentException,ITHit.Exception);ITHit.oNS.ArgumentException.prototype.Name="ArgumentException";(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.Depth",null,{__static:{Zero:null,One:null,Infinity:null,Parse:function(_1ac){switch(_1ac.toLowerCase()){case "0":return ITHit.WebDAV.Client.Depth.Zero;break;case "1":return ITHit.WebDAV.Client.Depth.One;break;case "infinity":return ITHit.WebDAV.Client.Depth.Infinity;break;default:throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.InvalidDepthValue,"sValue");}}},constructor:function(_1ad){this.Value=_1ad;}});self.Zero=new self(0);self.One=new self(1);self.Infinity=new self("Infinity");})();ITHit.DefineClass("ITHit.WebDAV.Client.Methods.HttpMethod",null,{__static:{Go:function(_1ae,_1af,_1b0){var _1b1=this._CreateRequest.apply(this,arguments);var _1b2=_1b1.GetResponse();return this._ProcessResponse(_1b2,_1af);},GoAsync:function(_1b3,_1b4,_1b5){var _1b6=arguments[arguments.length-1];var _1b7=this._CreateRequest.apply(this,arguments);var that=this;_1b7.GetResponse(function(_1b9){if(_1b9.IsSuccess){_1b9.Result=that._ProcessResponse(_1b9.Result,_1b4);}_1b6(_1b9);});return _1b7;},_CreateRequest:function(){},_ProcessResponse:function(_1ba,_1bb){return new this(_1ba,_1bb);}},Response:null,Href:null,constructor:function(_1bc,_1bd){this.Response=_1bc;this.Href=_1bd;this._Init();},_Init:function(){}});ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.ArgumentNullException=function(_1be){var _1bf="Variable \""+_1be+"\" nas null value.";ITHit.Exceptions.ArgumentNullException.baseConstructor.call(this,_1bf);};ITHit.Extend(ITHit.oNS.ArgumentNullException,ITHit.Exception);ITHit.oNS.ArgumentNullException.prototype.Name="ArgumentNullException";ITHit.DefineClass("ITHit.WebDAV.Client.WebDavUtil",null,{__static:{VerifyArgumentNotNull:function(_1c0,_1c1){if(_1c0===null){throw new ITHit.Exceptions.ArgumentNullException(_1c1);}},VerifyArgumentNotNullOrEmpty:function(_1c2,_1c3){if(_1c2===null||_1c2===""){throw new ITHit.Exceptions.ArgumentNullException(_1c3);}}}});ITHit.DefineClass("ITHit.WebDAV.Client.PropertyName",null,{Name:null,NamespaceUri:null,constructor:function(_1c4,_1c5){ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(_1c4,"sName");this.Name=_1c4;this.NamespaceUri=_1c5;},Equals:function(oObj){if(this==oObj){return true;}if(!oObj instanceof ITHit.WebDAV.Client.PropertyName){return false;}return (this.Name===oObj.Name)&&(this.NamespaceUri===oObj.NamespaceUri);},IsStandardProperty:function(){if(!ITHit.WebDAV.Client.PropertyName.StandardNames){ITHit.WebDAV.Client.PropertyName.StandardNames=[ITHit.WebDAV.Client.DavConstants.ResourceType,ITHit.WebDAV.Client.DavConstants.DisplayName,ITHit.WebDAV.Client.DavConstants.CreationDate,ITHit.WebDAV.Client.DavConstants.GetLastModified,ITHit.WebDAV.Client.DavConstants.GetContentLength,ITHit.WebDAV.Client.DavConstants.GetContentType,ITHit.WebDAV.Client.DavConstants.GetETag,ITHit.WebDAV.Client.DavConstants.IsCollection,ITHit.WebDAV.Client.DavConstants.IsFolder,ITHit.WebDAV.Client.DavConstants.IsHidden,ITHit.WebDAV.Client.DavConstants.SupportedLock,ITHit.WebDAV.Client.DavConstants.LockDiscovery,ITHit.WebDAV.Client.DavConstants.GetContentLanguage,ITHit.WebDAV.Client.DavConstants.Source,ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes,ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes,new ITHit.WebDAV.Client.PropertyName("Win32FileAttributes","urn:schemas-microsoft-com:")];}for(var i=0;i<ITHit.WebDAV.Client.PropertyName.StandardNames.length;i++){if(this.Equals(ITHit.WebDAV.Client.PropertyName.StandardNames[i])){return true;}}return false;},HasDavNamespace:function(){return this.NamespaceUri===ITHit.WebDAV.Client.DavConstants.NamespaceUri;},toString:function(){return this.NamespaceUri+":"+this.Name;}});(function(){var _1c8="DAV:";ITHit.DefineClass("ITHit.WebDAV.Client.DavConstants",null,{__static:{NamespaceUri:_1c8,Comment:new ITHit.WebDAV.Client.PropertyName("comment",_1c8),CreationDate:new ITHit.WebDAV.Client.PropertyName("creationdate",_1c8),CreatorDisplayName:new ITHit.WebDAV.Client.PropertyName("creator-displayname",_1c8),DisplayName:new ITHit.WebDAV.Client.PropertyName("displayname",_1c8),GetContentLength:new ITHit.WebDAV.Client.PropertyName("getcontentlength",_1c8),GetContentType:new ITHit.WebDAV.Client.PropertyName("getcontenttype",_1c8),GetETag:new ITHit.WebDAV.Client.PropertyName("getetag",_1c8),GetLastModified:new ITHit.WebDAV.Client.PropertyName("getlastmodified",_1c8),IsCollection:new ITHit.WebDAV.Client.PropertyName("iscollection",_1c8),IsFolder:new ITHit.WebDAV.Client.PropertyName("isFolder",_1c8),IsHidden:new ITHit.WebDAV.Client.PropertyName("ishidden",_1c8),ResourceType:new ITHit.WebDAV.Client.PropertyName("resourcetype",_1c8),SupportedLock:new ITHit.WebDAV.Client.PropertyName("supportedlock",_1c8),LockDiscovery:new ITHit.WebDAV.Client.PropertyName("lockdiscovery",_1c8),GetContentLanguage:new ITHit.WebDAV.Client.PropertyName("getcontentlanguage",_1c8),Source:new ITHit.WebDAV.Client.PropertyName("source",_1c8),QuotaAvailableBytes:new ITHit.WebDAV.Client.PropertyName("quota-available-bytes",_1c8),QuotaUsedBytes:new ITHit.WebDAV.Client.PropertyName("quota-used-bytes",_1c8),VersionName:new ITHit.WebDAV.Client.PropertyName("version-name",_1c8),VersionHistory:new ITHit.WebDAV.Client.PropertyName("version-history",_1c8),CheckedIn:new ITHit.WebDAV.Client.PropertyName("checked-in",_1c8),CheckedOut:new ITHit.WebDAV.Client.PropertyName("checked-out",_1c8),Src:"src",Dst:"dst",Link:"link",Slash:"/",DepndencyFailedCode:424,LockedCode:423,OpaqueLockToken:"opaquelocktoken:",QuotaNotExceeded:new ITHit.WebDAV.Client.PropertyName("quota-not-exceeded",_1c8),SufficientDiskSpace:new ITHit.WebDAV.Client.PropertyName("sufficient-disk-space",_1c8)}});})();(function(){ITHit.DefineClass("ITHit.WebDAV.Client.HttpStatus",null,{__static:{None:null,Unauthorized:null,OK:null,Created:null,NoContent:null,PartialContent:null,MultiStatus:null,Redirect:null,BadRequest:null,NotFound:null,MethodNotAllowed:null,PreconditionFailed:null,Locked:null,DependencyFailed:null,Forbidden:null,Conflict:null,NotImplemented:null,BadGateway:null,InsufficientStorage:null,Parse:function(_1c9){var _1ca=_1c9.split(" ");var _1cb=parseInt(_1ca[1]);_1ca.splice(0,2);return new ITHit.WebDAV.Client.HttpStatus(_1cb,_1ca.join(" "));}},Code:null,Description:null,constructor:function(_1cc,_1cd){this.Code=_1cc;this.Description=_1cd;},Equals:function(_1ce){if(!_1ce||!(_1ce instanceof ITHit.WebDAV.Client.HttpStatus)){return false;}return this.Code===_1ce.Code;},IsCreateOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.Created);},IsDeleteOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK)||this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent);},IsOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK);},IsCopyMoveOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent)||this.Equals(ITHit.WebDAV.Client.HttpStatus.Created);},IsGetOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK)||this.Equals(ITHit.WebDAV.Client.HttpStatus.PartialContent);},IsPutOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK)||this.Equals(ITHit.WebDAV.Client.HttpStatus.Created)||this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent);},IsUnlockOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK)||this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent);},IsHeadOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK)||this.Equals(ITHit.WebDAV.Client.HttpStatus.NotFound);},IsUpdateOk:function(){return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK)||this.Equals(ITHit.WebDAV.Client.HttpStatus.None);},IsSuccess:function(){return (parseInt(this.Code/100)==2);}});})();ITHit.WebDAV.Client.HttpStatus.None=new ITHit.WebDAV.Client.HttpStatus(0,"");ITHit.WebDAV.Client.HttpStatus.Unauthorized=new ITHit.WebDAV.Client.HttpStatus(401,"Unauthorized");ITHit.WebDAV.Client.HttpStatus.OK=new ITHit.WebDAV.Client.HttpStatus(200,"OK");ITHit.WebDAV.Client.HttpStatus.Created=new ITHit.WebDAV.Client.HttpStatus(201,"Created");ITHit.WebDAV.Client.HttpStatus.NoContent=new ITHit.WebDAV.Client.HttpStatus(204,"No Content");ITHit.WebDAV.Client.HttpStatus.PartialContent=new ITHit.WebDAV.Client.HttpStatus(206,"Partial Content");ITHit.WebDAV.Client.HttpStatus.MultiStatus=new ITHit.WebDAV.Client.HttpStatus(207,"Multi-Status");ITHit.WebDAV.Client.HttpStatus.Redirect=new ITHit.WebDAV.Client.HttpStatus(278,"Redirect");ITHit.WebDAV.Client.HttpStatus.BadRequest=new ITHit.WebDAV.Client.HttpStatus(400,"Bad Request");ITHit.WebDAV.Client.HttpStatus.NotFound=new ITHit.WebDAV.Client.HttpStatus(404,"Not Found");ITHit.WebDAV.Client.HttpStatus.MethodNotAllowed=new ITHit.WebDAV.Client.HttpStatus(405,"Method Not Allowed");ITHit.WebDAV.Client.HttpStatus.PreconditionFailed=new ITHit.WebDAV.Client.HttpStatus(412,"Precondition Failed");ITHit.WebDAV.Client.HttpStatus.Locked=new ITHit.WebDAV.Client.HttpStatus(423,"Locked");ITHit.WebDAV.Client.HttpStatus.DependencyFailed=new ITHit.WebDAV.Client.HttpStatus(424,"Dependency Failed");ITHit.WebDAV.Client.HttpStatus.Forbidden=new ITHit.WebDAV.Client.HttpStatus(403,"Forbidden");ITHit.WebDAV.Client.HttpStatus.Conflict=new ITHit.WebDAV.Client.HttpStatus(409,"Conflict");ITHit.WebDAV.Client.HttpStatus.NotImplemented=new ITHit.WebDAV.Client.HttpStatus(501,"Not Implemented");ITHit.WebDAV.Client.HttpStatus.BadGateway=new ITHit.WebDAV.Client.HttpStatus(502,"Bad gateway");ITHit.WebDAV.Client.HttpStatus.InsufficientStorage=new ITHit.WebDAV.Client.HttpStatus(507,"Insufficient Storage");ITHit.DefineClass("ITHit.WebDAV.Client.Property",null,{Name:null,Value:null,constructor:function(_1cf,_1d0,_1d1){switch(arguments.length){case 1:var _1d2=_1cf;ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(_1d2,"oElement");this.Name=new ITHit.WebDAV.Client.PropertyName(_1d2.localName(),_1d2.namespaceURI());this.Value=_1d2;break;case 2:var _1d3=_1cf,_1d4=_1d0;ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(_1d3,"oName");ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(_1d4,"sStringValue");this.Name=_1d3;var _1d5=new ITHit.XMLDoc(),_1d6=_1d5.createElementNS(_1d3.NamespaceUri,_1d3.Name);_1d6.appendChild(_1d5.createTextNode(_1d4));this.Value=_1d6;break;case 3:var _1cf=_1cf,_1d0=_1d0,_1d7=_1d1;ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(_1cf,"sName");ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(_1d0,"sValue");ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(_1d7,"sNameSpace");this.Name=new ITHit.WebDAV.Client.PropertyName(_1cf,_1d7);var _1d5=new ITHit.XMLDoc(),_1d6=_1d5.createElementNS(_1d7,_1cf);_1d6.appendChild(_1d5.createTextNode(_1d0));this.Value=_1d6;break;default:throw ITHit.Exception(ITHit.Phrases.Exceptions.WrongCountPropertyInputParameters.Paste(arguments.length));}},StringValue:function(){return this.Value.firstChild().nodeValue();},toString:function(){return this.Name.toString();}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Propstat",null,{PropertiesByNames:null,Properties:null,ResponseDescription:"",Status:"",constructor:function(_1d8){this.PropertiesByNames={};this.Properties=[];var _1d9;var _1da=new ITHit.XPath.resolver();_1da.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);if(_1d9=ITHit.XPath.selectSingleNode("d:responsedescription",_1d8,_1da)){this.ResponseDescription=_1d9.firstChild().nodeValue();}_1d9=ITHit.XPath.selectSingleNode("d:status",_1d8,_1da);this.Status=ITHit.WebDAV.Client.HttpStatus.Parse(_1d9.firstChild().nodeValue());var oRes=ITHit.XPath.evaluate("d:prop/*",_1d8,_1da);while(_1d9=oRes.iterateNext()){var _1dc=new ITHit.WebDAV.Client.Property(_1d9.cloneNode());var _1dd=_1dc.Name;if("undefined"==typeof this.PropertiesByNames[_1dd]){this.PropertiesByNames[_1dd]=_1dc;}else{var _1de=_1d9.childNodes();for(var i=0;i<_1de.length;i++){this.PropertiesByNames[_1dd].Value.appendChild(_1de[i]);}}this.Properties.push(_1dc);}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Response",null,{Href:"",ResponseDescription:"",Status:"",Propstats:null,constructor:function(_1e0,_1e1){this.Propstats=[];var _1e2;var _1e3=new ITHit.XPath.resolver();_1e3.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);this.Href=ITHit.XPath.selectSingleNode("d:href",_1e0,_1e3).firstChild().nodeValue();if(_1e2=ITHit.XPath.selectSingleNode("d:responsedescription",_1e0,_1e3)){this.ResponseDescription=_1e2.firstChild().nodeValue();}if(_1e2=ITHit.XPath.selectSingleNode("d:status",_1e0,_1e3)){this.Status=ITHit.WebDAV.Client.HttpStatus.Parse(_1e2.firstChild().nodeValue());}var oRes=ITHit.XPath.evaluate("d:propstat",_1e0,_1e3);while(_1e2=oRes.iterateNext()){this.Propstats.push(new ITHit.WebDAV.Client.Methods.Propstat(_1e2.cloneNode()));}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.MultiResponse",null,{ResponseDescription:"",Responses:null,constructor:function(_1e5,_1e6){this.ResponseDescription="";this.Responses=[];var _1e7=new ITHit.XPath.resolver();_1e7.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var oRes=ITHit.XPath.evaluate("/d:multistatus/d:response",_1e5,_1e7);var _1e9;while((_1e9=oRes.iterateNext())){this.Responses.push(new ITHit.WebDAV.Client.Methods.Response(_1e9.cloneNode(),_1e6));}ITHit.XPath.evaluate("/d:multistatus/d:responsedescription",_1e5,_1e7,oRes);if((_1e9=oRes.iterateNext())){this.ResponseDescription=_1e9.firstChild().nodeValue();}}});ITHit.DefineClass("ITHit.WebDAV.Client.AsyncResult",null,{Result:null,IsSuccess:null,Error:null,constructor:function(_1ea,_1eb,_1ec){this.Result=_1ea;this.IsSuccess=_1eb;this.Error=_1ec;}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Propfind",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{PropfindMode:{SelectedProperties:"SelectedProperties",PropertyNames:"PropertyNames"},Go:function(_1ed,sUri,_1ef,_1f0,_1f1,_1f2){return this.GoAsync(_1ed,sUri,_1ef,_1f0,_1f1,_1f2);},GoAsync:function(_1f3,sUri,_1f5,_1f6,_1f7,_1f8,_1f9){var _1fa=ITHit.WebDAV.Client.Methods.Propfind.createRequest(_1f3,sUri,_1f5,_1f6,_1f7,_1f8);var self=this;var _1fc=typeof _1f9==="function"?function(_1fd){self._GoCallback(_1f3,sUri,_1fd,_1f9);}:null;var _1fe=_1fa.GetResponse(_1fc);if(typeof _1f9!=="function"){var _1ff=new ITHit.WebDAV.Client.AsyncResult(_1fe,_1fe!=null,null);return this._GoCallback(_1f3,sUri,_1ff,_1f9);}else{return _1fa;}},_GoCallback:function(_200,sUri,_202,_203){var _204=_202;var _205=true;var _206=null;if(_202 instanceof ITHit.WebDAV.Client.AsyncResult){_204=_202.Result;_205=_202.IsSuccess;_206=_202.Error;}var _207=null;if(_205){var _208=_204.GetResponseStream();var _209=new ITHit.WebDAV.Client.Methods.MultiResponse(_208,sUri);_207=new ITHit.WebDAV.Client.Methods.Propfind(_209);}if(typeof _203==="function"){var _20a=new ITHit.WebDAV.Client.AsyncResult(_207,_205,_206);_203.call(this,_20a);}else{return _207;}},createRequest:function(_20b,sUri,_20d,_20e,_20f,_210){var _211=_20b.CreateWebDavRequest(_210,sUri);_211.Method("PROPFIND");_211.Headers.Add("Depth",_20f.Value);_211.Headers.Add("Content-Type","text/xml; charset=\"utf-8\"");var _212=new ITHit.XMLDoc();var _213=_212.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"propfind");switch(_20d){case ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties:if(!_20e||!_20e.length){var _214=_212.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"allprop");}else{var _214=_212.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"prop");for(var i=0;i<_20e.length;i++){var prop=_212.createElementNS(_20e[i].NamespaceUri,_20e[i].Name);_214.appendChild(prop);}}break;case ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.PropertyNames:var _214=_212.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"propname");break;}_213.appendChild(_214);_212.appendChild(_213);_211.Body(_212);return _211;}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.SingleResponse",null,{Status:null,ResponseDescription:null,constructor:function(_217){this.Status=_217.Status;this.ResponseDescription=_217.Status.Description;}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.ResponseFactory",null,{__static:{GetResponse:function(_218,_219){var _21a=_218.GetResponseStream(_218);if(!_21a||!_218.Status.Equals(ITHit.WebDAV.Client.HttpStatus.MultiStatus)){return new ITHit.WebDAV.Client.Methods.SingleResponse(_218);}else{return new ITHit.WebDAV.Client.Methods.MultiResponse(_21a,_219);}}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.VersionControl",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_21b,_21c,_21d,_21e){return this._super.apply(this,arguments);},GoAsync:function(_21f,_220,_221,_222,_223){return this._super.apply(this,arguments);},_CreateRequest:function(_224,_225,_226,_227){var _228=_224.CreateWebDavRequest(_227,_225,_226);_228.Method("VERSION-CONTROL");return _228;},_ProcessResponse:function(_229,_22a){var _22b=ITHit.WebDAV.Client.Methods.ResponseFactory.GetResponse(_229,_22a);return this._super(_22b);}}});ITHit.DefineClass("ITHit.WebDAV.Client.ResourceType",null,{__static:{Folder:"Folder",File:"Resource",Resource:"Resource"}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.WebDavException",ITHit.Exception,{Name:"WebDavException",constructor:function(_22c,_22d){this._super(_22c,_22d);}});ITHit.DefineClass("ITHit.WebDAV.Client.Multistatus",null,{Description:null,Responses:null});ITHit.DefineClass("ITHit.WebDAV.Client.MultistatusResponse",null,{Href:null,Description:null,Status:null});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.Info.MultistatusResponse",ITHit.WebDAV.Client.MultistatusResponse,{Href:null,Description:null,Status:null,constructor:function(_22e){this.Href=_22e.Href;this.Description=_22e.ResponseDescription;this.Status=_22e.Status;for(var i=0;i<_22e.Propstats.length;i++){if(_22e.Propstats[i]!=ITHit.WebDAV.Client.HttpStatus.OK){this.Status=_22e.Propstats[i];break;}}}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.Info.Multistatus",ITHit.WebDAV.Client.Multistatus,{Description:"",Responses:null,constructor:function(_230){this.Responses=[];if(_230){this.Description=_230.ResponseDescription;for(var i=0;i<_230.Responses.length;i++){this.Responses.push(new ITHit.WebDAV.Client.Exceptions.Info.MultistatusResponse(_230.Responses[i]));}}}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.WebDavHttpException",ITHit.WebDAV.Client.Exceptions.WebDavException,{Name:"WebDavHttpException",Multistatus:null,Status:null,Uri:null,Error:null,constructor:function(_232,_233,_234,_235,_236,_237){this._super(_232,_236);this.Multistatus=_234||new ITHit.WebDAV.Client.Exceptions.Info.Multistatus();this.Status=_235;this.Uri=_233;this.Error=_237;}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.PropertyException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"PropertyException",PropertyName:null,constructor:function(_238,_239,_23a,_23b,_23c,_23d){this.PropertyName=_23a;this._super(_238,_239,_23b,_23c,_23d);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException",ITHit.WebDAV.Client.Exceptions.PropertyException,{Name:"PropertyForbiddenException",constructor:function(_23e,_23f,_240,_241,_242){this._super(_23e,_23f,_240,_241,ITHit.WebDAV.Client.HttpStatus.NotFound,_242);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException",ITHit.WebDAV.Client.Exceptions.PropertyException,{Name:"PropertyForbiddenException",constructor:function(_243,_244,_245,_246,_247){this._super(_243,_244,_245,_246,ITHit.WebDAV.Client.HttpStatus.Forbidden,_247);}});ITHit.DefineClass("ITHit.WebDAV.Client.PropertyMultistatusResponse",ITHit.WebDAV.Client.MultistatusResponse,{PropertyName:null});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatusResponse",ITHit.WebDAV.Client.PropertyMultistatusResponse,{Href:null,Description:null,Status:null,PropertyName:null,constructor:function(_248,_249,_24a,_24b){this._super();this.Href=_248;this.Description=_249;this.Status=_24a;this.PropertyName=_24b;}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus",ITHit.WebDAV.Client.Multistatus,{Description:"",Responses:null,constructor:function(_24c){this.Responses=[];if(_24c){this.Description=_24c.ResponseDescription;for(var i=0;i<_24c.Responses.length;i++){var _24e=_24c.Responses[i];for(var j=0;j<_24e.Propstats.length;j++){var _250=_24e.Propstats[j];for(var k=0;k<_250.Properties.length;k++){this.Responses.push(new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatusResponse(_24e.Href,_250.ResponseDescription,_250.Status,_250.Properties[k].Name));}}}}}});ITHit.DefineClass("ITHit.WebDAV.Client.Encoder",null,{__static:{Encode:ITHit.Encode,Decode:ITHit.Decode,EncodeURI:ITHit.EncodeURI,DecodeURI:ITHit.DecodeURI}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.CopyMove",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Mode:{Copy:"Copy",Move:"Move"},Go:function(_252,_253,_254,_255,_256,_257,_258,_259,_25a){var _25b=this.createRequest(_252,_253,_254,_255,_256,_257,_258,_259,_25a);var _25c=_25b.GetResponse();return this._ProcessResponse(_25c,_254);},GoAsync:function(_25d,_25e,_25f,_260,_261,_262,_263,_264,_265,_266){var _267=this.createRequest(_25d,_25e,_25f,_260,_261,_262,_263,_264,_265);var that=this;_267.GetResponse(function(_269){if(!_269.IsSuccess){_266(new ITHit.WebDAV.Client.AsyncResult(null,false,_269.Error));return;}var _26a=that._ProcessResponse(_269.Result,_25f);_266(new ITHit.WebDAV.Client.AsyncResult(_26a,true,null));});return _267;},_ProcessResponse:function(_26b,_26c){var _26d=ITHit.WebDAV.Client.Methods.ResponseFactory.GetResponse(_26b,_26c);return new ITHit.WebDAV.Client.Methods.CopyMove(_26d);},createRequest:function(_26e,_26f,_270,_271,_272,_273,_274,_275,_276){var _277=_26e.CreateWebDavRequest(_276,_270,_275);_271=ITHit.WebDAV.Client.Encoder.EncodeURI(_271).replace(/#/g,"%23").replace(/'/g,"%27");if(/^\//.test(_271)){_271=_276+_271.substr(1);}_277.Method((_26f==ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy)?"COPY":"MOVE");_277.Headers.Add("Content-Type","text/xml; charset=\"utf-8\"");_277.Headers.Add("Destination",ITHit.DecodeHost(_271));_277.Headers.Add("Overwrite",_274?"T":"F");if(_272&&(_26f==ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy)){if(!_273){_277.Headers.Add("Depth",ITHit.WebDAV.Client.Depth.Zero.Value);}}var _278=new ITHit.XMLDoc();var _279=_278.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"propertybehavior");var _27a=_278.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"keepalive");_27a.appendChild(_278.createTextNode("*"));_279.appendChild(_27a);_278.appendChild(_279);_277.Body(_278);return _277;}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Delete",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_27b,_27c,_27d,_27e){return this._super.apply(this,arguments);},GoAsync:function(_27f,_280,_281,_282,_283){return this._super.apply(this,arguments);},_CreateRequest:function(_284,_285,_286,_287){var _288=_284.CreateWebDavRequest(_287,_285,_286);_288.Method("DELETE");return _288;},_ProcessResponse:function(_289,_28a){var _28b=ITHit.WebDAV.Client.Methods.ResponseFactory.GetResponse(_289,_28a);return this._super(_28b);}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Proppatch",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_28c,_28d,_28e,_28f,_290,_291){var _292=ITHit.WebDAV.Client.Methods.Proppatch.createRequest(_28c,_28d,_28e,_28f,_290,_291);var _293=_292.GetResponse();return this._ProcessResponse(_293);},GoAsync:function(_294,_295,_296,_297,_298,_299,_29a){var _29b=ITHit.WebDAV.Client.Methods.Proppatch.createRequest(_294,_295,_296,_297,_298,_299);var that=this;_29b.GetResponse(function(_29d){if(!_29d.IsSuccess){_29a(new ITHit.WebDAV.Client.AsyncResult(null,false,_29d.Error));return;}var _29e=that._ProcessResponse(_29d.Result,_295);_29a(new ITHit.WebDAV.Client.AsyncResult(_29e,true,null));});},_ProcessResponse:function(_29f,_2a0){var _2a1=_29f.GetResponseStream();return new ITHit.WebDAV.Client.Methods.Proppatch(new ITHit.WebDAV.Client.Methods.MultiResponse(_2a1,_2a0));},ItemExists:function(aArr){if(aArr&&aArr.length){for(var i=0;i<aArr.length;i++){if(aArr[i]){return true;}}}return false;},createRequest:function(_2a4,_2a5,_2a6,_2a7,_2a8,_2a9){_2a8=_2a8||null;var _2aa=_2a4.CreateWebDavRequest(_2a9,_2a5,_2a8);_2aa.Method("PROPPATCH");_2aa.Headers.Add("Content-Type","text/xml; charset=\"utf-8\"");var _2ab=new ITHit.XMLDoc();var _2ac=_2ab.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"propertyupdate");if(ITHit.WebDAV.Client.Methods.Proppatch.ItemExists(_2a6)){var set=_2ab.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"set");for(var i=0;i<_2a6.length;i++){if(_2a6[i]){var prop=_2ab.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"prop");prop.appendChild(_2a6[i].Value);set.appendChild(prop);}}_2ac.appendChild(set);}if(ITHit.WebDAV.Client.Methods.Proppatch.ItemExists(_2a7)){var _2b0=_2ab.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"remove");var prop=_2ab.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"prop");for(var i=0;i<_2a7.length;i++){if(_2a7[i]){var elem=_2ab.createElementNS(_2a7[i].NamespaceUri,_2a7[i].Name);prop.appendChild(elem);}}_2b0.appendChild(prop);_2ac.appendChild(_2b0);}_2ab.appendChild(_2ac);_2aa.Body(_2ab);return _2aa;}}});ITHit.DefineClass("ITHit.WebDAV.Client.LockScope",null,{__static:{Exclusive:"Exclusive",Shared:"Shared"}});ITHit.DefineClass("ITHit.WebDAV.Client.LockUriTokenPair",null,{Href:null,LockToken:null,constructor:function(_2b2,_2b3){ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(_2b2,"href");ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(_2b3,"lockToken");this.Href=_2b2;this.LockToken=_2b3;},toString:function(){return this.LockToken;}});ITHit.DefineClass("ITHit.WebDAV.Client.LockInfo",null,{__static:{ParseLockInfo:function(_2b4,_2b5){var _2b6=new ITHit.XPath.resolver();_2b6.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var _2b7;if(!(_2b7=ITHit.XPath.selectSingleNode("d:lockscope",_2b4,_2b6))){throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.Exceptions.ActiveLockDoesntContainLockscope);}var _2b8=null;var _2b9=_2b7.childNodes();for(var i=0,l=_2b9.length;i<l;i++){if(_2b9[i].nodeType()===1){_2b8=_2b9[i].localName();break;}}switch(_2b8){case "shared":_2b8=ITHit.WebDAV.Client.LockScope.Shared;break;case "exclusive":_2b8=ITHit.WebDAV.Client.LockScope.Exclusive;break;}if(!(_2b7=ITHit.XPath.selectSingleNode("d:depth",_2b4,_2b6))){throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.Exceptions.ActiveLockDoesntContainDepth);}var _2bc=ITHit.WebDAV.Client.Depth.Parse(_2b7.firstChild().nodeValue());var _2bd=(_2bc==ITHit.WebDAV.Client.Depth.Infinity);var _2be=null;if(_2b7=ITHit.XPath.selectSingleNode("d:owner",_2b4,_2b6)){_2be=_2b7.firstChild().nodeValue();}var _2bf=-1;if(_2b7=ITHit.XPath.selectSingleNode("d:timeout",_2b4,_2b6)){var _2c0=_2b7.firstChild().nodeValue();if("infinite"!=_2c0.toLowerCase()){if(-1!=_2c0.toLowerCase().indexOf("second-")){_2c0=_2c0.substr(7);}var _2bf=parseInt(_2c0);}}var _2c1=null;if(_2b7=ITHit.XPath.selectSingleNode("d:locktoken",_2b4,_2b6)){var _2c2=ITHit.XPath.selectSingleNode("d:href",_2b7,_2b6).firstChild().nodeValue();_2c2=_2c2.replace(ITHit.WebDAV.Client.DavConstants.OpaqueLockToken,"");_2c1=new ITHit.WebDAV.Client.LockUriTokenPair(_2b5,_2c2);}return new ITHit.WebDAV.Client.LockInfo(_2b8,_2bd,_2be,_2bf,_2c1);},ParseLockDiscovery:function(_2c3,_2c4){var _2c5=[];var _2c6=_2c3.getElementsByTagNameNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"activelock");for(var i=0;i<_2c6.length;i++){_2c5.push(ITHit.WebDAV.Client.LockInfo.ParseLockInfo(_2c6[i],_2c4));}return _2c5;}},LockScope:null,Deep:null,TimeOut:null,Owner:null,LockToken:null,constructor:function(_2c8,_2c9,_2ca,_2cb,_2cc){this.LockScope=_2c8;this.Deep=_2c9;this.TimeOut=_2cb;this.Owner=_2ca;this.LockToken=_2cc;}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Lock",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_2cd,_2ce,_2cf,_2d0,_2d1,_2d2,_2d3){return this._super.apply(this,arguments);},GoAsync:function(_2d4,_2d5,_2d6,_2d7,_2d8,_2d9,_2da,_2db){return this._super.apply(this,arguments);},_CreateRequest:function(_2dc,_2dd,_2de,_2df,_2e0,_2e1,_2e2){var _2e3=_2df;var _2e4=_2dc.CreateWebDavRequest(_2e0,_2dd);_2e4.Method("LOCK");_2e4.Headers.Add("Timeout",(-1===_2de)?"Infinite":"Second-"+parseInt(_2de));_2e4.Headers.Add("Depth",_2e1?ITHit.WebDAV.Client.Depth.Infinity.Value:ITHit.WebDAV.Client.Depth.Zero.Value);_2e4.Headers.Add("Content-Type","text/xml; charset=\"utf-8\"");var _2e5=new ITHit.XMLDoc();var _2e6=ITHit.WebDAV.Client.DavConstants.NamespaceUri;var _2e7=_2e5.createElementNS(_2e6,"lockinfo");var _2e8=_2e5.createElementNS(_2e6,"lockscope");var _2e9=_2e5.createElementNS(_2e6,_2e3.toLowerCase());_2e8.appendChild(_2e9);var _2ea=_2e5.createElementNS(_2e6,"locktype");var _2eb=_2e5.createElementNS(_2e6,"write");_2ea.appendChild(_2eb);var _2ec=_2e5.createElementNS(_2e6,"owner");_2ec.appendChild(_2e5.createTextNode(_2e2));_2e7.appendChild(_2e8);_2e7.appendChild(_2ea);_2e7.appendChild(_2ec);_2e5.appendChild(_2e7);_2e4.Body(_2e5);return _2e4;}},LockInfo:null,_Init:function(){var _2ed=this.Response.GetResponseStream();var _2ee=new ITHit.XPath.resolver();_2ee.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var _2ef=new ITHit.WebDAV.Client.Property(ITHit.XPath.selectSingleNode("/d:prop",_2ed,_2ee));try{var _2f0=new ITHit.WebDAV.Client.LockInfo.ParseLockDiscovery(_2ef.Value,this.Href);if(_2f0.length!==1){throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.UnableToParseLockInfoResponse);}this.LockInfo=_2f0[0];}catch(e){throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.ParsingPropertiesException,this.Href,_2ef.Name,null,ITHit.WebDAV.Client.HttpStatus.OK,e);}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.LockRefresh",ITHit.WebDAV.Client.Methods.Lock,{__static:{Go:function(_2f1,_2f2,_2f3,_2f4,_2f5,_2f6,_2f7){return this._super.apply(this,arguments);},GoAsync:function(_2f8,_2f9,_2fa,_2fb,_2fc,_2fd,_2fe,_2ff){return this._super.apply(this,arguments);},_CreateRequest:function(_300,_301,_302,_303,_304,_305,_306){var _307=_303;var _308=_300.CreateWebDavRequest(_304,_301,_307);_308.Method("LOCK");_308.Headers.Add("Timeout",(-1==_302)?"Infinite":"Second-"+parseInt(_302));_308.Body("");return _308;}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Unlock",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_309,_30a,_30b,_30c){return this._super.apply(this,arguments);},GoAsync:function(_30d,_30e,_30f,_310,_311){return this._super.apply(this,arguments);},_ProcessResponse:function(_312,_313){var _314=new ITHit.WebDAV.Client.Methods.SingleResponse(_312);return this._super(_314);},_CreateRequest:function(_315,_316,_317,_318){var _319=_315.CreateWebDavRequest(_318,_316);_319.Method("UNLOCK");_319.Headers.Add("Lock-Token","<"+ITHit.WebDAV.Client.DavConstants.OpaqueLockToken+_317+">");return _319;}}});ITHit.DefineClass("ITHit.WebDAV.Client.OptionsInfo",null,{Features:null,MsAuthorViaDav:null,VersionControl:null,Search:null,ServerVersion:"",constructor:function(_31a,_31b,_31c,_31d,_31e){this.Features=_31a;this.MsAuthorViaDav=_31b;this.VersionControl=_31c;this.Search=_31d;this.ServerVersion=_31e;}});ITHit.DefineClass("ITHit.WebDAV.Client.Features",null,{__static:{Class1:1,Class2:2,Class3:3,VersionControl:4,CheckoutInPlace:16,VersionHistory:32,Update:64,ResumableUpload:128,ResumableDownload:256}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Options",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_31f,_320,_321){return this.GoAsync(_31f,_320,_321);},GoAsync:function(_322,_323,_324,_325){var _326=ITHit.WebDAV.Client.Methods.Options.createRequest(_322,_323,_324);var self=this;var _328=typeof _325==="function"?function(_329){self._GoCallback(_322,_323,_329,_325);}:null;var _32a=_326.GetResponse(_328);if(typeof _325!=="function"){var _32b=new ITHit.WebDAV.Client.AsyncResult(_32a,_32a!=null,null);return this._GoCallback(_322,_323,_32b,_325);}else{return _326;}},_GoCallback:function(_32c,_32d,_32e,_32f){var _330=_32e;var _331=true;var _332=null;if(_32e instanceof ITHit.WebDAV.Client.AsyncResult){_330=_32e.Result;_331=_32e.IsSuccess;_332=_32e.Error;}var _333=null;if(_331){var _333=new ITHit.WebDAV.Client.Methods.Options(_330);}if(typeof _32f==="function"){var _334=new ITHit.WebDAV.Client.AsyncResult(_333,_331,_332);_32f.call(this,_334);}else{return _333;}},createRequest:function(_335,_336,_337){var _338=_335.CreateWebDavRequest(_337,_336);_338.Method("OPTIONS");return _338;}},ItemOptions:null,constructor:function(_339){this._super(_339);var sDav=_339._Response.GetResponseHeader("dav",true);var _33b=0;var _33c=0;if(sDav){if(-1!=sDav.indexOf("2")){_33b=ITHit.WebDAV.Client.Features.Class1+ITHit.WebDAV.Client.Features.Class2;}else{if(-1!=sDav.indexOf("1")){_33b=ITHit.WebDAV.Client.Features.Class1;}}if(-1!=sDav.indexOf("version-control")){_33c=ITHit.WebDAV.Client.Features.VersionControl;}if(-1!=sDav.indexOf("resumable-upload")){_33b+=ITHit.WebDAV.Client.Features.ResumableUpload;}}var _33d=false;var _33e=_339._Response.GetResponseHeader("ms-author-via",true);if(_33e&&(-1!=_33e.toLowerCase().indexOf("dav"))){_33d=true;}var _33f=false;var _340=_339._Response.GetResponseHeader("allow",true)||"";var _341=_340.toLowerCase().split(/[^a-z-_]+/);for(var i=0,l=_341.length;i<l;i++){if(_341[i]==="search"){_33f=true;break;}}var _344=_339._Response.GetResponseHeader("x-engine",true);this.ItemOptions=new ITHit.WebDAV.Client.OptionsInfo(_33b,_33d,_33c,_33f,_344);}});ITHit.oNS=ITHit.Declare("ITHit.Exceptions");ITHit.oNS.ExpressionException=function(_345){ITHit.Exceptions.ExpressionException.baseConstructor.call(this,_345);};ITHit.Extend(ITHit.oNS.ExpressionException,ITHit.Exception);ITHit.oNS.ExpressionException.prototype.Name="ExpressionException";ITHit.DefineClass("ITHit.WebDAV.Client.UploadProgressInfo",null,{__static:{GetUploadProgress:function(_346){var _347=[];if(!ITHit.WebDAV.Client.UploadProgressInfo.PropNames){ITHit.WebDAV.Client.UploadProgressInfo.PropNames=[new ITHit.WebDAV.Client.PropertyName("bytes-uploaded","ithit"),new ITHit.WebDAV.Client.PropertyName("last-chunk-saved","ithit"),new ITHit.WebDAV.Client.PropertyName("total-content-length","ithit")];}for(var i=0,_349;_349=_346.Responses[i];i++){for(var j=0,_34b;_34b=_349.Propstats[j];j++){var _34c=[];for(var k=0,_34e;_34e=_34b.Properties[k];k++){if(_34e.Name.Equals(ITHit.WebDAV.Client.UploadProgressInfo.PropNames[0])){_34c[0]=_34e.Value;}else{if(_34e.Name.Equals(ITHit.WebDAV.Client.UploadProgressInfo.PropNames[1])){_34c[1]=_34e.Value;}else{if(_34e.Name.Equals(ITHit.WebDAV.Client.UploadProgressInfo.PropNames[2])){_34c[2]=_34e.Value;}}}}if(!_34c[0]||!_34c[1]||!_34c[2]){throw new ITHit.Exception(ITHit.Phrases.Exceptions.NotAllPropertiesReceivedForUploadProgress.Paste(_349.Href));}_347.push(new ITHit.WebDAV.Client.UploadProgressInfo(_349.Href,parseInt(_34c[0].firstChild().nodeValue()),parseInt(_34c[2].firstChild().nodeValue()),ITHit.WebDAV.Client.HierarchyItem.GetDate(_34c[1].firstChild().nodeValue())));}}return _347;}},Href:null,BytesUploaded:null,TotalContentLength:null,LastChunkSaved:null,constructor:function(_34f,_350,_351,_352){if(!ITHit.Utils.IsString(_34f)||!_34f){throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.WrongHref.Paste(),_34f);}if(!ITHit.Utils.IsInteger(_350)){throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.WrongUploadedBytesType,_350);}if(!ITHit.Utils.IsInteger(_351)){throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.WrongContentLengthType,_351);}if(_350>_351){throw new ITHit.Exceptions.ExpressionException(ITHit.Phrases.Exceptions.BytesUploadedIsMoreThanTotalFileContentLength);}this.Href=_34f;this.BytesUploaded=_350;this.TotalContentLength=_351;this.LastChunkSaved=_352;}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Report",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{ReportType:{UploadProgress:"UploadProgress",VersionsTree:"VersionsTree"},Go:function(_353,_354,_355,_356,_357){return this.GoAsync(_353,_354,_355,_356,_357);},GoAsync:function(_358,_359,_35a,_35b,_35c,_35d){if(!_35b){_35b=ITHit.WebDAV.Client.Methods.Report.ReportType.UploadProgress;}var _35e=ITHit.WebDAV.Client.Methods.Report.createRequest(_358,_359,_35a,_35b,_35c);var self=this;var _360=typeof _35d==="function"?function(_361){self._GoCallback(_359,_361,_35b,_35d);}:null;var _362=_35e.GetResponse(_360);if(typeof _35d!=="function"){var _363=new ITHit.WebDAV.Client.AsyncResult(_362,_362!=null,null);return this._GoCallback(_359,_363,_35b,_35d);}else{return _35e;}},_GoCallback:function(_364,_365,_366,_367){var _368=_365;var _369=true;var _36a=null;if(_365 instanceof ITHit.WebDAV.Client.AsyncResult){_368=_365.Result;_369=_365.IsSuccess;_36a=_365.Error;}var _36b=null;if(_369){var _36c=_368.GetResponseStream();_36b=new ITHit.WebDAV.Client.Methods.Report(new ITHit.WebDAV.Client.Methods.MultiResponse(_36c,_364),_366);}if(typeof _367==="function"){var _36d=new ITHit.WebDAV.Client.AsyncResult(_36b,_369,_36a);_367.call(this,_36d);}else{return _36b;}},createRequest:function(_36e,_36f,_370,_371,_372){var _373=_36e.CreateWebDavRequest(_370,_36f);_373.Method("REPORT");_373.Headers.Add("Content-Type","text/xml; charset=\"utf-8\"");var _374=new ITHit.XMLDoc();switch(_371){case ITHit.WebDAV.Client.Methods.Report.ReportType.UploadProgress:var _375=_374.createElementNS("ithit","upload-progress");_374.appendChild(_375);break;case ITHit.WebDAV.Client.Methods.Report.ReportType.VersionsTree:var _376=_374.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"version-tree");if(!_372||!_372.length){var _377=_374.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"allprop");}else{var _377=_374.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"prop");for(var i=0;i<_372.length;i++){var prop=_374.createElementNS(_372[i].NamespaceUri,_372[i].Name);_377.appendChild(prop);}}_376.appendChild(_377);_374.appendChild(_376);break;}_373.Body(_374);return _373;}},constructor:function(_37a,_37b){this._super(_37a);switch(_37b){case ITHit.WebDAV.Client.Methods.Report.ReportType.UploadProgress:return ITHit.WebDAV.Client.UploadProgressInfo.GetUploadProgress(_37a);}}});(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.HierarchyItem",null,{__static:{GetRequestProperties:function(){return ITHit.WebDAV.Client.File.GetRequestProperties();},GetCustomRequestProperties:function(_37d){var _37e=this.GetRequestProperties();var _37f=[];for(var i=0,l=_37d.length;i<l;i++){var _382=_37d[i];var _383=false;for(var i2=0,l2=_37e.length;i2<l2;i2++){if(_382.Equals(_37e[i2])){_383=true;break;}}if(!_383){_37f.push(_382);}}return _37f;},ParseHref:function(_386){return {Href:_386,Host:ITHit.WebDAV.Client.HierarchyItem.GetHost(_386)};},OpenItem:function(_387,_388){var _389=this.ParseHref(_388);var _38a=ITHit.WebDAV.Client.Methods.Propfind.Go(_387,_389.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,this.GetRequestProperties(),ITHit.WebDAV.Client.Depth.Zero,_389.Host);return this.GetItemFromMultiResponse(_38a.Response,_387,_388);},OpenItemAsync:function(_38b,_38c,_38d){var _38e=this.ParseHref(_38c);ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_38b,_38e.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,this.GetRequestProperties(),ITHit.WebDAV.Client.Depth.Zero,_38e.Host,function(_38f){if(_38f.IsSuccess){try{_38f.Result=self.GetItemFromMultiResponse(_38f.Result.Response,_38b,_38c);}catch(oError){_38f.Error=oError;_38f.IsSuccess=false;}}_38d(_38f);});return _38b;},GetItemFromMultiResponse:function(_390,_391,_392,_393){_393=_393||[];for(var i=0;i<_390.Responses.length;i++){var _395=_390.Responses[i];if(!ITHit.WebDAV.Client.HierarchyItem.HrefEquals(_395.Href,_392)){continue;}return this.GetItemFromResponse(_395,_391,_392,_393);}throw new ITHit.WebDAV.Client.Exceptions.NotFoundException(ITHit.Phrases.FolderNotFound.Paste(_392));},GetItemsFromMultiResponse:function(_396,_397,_398,_399){_399=_399||[];var _39a=[];for(var i=0;i<_396.Responses.length;i++){var _39c=_396.Responses[i];if(ITHit.WebDAV.Client.HierarchyItem.HrefEquals(_39c.Href,_398)){continue;}if(_39c.Status&&!_39c.Status.IsOk()){continue;}_39a.push(this.GetItemFromResponse(_39c,_397,_398,_399));}return _39a;},GetItemFromResponse:function(_39d,_39e,_39f,_3a0){var _3a1=this.ParseHref(_39f);var _3a2=ITHit.WebDAV.Client.HierarchyItem.GetCustomProperties(_39d);for(var i2=0,l2=_3a0.length;i2<l2;i2++){if(!ITHit.WebDAV.Client.HierarchyItem.HasProperty(_39d,_3a0[i2])){_3a2[_3a0[i2].toString()]=null;}}switch(ITHit.WebDAV.Client.HierarchyItem.GetResourceType(_39d)){case ITHit.WebDAV.Client.ResourceType.File:return new ITHit.WebDAV.Client.File(_39e.Session,_39d.Href,ITHit.WebDAV.Client.HierarchyItem.GetLastModified(_39d),ITHit.WebDAV.Client.HierarchyItem.GetDisplayName(_39d),ITHit.WebDAV.Client.HierarchyItem.GetCreationDate(_39d),ITHit.WebDAV.Client.HierarchyItem.GetContentType(_39d),ITHit.WebDAV.Client.HierarchyItem.GetContentLength(_39d),ITHit.WebDAV.Client.HierarchyItem.GetSupportedLock(_39d),ITHit.WebDAV.Client.HierarchyItem.GetActiveLocks(_39d,_39f),_3a1.Host,ITHit.WebDAV.Client.HierarchyItem.GetQuotaAvailableBytes(_39d),ITHit.WebDAV.Client.HierarchyItem.GetQuotaUsedBytes(_39d),ITHit.WebDAV.Client.HierarchyItem.GetCkeckedIn(_39d),ITHit.WebDAV.Client.HierarchyItem.GetCheckedOut(_39d),_3a2);break;case ITHit.WebDAV.Client.ResourceType.Folder:return new ITHit.WebDAV.Client.Folder(_39e.Session,_39d.Href,ITHit.WebDAV.Client.HierarchyItem.GetLastModified(_39d),ITHit.WebDAV.Client.HierarchyItem.GetDisplayName(_39d),ITHit.WebDAV.Client.HierarchyItem.GetCreationDate(_39d),ITHit.WebDAV.Client.HierarchyItem.GetSupportedLock(_39d),ITHit.WebDAV.Client.HierarchyItem.GetActiveLocks(_39d,_39f),_3a1.Host,ITHit.WebDAV.Client.HierarchyItem.GetQuotaAvailableBytes(_39d),ITHit.WebDAV.Client.HierarchyItem.GetQuotaUsedBytes(_39d),ITHit.WebDAV.Client.HierarchyItem.GetCkeckedIn(_39d),ITHit.WebDAV.Client.HierarchyItem.GetCheckedOut(_39d),_3a2);default:throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.Exceptions.UnknownResourceType);}},AppendToUri:function(sUri,_3a6){return ITHit.WebDAV.Client.HierarchyItem.GetAbsoluteUriPath(sUri)+ITHit.WebDAV.Client.Encoder.EncodeURI(_3a6);},GetActiveLocks:function(_3a7,_3a8){var _3a9=ITHit.WebDAV.Client.DavConstants.LockDiscovery.toString();for(var i=0;i<_3a7.Propstats.length;i++){var _3ab=_3a7.Propstats[i];if(!_3ab.Status.IsOk()){break;}if("undefined"!=typeof _3ab.PropertiesByNames[_3a9]){var _3ac=_3ab.PropertiesByNames[_3a9];try{return ITHit.WebDAV.Client.LockInfo.ParseLockDiscovery(_3ac.Value,_3a8);}catch(e){if(typeof window.console!=="undefined"){console.error(e.stack||e.toString());}break;}}else{break;}}return [];},GetSupportedLock:function(_3ad){var _3ae=ITHit.WebDAV.Client.DavConstants.SupportedLock;for(var i=0;i<_3ad.Propstats.length;i++){var _3b0=_3ad.Propstats[i];if(!_3b0.Status.IsOk()){break;}var out=[];for(var p in _3b0.PropertiesByNames){out.push(p);}if("undefined"!=typeof _3b0.PropertiesByNames[_3ae]){var _3b3=_3b0.PropertiesByNames[_3ae];try{return ITHit.WebDAV.Client.HierarchyItem.ParseSupportedLock(_3b3.Value);}catch(e){break;}}}return [];},ParseSupportedLock:function(_3b4){var _3b5=[];var _3b6=new ITHit.XPath.resolver();_3b6.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var _3b7=null;var _3b8=null;var _3b9=ITHit.XMLDoc.nodeTypes.NODE_ELEMENT;var oRes=ITHit.XPath.evaluate("d:lockentry",_3b4,_3b6);while(_3b7=oRes.iterateNext()){var _3bb=ITHit.XPath.evaluate("d:*",_3b7,_3b6);while(_3b8=_3bb.iterateNext()){if(_3b8.nodeType()==_3b9){var _3bc="";if(_3b8.hasChildNodes()){var _3bd=_3b8.firstChild();while(_3bd){if(_3bd.nodeType()==_3b9){_3bc=_3bd.localName();break;}_3bd=_3bd.nextSibling();}}else{_3bc=_3b8.localName();}switch(_3bc.toLowerCase()){case "shared":_3b5.push(ITHit.WebDAV.Client.LockScope.Shared);break;case "exclusive":_3b5.push(ITHit.WebDAV.Client.LockScope.Exclusive);break;}}}}return _3b5;},GetQuotaAvailableBytes:function(_3be){var _3bf=ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes;for(var i=0;i<_3be.Propstats.length;i++){var _3c1=_3be.Propstats[i];if(!_3c1.Status.IsOk()){break;}if("undefined"!=typeof _3c1.PropertiesByNames[_3bf]){var _3c2=_3c1.PropertiesByNames[_3bf];try{return parseInt(_3c2.Value.firstChild().nodeValue());}catch(e){break;}}}return -1;},GetQuotaUsedBytes:function(_3c3){var _3c4=ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes;for(var i=0;i<_3c3.Propstats.length;i++){var _3c6=_3c3.Propstats[i];if(!_3c6.Status.IsOk()){break;}if("undefined"!=typeof _3c6.PropertiesByNames[_3c4]){var _3c7=_3c6.PropertiesByNames[_3c4];try{return parseInt(_3c7.Value.firstChild().nodeValue());}catch(e){break;}}}return -1;},GetCkeckedIn:function(_3c8){var _3c9=ITHit.WebDAV.Client.DavConstants.CheckedIn;for(var i=0;i<_3c8.Propstats.length;i++){var _3cb=_3c8.Propstats[i];if(!_3cb.Status.IsOk()){break;}if("undefined"!=typeof _3cb.PropertiesByNames[_3c9]){var _3cc=_3cb.PropertiesByNames[_3c9];try{return ITHit.WebDAV.Client.HierarchyItem.ParseChecked(_3cc.Value);}catch(e){break;}}}return false;},GetCheckedOut:function(_3cd){var _3ce=ITHit.WebDAV.Client.DavConstants.CheckedOut;for(var i=0;i<_3cd.Propstats.length;i++){var _3d0=_3cd.Propstats[i];if(!_3d0.Status.IsOk()){break;}if("undefined"!=typeof _3d0.PropertiesByNames[_3ce]){var _3d1=_3d0.PropertiesByNames[_3ce];try{return ITHit.WebDAV.Client.HierarchyItem.ParseChecked(_3d1.Value);}catch(e){break;}}}return false;},ParseChecked:function(_3d2){var _3d3=[];var _3d4=new ITHit.XPath.resolver();_3d4.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var _3d5=null;var _3d6=ITHit.XMLDoc.nodeTypes.NODE_ELEMENT;var oRes=ITHit.XPath.evaluate("d:href",_3d2,_3d4);while(_3d5=oRes.iterateNext()){if(_3d5.nodeType()==_3d6){_3d3.push(_3d5.firstChild().nodeValue());}}return _3d3;},GetResourceType:function(_3d8){var _3d9=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3d8,ITHit.WebDAV.Client.DavConstants.ResourceType);var _3da=ITHit.WebDAV.Client.ResourceType.File;if(_3d9.Value.getElementsByTagNameNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"collection").length>0){_3da=ITHit.WebDAV.Client.ResourceType.Folder;}return _3da;},HasProperty:function(_3db,_3dc){for(var i=0;i<_3db.Propstats.length;i++){var _3de=_3db.Propstats[i];for(var j=0;j<_3de.Properties.length;j++){var _3e0=_3de.Properties[j];if(_3e0.Name.Equals(_3dc)){return true;}}}return false;},GetProperty:function(_3e1,_3e2){for(var i=0;i<_3e1.Propstats.length;i++){var _3e4=_3e1.Propstats[i];for(var j=0;j<_3e4.Properties.length;j++){var _3e6=_3e4.Properties[j];if(_3e6.Name.Equals(_3e2)){return _3e6;}}}throw new ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException(ITHit.Phrases.Exceptions.PropertyNotFound,_3e1.Href,_3e2,null,null);},GetCustomProperties:function(_3e7){var _3e8=ITHit.WebDAV.Client.File.GetRequestProperties();var _3e9={};for(var i=0;i<_3e7.Propstats.length;i++){var _3eb=_3e7.Propstats[i];for(var i2=0;i2<_3eb.Properties.length;i2++){var _3ed=_3eb.Properties[i2];var _3ee=false;for(var i3=0;i3<_3e8.length;i3++){if(_3ed.Name.Equals(_3e8[i3])){_3ee=true;}}if(_3ee){continue;}_3e9[_3ed.toString()]=_3ed.Value.firstChild().nodeValue();}}return _3e9;},GetDisplayName:function(_3f0){var _3f1=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3f0,ITHit.WebDAV.Client.DavConstants.DisplayName).Value;var _3f2;if(_3f1.hasChildNodes()){_3f2=_3f1.firstChild().nodeValue();}else{_3f2=ITHit.WebDAV.Client.Encoder.Decode(ITHit.WebDAV.Client.HierarchyItem.GetLastName(_3f0.Href));}return _3f2;},GetLastModified:function(_3f3){if(!ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3f3,ITHit.WebDAV.Client.DavConstants.GetLastModified)){return ITHit.WebDAV.Client.HierarchyItem.GetDate();}var _3f4=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3f3,ITHit.WebDAV.Client.DavConstants.GetLastModified);return ITHit.WebDAV.Client.HierarchyItem.GetDate(_3f4.Value.firstChild().nodeValue(),"rfc1123");},GetContentType:function(_3f5){var _3f6=null;var _3f7=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3f5,ITHit.WebDAV.Client.DavConstants.GetContentType).Value;if(_3f7.hasChildNodes()){_3f6=_3f7.firstChild().nodeValue();}return _3f6;},GetContentLength:function(_3f8){var _3f9=0;var _3fa=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3f8,ITHit.WebDAV.Client.DavConstants.GetContentLength).Value;if(_3fa.hasChildNodes()){_3f9=parseInt(_3fa.firstChild().nodeValue());}return _3f9;},GetCreationDate:function(_3fb){if(!ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3fb,ITHit.WebDAV.Client.DavConstants.CreationDate)){return ITHit.WebDAV.Client.HierarchyItem.GetDate();}var _3fc=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_3fb,ITHit.WebDAV.Client.DavConstants.CreationDate);return ITHit.WebDAV.Client.HierarchyItem.GetDate(_3fc.Value.firstChild().nodeValue(),"tz");},GetDate:function(_3fd,_3fe){var _3ff;var i=0;if("tz"==_3fe){i++;}if(!_3fd){return new Date(0);}for(var e=i+1;i<=e;i++){if(0==i%2){var _3ff=new Date(_3fd);if(!isNaN(_3ff)){break;}}else{var _402=_3fd.match(/([\d]{4})\-([\d]{2})\-([\d]{2})T([\d]{2}):([\d]{2}):([\d]{2})(\.[\d]+)?((?:Z)|(?:[\+\-][\d]{2}:[\d]{2}))/);if(_402&&_402.length>=7){_402.shift();var _3ff=new Date(_402[0],_402[1]-1,_402[2],_402[3],_402[4],_402[5]);var _403=6;if(("undefined"!=typeof _402[_403])&&(-1!=_402[_403].indexOf("."))){_3ff.setMilliseconds(_402[_403].replace(/[^\d]/g,""));}_403++;if(("undefined"!=typeof _402[_403])&&("-00:00"!=_402[_403])&&(-1!=_402[_403].search(/(?:\+|-)/))){var _404=_402[_403].slice(1).split(":");var _405=parseInt(_404[1])+(60*_404[0]);if("+"==_402[_403][0]){_3ff.setMinutes(_3ff.getMinutes()-_405);}else{_3ff.setMinutes(_3ff.getMinutes()+_405);}_403++;}_3ff.setMinutes(_3ff.getMinutes()+(-1*_3ff.getTimezoneOffset()));break;}}}if(!_3ff||isNaN(_3ff)){_3ff=new Date(0);}return _3ff;},GetAbsoluteUriPath:function(_406){return _406.replace(/\/?$/,"/");},GetRelativePath:function(_407){return _407.replace(/^[a-z]+\:\/\/[^\/]+\//,"/");},GetLastName:function(_408){var _409=ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(_408).replace(/\/$/,"");return _409.match(/[^\/]*$/)[0];},HrefEquals:function(_40a,_40b){var iPos=_40b.search(/\?[^\/]+$/);if(-1!=iPos){_40b=_40b.substr(0,iPos);}var iPos=_40b.search(/\?[^\/]+$/);if(-1!=iPos){_40b=_40b.substr(0,iPos);}return ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(ITHit.WebDAV.Client.Encoder.Decode(_40a)).replace(/\/$/,"")==ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(ITHit.WebDAV.Client.Encoder.Decode(_40b)).replace(/\/$/,"");},GetFolderParentUri:function(_40d){var _40e=/^https?\:\/\//.test(_40d)?_40d.match(/^https?\:\/\/[^\/]+/)[0]+"/":"/";var _40f=ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(_40d);_40f=_40f.replace(/\/?$/,"");if(_40f===""){return null;}_40f=_40f.substr(0,_40f.lastIndexOf("/")+1);_40f=_40f.substr(1);return _40e+_40f;},GetHost:function(_410){var _411;if(/^https?\:\/\//.test(_410)){_411=_410.match(/^https?\:\/\/[^\/]+/)[0]+"/";}else{_411=location.protocol+"//"+location.host+"/";}return _411;},GetPropertyValuesFromMultiResponse:function(_412,_413){for(var i=0;i<_412.Responses.length;i++){var _415=_412.Responses[i];if(!ITHit.WebDAV.Client.HierarchyItem.HrefEquals(_415.Href,_413)){continue;}var _416=[];for(var j=0;j<_415.Propstats.length;j++){var _418=_415.Propstats[j];if(!_418.Properties.length){continue;}if(_418.Status.IsSuccess()){for(var k=0;k<_418.Properties.length;k++){var _41a=_418.Properties[k];if(!_41a.Name.IsStandardProperty()){_416.push(_41a);}}continue;}if(_418.Status.Equals(ITHit.WebDAV.Client.HttpStatus.NotFound)){throw new ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException(ITHit.Phrases.Exceptions.PropertyNotFound,_413,_418.Properties[0].Name,new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(_412),null);}if(_418.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Forbidden)){throw new ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException(ITHit.Phrases.Exceptions.PropertyForbidden,_413,_418.Properties[0].Name,new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(_412),null);}throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.PropertyFailed,_413,_418.Properties[0].Name,new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(_412),_418.Status,null);}return _416;}throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseItemNotFound.Paste(_413));},GetPropertyNamesFromMultiResponse:function(_41b,_41c){var _41d=[];var _41e=this.GetPropertyValuesFromMultiResponse(_41b,_41c);for(var i=0,l=_41e.length;i<l;i++){_41d.push(_41e[i].Name);}return _41d;},GetSourceFromMultiResponse:function(_421,_422){for(var i=0;i<_421.length;i++){var _424=_421[i];if(!ITHit.WebDAV.Client.HierarchyItem.HrefEquals(_424.Href,_422)){continue;}var _425=[];for(var j=0;j<_424.Propstats;j++){var _427=_424.Propstats[j];if(!_427.Status.IsOk()){if(_427.Status.Equals(ITHit.WebDAV.Client.HttpStatus.NotFound)){return null;}throw new ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException(ITHit.Phrases.PropfindFailedWithStatus.Paste(_427.Status.Description),_422,_427.Properties[0].Name,new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(_424));}for(var k=0;k<_427.Properties.length;k++){var _429=_427.Properties[k];if(_429.Name.Equals(ITHit.WebDAV.Client.DavConstants.Source)){var _42a=_429.Value.GetElementsByTagNameNS(DavConstants.NamespaceUri,DavConstants.Link);for(var l=0;l<_42a.length;l++){var _42c=_42a[i];var _42d=new ITHit.WebDAV.Client.Source(_42c.GetElementsByTagName(ITHit.WebDAV.Client.DavConstants.NamespaceUri,ITHit.WebDAV.Client.DavConstants.Src)[0].firstChild().nodeValue(),_42c.GetElementsByTagName(ITHit.WebDAV.Client.DavConstants.NamespaceUri,ITHit.WebDAV.Client.DavConstants.Dst)[0].firstChild().nodeValue());_425.push(_42d);}return _425;}}}}throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseItemNotFound.Paste(_422));}},Session:null,Href:null,LastModified:null,DisplayName:null,CreationDate:null,ResourceType:null,SupportedLocks:null,ActiveLocks:null,Properties:null,VersionControlled:null,Host:null,AvailableBytes:null,UsedBytes:null,CheckedIn:null,CheckedOut:null,ServerVersion:null,_Url:null,_AbsoluteUrl:null,constructor:function(_42e,_42f,_430,_431,_432,_433,_434,_435,_436,_437,_438,_439,_43a,_43b){this.Session=_42e;this.ServerVersion=_42e.ServerEngine;this.Href=_42f;this.LastModified=_430;this.DisplayName=_431;this.CreationDate=_432;this.ResourceType=_433;this.SupportedLocks=_434;this.ActiveLocks=_435;this.Host=_436;this.AvailableBytes=_437;this.UsedBytes=_438;this.CheckedIn=_439;this.CheckedOut=_43a;this.Properties=_43b;this.VersionControlled=this.CheckedIn!==false||this.CheckedOut!==false;this._AbsoluteUrl=ITHit.Decode(this.Href);this._Url=this._AbsoluteUrl.replace(/^http[s]?:\/\/[^\/]+\/?/,"/");},IsFolder:function(){return false;},IsEqual:function(_43c){if(_43c instanceof ITHit.WebDAV.Client.HierarchyItem){return this.Href===_43c.Href;}if(ITHit.Utils.IsString(_43c)){if(_43c.indexOf("://")!==-1||_43c.indexOf(":\\")!==-1){return this.GetAbsoluteUrl()===_43c;}return this.GetUrl()===_43c;}return false;},GetUrl:function(){return this._Url;},GetAbsoluteUrl:function(){return this._AbsoluteUrl;},HasProperty:function(_43d){var sKey=_43d.toString();return this.Properties.hasOwnProperty(sKey);},GetProperty:function(_43f){var sKey=_43f.toString();if(!this.Properties.hasOwnProperty(sKey)){throw new ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException("Not found property `"+sKey+"` in resource `"+this.Href+"`.");}return this.Properties[sKey];},Refresh:function(){var _441=this.Session.CreateRequest(this.__className+".Refresh()");var _442=self.OpenItem(_441,this.Href);for(var key in _442){if(_442.hasOwnProperty(key)){this[key]=_442[key];}}_441.MarkFinish();},RefreshAsync:function(_444){var that=this;var _446=this.Session.CreateRequest(this.__className+".RefreshAsync()");self.OpenItemAsync(_446,this.Href,function(_447){if(_447.IsSuccess){for(var key in _447.Result){if(_447.Result.hasOwnProperty(key)){that[key]=_447.Result[key];}}_447.Result=null;}_446.MarkFinish();_444(_447);});return _446;},CopyTo:function(_449,_44a,_44b,_44c,_44d){_44d=_44d||null;var _44e=this.Session.CreateRequest(this.__className+".CopyTo()");var _44f=ITHit.WebDAV.Client.Methods.CopyMove.Go(_44e,ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy,this.Href,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(_449.Href,_44a),this.ResourceType===ITHit.WebDAV.Client.ResourceType.Folder,_44b,_44c,_44d,this.Host);var _450=this._GetErrorFromCopyResponse(_44f.Response);if(_450){_44e.MarkFinish();throw _450;}_44e.MarkFinish();},CopyToAsync:function(_451,_452,_453,_454,_455,_456){_455=_455||null;var _457=this.Session.CreateRequest(this.__className+".CopyToAsync()");var that=this;ITHit.WebDAV.Client.Methods.CopyMove.GoAsync(_457,ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy,this.Href,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(_451.Href,_452),(this.ResourceType==ITHit.WebDAV.Client.ResourceType.Folder),_453,_454,_455,this.Host,function(_459){if(_459.IsSuccess){_459.Error=that._GetErrorFromCopyResponse(_459.Result.Response);if(_459.Error!==null){_459.IsSuccess=false;_459.Result=null;}}_457.MarkFinish();_456(_459);});return _457;},Delete:function(_45a){_45a=_45a||null;var _45b=this.Session.CreateRequest(this.__className+".Delete()");var _45c=ITHit.WebDAV.Client.Methods.Delete.Go(_45b,this.Href,_45a,this.Host);var _45d=this._GetErrorFromDeleteResponse(_45c.Response);if(_45d){_45b.MarkFinish();throw _45d;}_45b.MarkFinish();},DeleteAsync:function(_45e,_45f){_45e=_45e||null;var _460=this.Session.CreateRequest(this.__className+".DeleteAsync()");var that=this;ITHit.WebDAV.Client.Methods.Delete.GoAsync(_460,this.Href,_45e,this.Host,function(_462){if(_462.IsSuccess){_462.Error=that._GetErrorFromDeleteResponse(_462.Result.Response);if(_462.Error!==null){_462.IsSuccess=false;_462.Result=null;}}_460.MarkFinish();_45f(_462);});return _460;},GetPropertyNames:function(){var _463=this.Session.CreateRequest(this.__className+".GetPropertyNames()");var _464=ITHit.WebDAV.Client.Methods.Propfind.Go(_463,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.PropertyNames,null,ITHit.WebDAV.Client.Depth.Zero,this.Host);var _465=self.GetPropertyNamesFromMultiResponse(_464.Response,this.Href);_463.MarkFinish();return _465;},GetPropertyNamesAsync:function(_466){var _467=this.Session.CreateRequest(this.__className+".GetPropertyNamesAsync()");var that=this;ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_467,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.PropertyNames,null,ITHit.WebDAV.Client.Depth.Zero,this.Host,function(_469){if(_469.IsSuccess){try{_469.Result=self.GetPropertyNamesFromMultiResponse(_469.Result.Response,that.Href);}catch(oError){_469.Error=oError;_469.IsSuccess=false;}}_467.MarkFinish();_466(_469);});return _467;},GetPropertyValues:function(_46a){_46a=_46a||null;var _46b=this.Session.CreateRequest(this.__className+".GetPropertyValues()");var _46c=ITHit.WebDAV.Client.Methods.Propfind.Go(_46b,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,_46a,ITHit.WebDAV.Client.Depth.Zero,this.Host);var _46d=self.GetPropertyValuesFromMultiResponse(_46c.Response,this.Href);_46b.MarkFinish();return _46d;},GetPropertyValuesAsync:function(_46e,_46f){_46e=_46e||null;var _470=this.Session.CreateRequest(this.__className+".GetPropertyValuesAsync()");var that=this;ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_470,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,_46e,ITHit.WebDAV.Client.Depth.Zero,this.Host,function(_472){if(_472.IsSuccess){try{_472.Result=self.GetPropertyValuesFromMultiResponse(_472.Result.Response,that.Href);}catch(oError){_472.Error=oError;_472.IsSuccess=false;}}_470.MarkFinish();_46f(_472);});return _470;},GetAllProperties:function(){return this.GetPropertyValues(null);},GetAllPropertiesAsync:function(_473){return this.GetPropertyValuesAsync(null,_473);},GetParent:function(){var _474=this.Session.CreateRequest(this.__className+".GetParent()");var _475=ITHit.WebDAV.Client.HierarchyItem.GetFolderParentUri(ITHit.WebDAV.Client.Encoder.Decode(this.Href));if(_475===null){_474.MarkFinish();return null;}var _476=ITHit.WebDAV.Client.Folder.OpenItem(_474,_475);_474.MarkFinish();return _476;},GetParentAsync:function(_477){var _478=this.Session.CreateRequest(this.__className+".GetParentAsync()");var _479=ITHit.WebDAV.Client.HierarchyItem.GetFolderParentUri(ITHit.WebDAV.Client.Encoder.Decode(this.Href));if(_479===null){_477(new ITHit.WebDAV.Client.AsyncResult(null,true,null));return null;}ITHit.WebDAV.Client.Folder.OpenItemAsync(_478,_479,_477);return _478;},GetSource:function(){var _47a=this.Session.CreateRequest(this.__className+".GetSource()");var _47b=ITHit.WebDAV.Client.Methods.Propfind.Go(_47a,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,[ITHit.WebDAV.Client.DavConstants.Source],ITHit.WebDAV.Client.Depth.Zero,this.Host);var _47c=self.GetSourceFromMultiResponse(_47b.Response.Responses,this.Href);_47a.MarkFinish();return _47c;},GetSourceAsync:function(_47d){var _47e=this.Session.CreateRequest(this.__className+".GetSourceAsync()");var that=this;ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_47e,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,[ITHit.WebDAV.Client.DavConstants.Source],ITHit.WebDAV.Client.Depth.Zero,this.Host,function(_480){if(_480.IsSuccess){try{_480.Result=self.GetSourceFromMultiResponse(_480.Result.Response.Responses,that.Href);}catch(oError){_480.Error=oError;_480.IsSuccess=false;}}_47e.MarkFinish();_47d(_480);});return _47e;},Lock:function(_481,_482,_483,_484){var _485=this.Session.CreateRequest(this.__className+".Lock()");var _486=ITHit.WebDAV.Client.Methods.Lock.Go(_485,this.Href,_484,_481,this.Host,_482,_483);_485.MarkFinish();return _486.LockInfo;},LockAsync:function(_487,_488,_489,_48a,_48b){var _48c=this.Session.CreateRequest(this.__className+".LockAsync()");ITHit.WebDAV.Client.Methods.Lock.GoAsync(_48c,this.Href,_48a,_487,this.Host,_488,_489,function(_48d){if(_48d.IsSuccess){_48d.Result=_48d.Result.LockInfo;}_48c.MarkFinish();_48b(_48d);});return _48c;},MoveTo:function(_48e,_48f,_490,_491){_490=_490||false;_491=_491||null;var _492=this.Session.CreateRequest(this.__className+".MoveTo()");if(!(_48e instanceof ITHit.WebDAV.Client.Folder)){_492.MarkFinish();throw new ITHit.Exception(ITHit.Phrases.Exceptions.FolderWasExpectedAsDestinationForMoving);}var _493=ITHit.WebDAV.Client.Methods.CopyMove.Go(_492,ITHit.WebDAV.Client.Methods.CopyMove.Mode.Move,this.Href,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(_48e.Href,_48f),this.ResourceType,true,_490,_491,this.Host);var _494=this._GetErrorFromMoveResponse(_493.Response);if(_494!==null){_492.MarkFinish();throw _494;}_492.MarkFinish();},MoveToAsync:function(_495,_496,_497,_498,_499){_497=_497||false;_498=_498||null;var _49a=this.Session.CreateRequest(this.__className+".MoveToAsync()");if(!(_495 instanceof ITHit.WebDAV.Client.Folder)){_49a.MarkFinish();throw new ITHit.Exception(ITHit.Phrases.Exceptions.FolderWasExpectedAsDestinationForMoving);}var that=this;ITHit.WebDAV.Client.Methods.CopyMove.GoAsync(_49a,ITHit.WebDAV.Client.Methods.CopyMove.Mode.Move,this.Href,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(_495.Href,_496),this.ResourceType,true,_497,_498,this.Host,function(_49c){if(_49c.IsSuccess){_49c.Error=that._GetErrorFromMoveResponse(_49c.Result.Response);if(_49c.Error!==null){_49c.IsSuccess=false;_49c.Result=null;}}_49a.MarkFinish();_499(_49c);});return _49a;},RefreshLock:function(_49d,_49e){var _49f=this.Session.CreateRequest(this.__className+".RefreshLock()");var _4a0=ITHit.WebDAV.Client.Methods.LockRefresh.Go(_49f,this.Href,_49e,_49d,this.Host);_49f.MarkFinish();return _4a0.LockInfo;},RefreshLockAsync:function(_4a1,_4a2,_4a3){var _4a4=this.Session.CreateRequest(this.__className+".RefreshLockAsync()");ITHit.WebDAV.Client.Methods.LockRefresh.GoAsync(_4a4,this.Href,_4a2,_4a1,this.Host,function(_4a5){if(_4a5.IsSuccess){_4a5.Result=_4a5.Result.LockInfo;}_4a4.MarkFinish();_4a3(_4a5);});return _4a4;},SupportedFeatures:function(){var _4a6=this.Session.CreateRequest(this.__className+".SupportedFeatures()");var _4a7=ITHit.WebDAV.Client.Methods.Options.Go(_4a6,this.Href,this.Host).ItemOptions;_4a6.MarkFinish();return _4a7;},SupportedFeaturesAsync:function(_4a8){var _4a9=this.Session.CreateRequest(this.__className+".SupportedFeaturesAsync()");ITHit.WebDAV.Client.Methods.Options.GoAsync(_4a9,this.Href,this.Host,function(_4aa){if(_4aa.IsSuccess){_4aa.Result=_4aa.Result.ItemOptions;}_4a9.MarkFinish();_4a8(_4aa);});return _4a9;},Unlock:function(_4ab){var _4ac=this.Session.CreateRequest(this.__className+".Unlock()");var _4ad=ITHit.WebDAV.Client.Methods.Unlock.Go(_4ac,this.Href,_4ab,this.Host);var _4ae=this._GetErrorFromUnlockResponse(_4ad.Response);if(_4ae){_4ac.MarkFinish();throw _4ae;}_4ac.MarkFinish();},UnlockAsync:function(_4af,_4b0){var _4b1=this.Session.CreateRequest(this.__className+".UnlockAsync()");var that=this;ITHit.WebDAV.Client.Methods.Unlock.GoAsync(_4b1,this.Href,_4af,this.Host,function(_4b3){if(_4b3.IsSuccess){_4b3.Error=that._GetErrorFromUnlockResponse(_4b3.Result.Response);if(_4b3.Error!==null){_4b3.IsSuccess=false;_4b3.Result=null;}}_4b1.MarkFinish();_4b0(_4b3);});return _4b1;},UpdateProperties:function(_4b4,_4b5,_4b6){_4b6=_4b6||null;var _4b7=this.Session.CreateRequest(this.__className+".UpdateProperties()");var _4b8=this._GetPropertiesForUpdate(_4b4);var _4b9=this._GetPropertiesForDelete(_4b5);if(_4b8.length+_4b9.length===0){ITHit.Logger.WriteMessage(ITHit.Phrases.Exceptions.NoPropertiesToManipulateWith);_4b7.MarkFinish();return;}var _4ba=ITHit.WebDAV.Client.Methods.Proppatch.Go(_4b7,this.Href,_4b8,_4b9,_4b6,this.Host);var _4bb=this._GetErrorFromUpdatePropertiesResponse(_4ba.Response);if(_4bb){_4b7.MarkFinish();throw _4bb;}_4b7.MarkFinish();},UpdatePropertiesAsync:function(_4bc,_4bd,_4be,_4bf){_4be=_4be||null;var _4c0=this.Session.CreateRequest(this.__className+".UpdatePropertiesAsync()");var _4c1=this._GetPropertiesForUpdate(_4bc);var _4c2=this._GetPropertiesForDelete(_4bd);if(_4c1.length+_4c2.length===0){_4c0.MarkFinish();_4bf(new ITHit.WebDAV.Client.AsyncResult(true,true,null));return null;}var that=this;ITHit.WebDAV.Client.Methods.Proppatch.GoAsync(_4c0,this.Href,_4c1,_4c2,_4be,this.Host,function(_4c4){if(_4c4.IsSuccess){_4c4.Error=that._GetErrorFromUpdatePropertiesResponse(_4c4.Result.Response);if(_4c4.Error!==null){_4c4.IsSuccess=false;_4c4.Result=null;}}_4c0.MarkFinish();_4bf(_4c4);});return _4c0;},_GetPropertiesForUpdate:function(_4c5){var _4c6=[];if(_4c5){for(var i=0;i<_4c5.length;i++){if((_4c5[i] instanceof ITHit.WebDAV.Client.Property)&&_4c5[i]){if(_4c5[i].Name.NamespaceUri!=ITHit.WebDAV.Client.DavConstants.NamespaceUri){_4c6.push(_4c5[i]);}else{throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.AddOrUpdatePropertyDavProhibition.Paste(_4c5[i]),this.Href,_4c5[i]);}}else{throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.PropertyUpdateTypeException);}}}return _4c6;},_GetPropertiesForDelete:function(_4c8){var _4c9=[];if(_4c8){for(var i=0;i<_4c8.length;i++){if((_4c8[i] instanceof ITHit.WebDAV.Client.PropertyName)&&_4c8[i]){if(_4c8[i].NamespaceUri!=ITHit.WebDAV.Client.DavConstants.NamespaceUri){_4c9.push(_4c8[i]);}else{throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.DeletePropertyDavProhibition.Paste(_4c8[i]),this.Href,_4c8[i]);}}else{throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.PropertyDeleteTypeException);}}}return _4c9;},_GetErrorFromDeleteResponse:function(_4cb){if(_4cb instanceof ITHit.WebDAV.Client.Methods.MultiResponse){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.FailedToDelete,this.Href,new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(_4cb),ITHit.WebDAV.Client.HttpStatus.MultiStatus,null);}if(_4cb instanceof ITHit.WebDAV.Client.Methods.SingleResponse&&!_4cb.Status.IsSuccess()){var _4cc=ITHit.Phrases.DeleteFailedWithStatus.Paste(_4cb.Status.Code,_4cb.Status.Description);return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(_4cc,this.Href,null,_4cb.Status,null);}return null;},_GetErrorFromCopyResponse:function(_4cd){if(_4cd instanceof ITHit.WebDAV.Client.Methods.MultiResponse){for(var i=0,l=_4cd.Responses.length;i<l;i++){if(_4cd.Responses[i].Status.IsCopyMoveOk()){continue;}return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.FailedToCopy,this.Href,new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(_4cd),ITHit.WebDAV.Client.HttpStatus.MultiStatus,null);}}if(_4cd instanceof ITHit.WebDAV.Client.Methods.SingleResponse&&!_4cd.Status.IsCopyMoveOk()){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.FailedToCopyWithStatus.Paste(_4cd.Status.Code,_4cd.Status.Description),this.Href,null,_4cd.Status,null);}return null;},_GetErrorFromMoveResponse:function(_4d0){if(_4d0 instanceof ITHit.WebDAV.Client.Methods.MultiResponse){for(var i=0,l=_4d0.Responses.length;i<l;i++){if(_4d0.Responses[i].Status.IsCopyMoveOk()){continue;}return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.FailedToMove,this.Href,new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(_4d0),ITHit.WebDAV.Client.HttpStatus.MultiStatus,null);}}if(_4d0 instanceof ITHit.WebDAV.Client.Methods.SingleResponse&&!_4d0.Status.IsCopyMoveOk()){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.MoveFailedWithStatus.Paste(_4d0.Status.Code,_4d0.Status.Description),this.Href,null,_4d0.Status,null);}return null;},_GetErrorFromUnlockResponse:function(_4d3){if(!_4d3.Status.IsUnlockOk()){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.UnlockFailedWithStatus.Paste(_4d3.Status.Code,_4d3.Status.Description),this.Href,null,_4d3.Status,null);}return null;},_GetErrorFromUpdatePropertiesResponse:function(_4d4){var _4d5=new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(_4d4);for(var i=0;i<_4d5.Responses.length;i++){var _4d7=_4d5.Responses[i];if(_4d7.Status.IsSuccess()){continue;}return new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.FailedToUpdateProp,this.Href,_4d7.PropertyName,_4d5,ITHit.WebDAV.Client.HttpStatus.MultiStatus,null);}return null;}});})();ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Put",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_4d8,_4d9,_4da,_4db,_4dc,_4dd){return this._super.apply(this,arguments);},GoAsync:function(_4de,_4df,_4e0,_4e1,_4e2,_4e3,_4e4){return this._super.apply(this,arguments);},_CreateRequest:function(_4e5,_4e6,_4e7,_4e8,_4e9,_4ea){var _4eb=_4e5.CreateWebDavRequest(_4ea,_4e6,_4e9);_4eb.Method("PUT");if(_4e7){_4eb.Headers.Add("Content-Type",_4e7);}_4eb.Body(_4e8);return _4eb;}}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Get",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_4ec,_4ed,_4ee,_4ef,_4f0){return this._super.apply(this,arguments);},GoAsync:function(_4f1,_4f2,_4f3,_4f4,_4f5){return this._super.apply(this,arguments);},_CreateRequest:function(_4f6,_4f7,_4f8,_4f9,_4fa){var _4fb=_4f6.CreateWebDavRequest(_4fa,_4f7);_4fb.Method("GET");_4fb.Headers.Add("Translate","f");if(_4f8!==null){var _4fc=_4f8;if(_4f8>=0){if(_4f9!==null){_4fc+="-"+parseInt(_4f9);}else{_4fc+="-";}}else{_4fc=String(_4fc);}_4fb.Headers.Add("Range","bytes="+_4fc);}return _4fb;}},GetContent:function(){return this.Response._Response.BodyText;}});(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.DocManager",null,{__static:{JavaOpen:function(sUrl,_4ff,_500,_501,_502){if(_4ff==null){if(!_501){var s=sUrl.lastIndexOf("/");_4ff=(s!=-1)?sUrl.substr(0,s+1):"/";}else{_4ff=sUrl;}}if(_500==null){_500="/plugins/ITHitMountOpenDocument.jar";}if(_502==null){_502=window.document.body;}var _504=_501?"folder":"file";if(document.mountAppletOpenDocs!=null){document.mountAppletOpenDocs.parentElement.outerHTML="";}var _505={nodeName:"div",style:{width:"0px",height:"0px",position:"absolute",overflow:"hidden",top:"-1000px",left:"-1000px"}};var _506=ITHit.Utils.CreateDOMElement(_505);_502.appendChild(_506);var _507;if(ITHit.DetectBrowser.IE){_507="<object name=\"mountAppletOpenDocs\""+" classid=\"clsid:8AD9C840-044E-11D1-B3E9-00805F499D93\""+" codebase=\"http://java.sun.com/update/1.6.0/jinstall-6u26-windows-i586.cab#Version=1,6,0,0\""+" width=\"0\" height=\"0\""+">"+"  <param name=\"archive\" value=\""+_500+"\">"+"  <param name=\"code\" value=\"MODApplet.class\">"+"  <param name=\""+_504+"\" value=\""+sUrl+"\">"+"  <param name=\"mountUrl\" value=\""+_4ff+"\">"+"</object>";}else{_507="<embed name=\"mountAppletOpenDocs\""+" type=\"application/x-java-applet;version=1.6\""+" pluginspage = \"http://www.java.com/en/download/\""+" width=\"0\" height=\"0\""+" archive=\""+_500+"\""+" code=\"MODApplet.class\""+" "+_504+"=\""+sUrl+"\""+" mountUrl=\""+_4ff+"\""+">";}_506.innerHTML=_507;},JavaEditDocument:function(_508,_509,_50a,_50b){this.JavaOpen(_508,_509,_50a,false,_50b);},JavaOpenFolderInOsFileManager:function(_50c,_50d,_50e,_50f){this.JavaOpen(_50c,_50d,_50e,true,_50f);},OpenFolderInOsFileManager:function(_510,_511,_512,_513){if(_513==null){_513=window.document.body;}if(ITHit.DetectBrowser.IE&&(ITHit.DetectBrowser.IE<11)){if(_513._httpFolder==null){var span={nodeName:"span",style:{display:"none",behavior:"url(#default#httpFolder)"}};_513._httpFolder=ITHit.Utils.CreateDOMElement(span);_513.appendChild(_513._httpFolder);}var res=_513._httpFolder.navigate(_510);}else{this.JavaOpenFolderInOsFileManager(_510,_511,_512,_513);}},IsMicrosoftOfficeAvailable:function(){if(ITHit.DetectBrowser.IE){try{new ActiveXObject("SharePoint.OpenDocuments");return true;}catch(e){}}else{var _516=navigator.plugins;var _517=ITHit.DetectBrowser.Mac?"SharePoint Browser Plug-in":"Microsoft Office";for(var i=0;i<_516.length;i++){if(_516[i].name.indexOf(_517)==0){return true;}}}return false;},GetExtension:function(_519){var _51a=_519.indexOf("?");if(_51a>-1){_519=_519.substr(0,_51a);}var aExt=_519.split(".");if(aExt.length===1){return "";}return aExt.pop();},IsMicrosoftOfficeDocument:function(_51c){var ext=self.GetExtension(ITHit.Trim(_51c));if(ext===""){return false;}return self.FileFormats.MsOfficeEditExtensions.join("|").indexOf(ext)!==-1;},GetMsOfficeVersion:function(){if(ITHit.DetectBrowser.IE){try{new ActiveXObject("SharePoint.OpenDocuments.5");return 2013;}catch(e){}}else{var _51e=-1;var _51f=navigator.plugins;for(var i=0;i<_51f.length;i++){if(_51f[i].name.indexOf("Microsoft Office")==0){var _521=_51f[i].name.substr("Microsoft Office ".length,4);var _522=parseInt(_521);if(_522>_51e){_51e=_522;}}}return _51e;}return null;},GetSharePointOpenDocumentsCtrl:function(_523){_523=_523||window.document.body;if(_523._sharePointOpenDocuments==null){if(ITHit.DetectBrowser.IE){try{_523._sharePointOpenDocuments=new ActiveXObject("SharePoint.OpenDocuments");}catch(e){}}else{var _524={nodeName:"object",type:"application/x-sharepoint",style:{visibility:"hidden"},width:"0",height:"0"};_523._sharePointOpenDocuments=ITHit.Utils.CreateDOMElement(_524);_523.appendChild(_523._sharePointOpenDocuments);}}return _523._sharePointOpenDocuments;},GetMsOfficeSchemaByExtension:function(sExt){sExt=sExt.toLowerCase();switch(sExt){case "docx":case "doc":case "docm":case "dot":case "dotm":case "dotx":case "odt":return "ms-word";case "xltx":case "xltm":case "xlt":case "xlsx":case "xlsm":case "xlsb":case "xls":case "xll":case "xlam":case "xla":case "ods":return "ms-excel";case "pptx":case "pptm":case "ppt":case "ppsx":case "ppsm":case "pps":case "ppam":case "ppa":case "potx":case "potm":case "pot":case "odp":return "ms-powerpoint";case "accdb":case "mdb":return "ms-access";case "xsn":case "xsf":return "ms-infopath";case "pub":return "ms-publisher";case "vstx":case "vstm":case "vst":case "vssx":case "vssm":case "vss":case "vsl":case "vsdx":case "vsdm":case "vsd":case "vdw":return "ms-visio";case "mpp":case "mpt":return "ms-project";default:return "";}},ShowMicrosoftOfficeWarning:function(){if(self.GetMsOfficeVersion()<2013){self.GetSharePointOpenDocumentsCtrl();}},MicrosoftOfficeEditDocument:function(_526){try{_526=ITHit.Trim(_526);if(self.GetMsOfficeVersion()>=2013){var ext=self.GetExtension(_526);if(ext===""){return false;}window.location.href=self.GetMsOfficeSchemaByExtension(ext)+":ofe|u|"+_526;}else{var sho=self.GetSharePointOpenDocumentsCtrl();if(sho){if(!sho.EditDocument(_526)){return false;}}}}catch(e){return false;}return true;},FileFormats:{ProtectedExtentions:[],MsOfficeEditExtensions:["docx","doc","docm","dot","dotm","dotx","odt","xltx","xltm","xlt","xlsx","xlsm","xlsb","xls","xll","xlam","xla","ods","pptx","pptm","ppt","ppsx","ppsm","pps","ppam","ppa","potx","potm","pot","odp","accdb","mdb","xsn","xsf","pub","vstx","vstm","vst","vssx","vssm","vssm","vss","vsl","vsdx","vsdm","vsd","vdw","mpp","mpt"]},EditDocument:function(_529,_52a){if(self.IsMicrosoftOfficeAvailable()&&self.IsMicrosoftOfficeDocument(_529)){return self.MicrosoftOfficeEditDocument(_529);}self.JavaEditDocument(_529,null,_52a);return true;}}});})();ITHit.DefineClass("ITHit.WebDAV.Client.Methods.CancelUpload",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_52b,_52c,_52d,_52e){return this.GoAsync(_52b,_52c,_52d,_52e);},GoAsync:function(_52f,_530,_531,_532,_533){var _534=ITHit.WebDAV.Client.Methods.CancelUpload.createRequest(_52f,_530,_531,_532);var self=this;var _536=typeof _533==="function"?function(_537){self._GoCallback(_530,_537,_533);}:null;var _538=_534.GetResponse(_536);if(typeof _533!=="function"){var _539=new ITHit.WebDAV.Client.AsyncResult(_538,_538!=null,null);return this._GoCallback(_530,_539,_533);}else{return _534;}},_GoCallback:function(_53a,_53b,_53c){var _53d=_53b;var _53e=true;var _53f=null;if(_53b instanceof ITHit.WebDAV.Client.AsyncResult){_53d=_53b.Result;_53e=_53b.IsSuccess;_53f=_53b.Error;}var _540=null;if(_53e){_540=new ITHit.WebDAV.Client.Methods.CancelUpload(new ITHit.WebDAV.Client.Methods.SingleResponse(_53d));}if(typeof _53c==="function"){var _541=new ITHit.WebDAV.Client.AsyncResult(_540,_53e,_53f);_53c.call(this,_541);}else{return _540;}},createRequest:function(_542,_543,_544,_545){var _546=_542.CreateWebDavRequest(_545,_543,_544);_546.Method("CANCELUPLOAD");return _546;}}});ITHit.DefineClass("ITHit.WebDAV.Client.ResumableUpload",null,{Session:null,Href:null,Host:null,constructor:function(_547,_548,_549){this.Session=_547;this.Href=_548;this.Host=_549;},GetBytesUploaded:function(){var _54a=this.Session.CreateRequest(this.__className+".GetBytesUploaded()");var _54b=ITHit.WebDAV.Client.Methods.Report.Go(_54a,this.Href,this.Host);var _54c=_54b.length>0?_54b[0].BytesUploaded:null;_54a.MarkFinish();return _54c;},GetBytesUploadedAsync:function(_54d){var _54e=this.Session.CreateRequest(this.__className+".GetBytesUploadedAsync()");ITHit.WebDAV.Client.Methods.Report.GoAsync(_54e,this.Href,this.Host,null,null,function(_54f){_54f.Result=_54f.IsSuccess&&_54f.Result.length>0?_54f.Result[0].BytesUploaded:null;_54e.MarkFinish();_54d(_54f);});return _54e;},CancelUpload:function(_550){var _551=this.Session.CreateRequest(this.__className+".CancelUpload()");ITHit.WebDAV.Client.Methods.CancelUpload.Go(_551,this.Href,_550,this.Host);_551.MarkFinish();},CancelUploadAsync:function(_552,_553){var _554=this.Session.CreateRequest(this.__className+".CancelUploadAsync()");return ITHit.WebDAV.Client.Methods.CancelUpload.GoAsync(_554,this.Href,this.Host,_552,function(_555){_554.MarkFinish();_553(_555);});}});(function(){var self=ITHit.WebDAV.Client.Resource=ITHit.DefineClass("ITHit.WebDAV.Client.File",ITHit.WebDAV.Client.HierarchyItem,{__static:{GetRequestProperties:function(){return [ITHit.WebDAV.Client.DavConstants.ResourceType,ITHit.WebDAV.Client.DavConstants.DisplayName,ITHit.WebDAV.Client.DavConstants.CreationDate,ITHit.WebDAV.Client.DavConstants.GetLastModified,ITHit.WebDAV.Client.DavConstants.GetContentType,ITHit.WebDAV.Client.DavConstants.GetContentLength,ITHit.WebDAV.Client.DavConstants.SupportedLock,ITHit.WebDAV.Client.DavConstants.LockDiscovery,ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes,ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes,ITHit.WebDAV.Client.DavConstants.CheckedIn,ITHit.WebDAV.Client.DavConstants.CheckedOut];},ParseHref:function(_557,_558){var _559=_557.split("?");_559[0]=_559[0].replace(/\/?$/,"");_557=ITHit.WebDAV.Client.Encoder.EncodeURI(_559.join("?"));return this._super(_557);},OpenItem:function(_55a,_55b){var _55c=this._super(_55a,_55b);if(!(_55c instanceof self)){throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFileWrongType.Paste(_55b));}return _55c;},OpenItemAsync:function(_55d,_55e,_55f){this._super(_55d,_55e,function(_560){if(_560.IsSuccess&&!(_560.Result instanceof self)){_560.Error=new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFileWrongType.Paste(_55e));_560.IsSuccess=false;}_55f(_560);});return _55d;}},ContentLength:null,ContentType:null,ResumableUpload:null,constructor:function(_561,_562,_563,_564,_565,_566,_567,_568,_569,_56a,_56b,_56c,_56d,_56e,_56f){this._super(_561,_562,_563,_564,_565,ITHit.WebDAV.Client.ResourceType.File,_568,_569,_56a,_56b,_56c,_56d,_56e,_56f);this.ContentLength=_567;this.ContentType=_566;this.ResumableUpload=new ITHit.WebDAV.Client.ResumableUpload(this.Session,this.Href);},ReadContent:function(_570,_571){_570=_570||null;_571=_571||null;var _572=this.Session.CreateRequest(this.__className+".ReadContent()");var _573=_570&&_571?_570+_571-1:0;var _574=ITHit.WebDAV.Client.Methods.Get.Go(_572,this.Href,_570,_573,this.Host);_572.MarkFinish();return _574.GetContent();},ReadContentAsync:function(_575,_576,_577){_575=_575||null;_576=_576||null;var _578=this.Session.CreateRequest(this.__className+".ReadContentAsync()");var _579=_575&&_576?_575+_576-1:null;ITHit.WebDAV.Client.Methods.Get.GoAsync(_578,this.Href,_575,_579,this.Host,function(_57a){if(_57a.IsSuccess){_57a.Result=_57a.Result.GetContent();}_578.MarkFinish();_577(_57a);});return _578;},WriteContent:function(_57b,_57c,_57d){_57c=_57c||null;_57d=_57d||"";var _57e=this.Session.CreateRequest(this.__className+".WriteContent()");var _57f=ITHit.WebDAV.Client.Methods.Put.Go(_57e,this.Href,_57d,_57b,_57c,this.Host);var _580=this._GetErrorFromWriteContentResponse(_57f.Response,this.Href);if(_580){_57e.MarkFinish();throw _580;}_57e.MarkFinish();},WriteContentAsync:function(_581,_582,_583,_584){_582=_582||null;_583=_583||"";var _585=this.Session.CreateRequest(this.__className+".WriteContentAsync()");var that=this;ITHit.WebDAV.Client.Methods.Put.GoAsync(_585,this.Href,_583,_581,_582,this.Host,function(_587){if(_587.IsSuccess){_587.Error=that._GetErrorFromWriteContentResponse(_587.Result.Response,that.Href);if(_587.Error!==null){_587.IsSuccess=false;_587.Result=null;}}_585.MarkFinish();_584(_587);});return _585;},EditDocument:function(_588){ITHit.WebDAV.Client.DocManager.EditDocument(this.Href,_588);},GetVersions:function(){var _589=this.Session.CreateRequest(this.__className+".GetVersions()");var _58a=ITHit.WebDAV.Client.Methods.Report.Go(_589,this.Href,this.Host,ITHit.WebDAV.Client.Methods.Report.ReportType.VersionsTree,ITHit.WebDAV.Client.Version.GetRequestProperties());var _58b=ITHit.WebDAV.Client.Version.GetVersionsFromMultiResponse(_58a.Response.Responses,this);_589.MarkFinish();return _58b;},GetVersionsAsync:function(_58c){var _58d=this.Session.CreateRequest(this.__className+".GetVersionsAsync()");var that=this;ITHit.WebDAV.Client.Methods.Report.GoAsync(_58d,this.Href,this.Host,ITHit.WebDAV.Client.Methods.Report.ReportType.VersionsTree,ITHit.WebDAV.Client.Version.GetRequestProperties(),function(_58f){if(_58f.IsSuccess){_58f.Result=ITHit.WebDAV.Client.Version.GetVersionsFromMultiResponse(_58f.Result.Response.Responses,that);}_58d.MarkFinish();_58c(_58f);});return _58d;},UpdateToVersion:function(_590){var _591=_590 instanceof ITHit.WebDAV.Client.Version?_590.Href:_590;var _592=this.Session.CreateRequest(this.__className+".UpdateToVersion()");var _593=ITHit.WebDAV.Client.Methods.UpdateToVersion.Go(_592,this.Href,this.Host,_591);var _594=_593.Response;var _595=_594.Responses[0].Status.IsSuccess();_592.MarkFinish();return _595;},UpdateToVersionAsync:function(_596,_597){var _598=_596 instanceof ITHit.WebDAV.Client.Version?_596.Href:_596;var _599=this.Session.CreateRequest(this.__className+".UpdateToVersionAsync()");ITHit.WebDAV.Client.Methods.UpdateToVersion.GoAsync(_599,this.Href,this.Host,_598,function(_59a){_59a.Result=_59a.IsSuccess&&_59a.Result.Response.Responses[0].Status.IsSuccess();_599.MarkFinish();_597(_59a);});return _599;},PutUnderVersionControl:function(_59b,_59c){_59c=_59c||null;var _59d=null;var _59e=null;if(_59b){_59d=this.Session.CreateRequest(this.__className+".PutUnderVersionControl()");_59e=ITHit.WebDAV.Client.Methods.VersionControl.Go(_59d,this.Href,_59c,this.Host);var _59f=this._GetErrorFromPutUnderVersionControlResponse(_59e.Response);if(_59f){_59d.MarkFinish();throw _59f;}_59d.MarkFinish();}else{_59d=this.Session.CreateRequest(this.__className+".PutUnderVersionControl()",2);_59e=ITHit.WebDAV.Client.Methods.Propfind.Go(_59d,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,[ITHit.WebDAV.Client.DavConstants.VersionHistory],ITHit.WebDAV.Client.Depth.Zero,this.Host);var _5a0=self.GetPropertyValuesFromMultiResponse(_59e.Response,this.Href);var _5a1=ITHit.WebDAV.Client.Version.ParseSetOfHrefs(_5a0);if(_5a1.length!==1){throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.ExceptionWhileParsingProperties,this.Href,ITHit.WebDAV.Client.DavConstants.VersionHistory,null,ITHit.WebDAV.Client.HttpStatus.None,null);}_59e=ITHit.WebDAV.Client.Methods.Delete.Go(_59d,_5a1[0],_59c,this.Host);var _59f=this._GetErrorFromDeleteResponse(_59e.Response);if(_59f){_59d.MarkFinish();throw _59f;}_59d.MarkFinish();}},PutUnderVersionControlAsync:function(_5a2,_5a3,_5a4){_5a3=_5a3||null;var that=this;var _5a6=null;if(_5a2){_5a6=this.Session.CreateRequest(this.__className+".PutUnderVersionControlAsync()");ITHit.WebDAV.Client.Methods.VersionControl.GoAsync(_5a6,this.Href,_5a3,this.Host,function(_5a7){if(_5a7.IsSuccess){_5a7.Error=that._GetErrorFromPutUnderVersionControlResponse(_5a7.Result.Response);if(_5a7.Error!==null){_5a7.IsSuccess=false;_5a7.Result=null;}}_5a6.MarkFinish();_5a4(_5a7);});return _5a6;}else{_5a6=this.Session.CreateRequest(this.__className+".PutUnderVersionControlAsync()",2);ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_5a6,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,[ITHit.WebDAV.Client.DavConstants.VersionHistory],ITHit.WebDAV.Client.Depth.Zero,this.Host,function(_5a8){if(_5a8.IsSuccess){try{_5a8.Result=self.GetPropertyValuesFromMultiResponse(_5a8.Result.Response,that.Href);}catch(oError){_5a8.Error=oError;_5a8.IsSuccess=false;}}if(_5a8.IsSuccess){var _5a9=ITHit.WebDAV.Client.Version.ParseSetOfHrefs(_5a8.Result);if(_5a9.length!==1){throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.ExceptionWhileParsingProperties,that.Href,ITHit.WebDAV.Client.DavConstants.VersionHistory,null,ITHit.WebDAV.Client.HttpStatus.None,null);}ITHit.WebDAV.Client.Methods.Delete.GoAsync(_5a6,_5a9[0],_5a3,that.Host,function(_5aa){if(_5aa.IsSuccess){_5aa.Error=that._GetErrorFromDeleteResponse(_5aa.Result.Response);if(_5aa.Error!==null){_5aa.IsSuccess=false;_5aa.Result=null;}}_5a6.MarkFinish();_5a4(_5aa);});}else{if(_5a8.Error instanceof ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException){_5a8.IsSuccess=true;_5a8.Error=null;_5a8.Result=null;_5a6.MarkFinish();_5a4(_5a8);}else{_5a6.MarkFinish();_5a4(_5a8);}}});}},_GetErrorFromPutUnderVersionControlResponse:function(_5ab){if(!_5ab.Status.IsSuccess()){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.PutUnderVersionControlFailed,this.Href,null,_5ab.Status,null);}return null;},_GetErrorFromWriteContentResponse:function(_5ac,_5ad){if(!_5ac.Status.Equals(ITHit.WebDAV.Client.HttpStatus.OK)&&!_5ac.Status.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent)){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedToWriteContentToFile,_5ad,null,_5ac.Status,null);}return null;}});})();ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Mkcol",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_5ae,_5af,_5b0,_5b1){var _5b2=this.createRequest(_5ae,_5af,_5b0,_5b1);var _5b3=_5b2.GetResponse();var _5b4=new ITHit.WebDAV.Client.Methods.SingleResponse(_5b3);return new ITHit.WebDAV.Client.Methods.Mkcol(_5b4);},GoAsync:function(_5b5,_5b6,_5b7,_5b8,_5b9){var _5ba=this.createRequest(_5b5,_5b6,_5b7,_5b8);_5ba.GetResponse(function(_5bb){if(!_5bb.IsSuccess){_5b9(new ITHit.WebDAV.Client.AsyncResult(null,false,_5bb.Error));return;}var _5bc=new ITHit.WebDAV.Client.Methods.SingleResponse(_5bb.Result);var _5bd=new ITHit.WebDAV.Client.Methods.Mkcol(_5bc);_5b9(new ITHit.WebDAV.Client.AsyncResult(_5bd,true,null));});return _5ba;},createRequest:function(_5be,_5bf,_5c0,_5c1){var _5c2=_5be.CreateWebDavRequest(_5c1,_5bf,_5c0);_5c2.Method("MKCOL");return _5c2;}}});(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Head",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_5c4,_5c5,_5c6){try{return this._super.apply(this,arguments);}catch(oException){if(oException instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException){var _5c7=new self(null,_5c5);_5c7.IsOK=false;return _5c7;}throw oException;}},GoAsync:function(_5c8,_5c9,_5ca,_5cb){return this._super(_5c8,_5c9,_5ca,function(_5cc){if(_5cc.Error instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException){_5cc.Result=new self(null,_5c9);_5cc.Result.IsOK=false;_5cc.IsSuccess=true;_5cc.Error=null;}_5cb(_5cc);});},_ProcessResponse:function(_5cd,_5ce){var _5cf=this._super(_5cd,_5ce);_5cf.IsOK=_5cd.Status.Equals(ITHit.WebDAV.Client.HttpStatus.OK);return _5cf;},_CreateRequest:function(_5d0,_5d1,_5d2){var _5d3=_5d0.CreateWebDavRequest(_5d2,_5d1);_5d3.Method("HEAD");return _5d3;}},IsOK:null});})();ITHit.DefineClass("ITHit.WebDAV.Client.SearchQuery",null,{Phrase:null,SelectProperties:null,EnableLike:null,LikeProperties:null,EnableContains:null,constructor:function(_5d4){this.Phrase=_5d4;this.SelectProperties=[];this.EnableLike=true;this.LikeProperties=[ITHit.WebDAV.Client.DavConstants.DisplayName];this.EnableContains=true;}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Search",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_5d5,_5d6,_5d7,_5d8){var _5d9=this._createRequest(_5d5,_5d6,_5d7,_5d8);var _5da=_5d9.GetResponse();return this._ProcessResponse(_5da);},GoAsync:function(_5db,_5dc,_5dd,_5de,_5df){var _5e0=this._createRequest(_5db,_5dc,_5dd,_5de);var that=this;_5e0.GetResponse(function(_5e2){if(!_5e2.IsSuccess){_5df(new ITHit.WebDAV.Client.AsyncResult(null,false,_5e2.Error));return;}var _5e3=that._ProcessResponse(_5e2.Result,_5dc);_5df(new ITHit.WebDAV.Client.AsyncResult(_5e3,true,null));});return _5e0;},_ProcessResponse:function(_5e4,sUri){var _5e6=_5e4.GetResponseStream();var _5e7=new ITHit.WebDAV.Client.Methods.MultiResponse(_5e6,sUri);return new ITHit.WebDAV.Client.Methods.Search(_5e7);},_createRequest:function(_5e8,_5e9,_5ea,_5eb){var _5ec=_5e8.CreateWebDavRequest(_5ea,_5e9);_5ec.Method("SEARCH");var _5ed=new ITHit.XMLDoc();var _5ee=ITHit.WebDAV.Client.DavConstants;var _5ef=_5ee.NamespaceUri;var _5f0=_5ed.createElementNS(_5ef,"prop");if(_5eb.SelectProperties&&_5eb.SelectProperties.length>0){for(var i=0;i<_5eb.SelectProperties.length;i++){_5f0.appendChild(_5ed.createElementNS(_5eb.SelectProperties[i].NamespaceUri,_5eb.SelectProperties[i].Name));}}else{_5f0.appendChild(_5ef,"allprop");}var _5f2=_5ed.createElementNS(_5ef,"select");_5f2.appendChild(_5f0);var _5f3=null;if(_5eb.EnableLike){var _5f4=_5ed.createElementNS(_5ef,"prop");if(_5eb.LikeProperties&&_5eb.LikeProperties.length>0){for(var i=0;i<_5eb.LikeProperties.length;i++){_5f4.appendChild(_5ed.createElementNS(_5eb.LikeProperties[i].NamespaceUri,_5eb.LikeProperties[i].Name));}}var _5f5=_5ed.createElementNS(_5ef,"literal");_5f5.appendChild(_5ed.createTextNode(_5eb.Phrase));_5f3=_5ed.createElementNS(_5ef,"like");_5f3.appendChild(_5f4);_5f3.appendChild(_5f5);}var _5f6=null;if(_5eb.EnableContains){_5f6=_5ed.createElementNS(_5ef,"contains");_5f6.appendChild(_5ed.createTextNode(_5eb.Phrase));}var _5f7=_5ed.createElementNS(_5ef,"where");if(_5f3&&_5f6){var eOr=_5ed.createElementNS(_5ef,"or");eOr.appendChild(_5f3);eOr.appendChild(_5f6);_5f7.appendChild(eOr);}else{if(_5f3){_5f7.appendChild(_5f3);}else{if(_5f6){_5f7.appendChild(_5f6);}}}var _5f9=_5ed.createElementNS(_5ef,"basicsearch");_5f9.appendChild(_5f2);_5f9.appendChild(_5f7);var _5fa=_5ed.createElementNS(_5ef,"searchrequest");_5fa.appendChild(_5f9);_5ed.appendChild(_5fa);_5ec.Body(_5ed);return _5ec;}}});(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.Folder",ITHit.WebDAV.Client.HierarchyItem,{__static:{GetRequestProperties:function(){return [ITHit.WebDAV.Client.DavConstants.ResourceType,ITHit.WebDAV.Client.DavConstants.DisplayName,ITHit.WebDAV.Client.DavConstants.CreationDate,ITHit.WebDAV.Client.DavConstants.GetLastModified,ITHit.WebDAV.Client.DavConstants.SupportedLock,ITHit.WebDAV.Client.DavConstants.LockDiscovery,ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes,ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes,ITHit.WebDAV.Client.DavConstants.CheckedIn,ITHit.WebDAV.Client.DavConstants.CheckedOut];},ParseHref:function(_5fc){var _5fd=_5fc.split("?");_5fd[0]=_5fd[0].replace(/\/?$/,"/");_5fc=ITHit.WebDAV.Client.Encoder.EncodeURI(_5fd.join("?"));return this._super(_5fc);},OpenItem:function(_5fe,_5ff){var _600=this._super(_5fe,_5ff);if(!(_600 instanceof self)){throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFolderWrongType.Paste(_5ff));}return _600;},OpenItemAsync:function(_601,_602,_603){return this._super(_601,_602,function(_604){if(_604.IsSuccess&&!(_604.Result instanceof self)){_604.Error=new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFolderWrongType.Paste(_602));_604.IsSuccess=false;}_603(_604);});}},constructor:function(_605,_606,_607,_608,_609,_60a,_60b,_60c,_60d,_60e,_60f,_610,_611){_606=_606.replace(/\/?$/,"/");this._super(_605,_606,_607,_608,_609,ITHit.WebDAV.Client.ResourceType.Folder,_60a,_60b,_60c,_60d,_60e,_60f,_610,_611);this._Url=this._Url.replace(/\/?$/,"/");this._AbsoluteUrl=this._AbsoluteUrl.replace(/\/?$/,"/");},IsFolder:function(){return true;},CreateFolder:function(_612,_613){var _614=this.Session.CreateRequest(this.__className+".CreateFolder()",2);_613=_613||null;var _615=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_612);var _616=ITHit.WebDAV.Client.Methods.Mkcol.Go(_614,_615,_613,this.Host).Response;if(!_616.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Created)){_614.MarkFinish();throw new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedCreateFolder,_615,null,_616.Status,null);}var _617=ITHit.WebDAV.Client.Folder.OpenItem(_614,ITHit.WebDAV.Client.Encoder.DecodeURI(_615));_614.MarkFinish();return _617;},CreateFolderAsync:function(_618,_619,_61a){var _61b=this.Session.CreateRequest(this.__className+".CreateFolderAsync()",2);var _61c=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_618);ITHit.WebDAV.Client.Methods.Mkcol.GoAsync(_61b,_61c,_619,this.Host,function(_61d){if(_61d.IsSuccess&&!_61d.Result.Response.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Created)){_61d.IsSuccess=false;_61d.Error=new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedCreateFolder,_61c,null,_61d.Result.Response.Status);}if(_61d.IsSuccess){self.OpenItemAsync(_61b,_61c,function(_61e){_61b.MarkFinish();_61a(_61e);});}else{_61d.Result=null;_61b.MarkFinish();_61a(_61d);}});return _61b;},CreateFile:function(_61f,_620,_621){_620=_620||null;_621=_621||"";var _622=this.Session.CreateRequest(this.__className+".CreateFile()",2);var _623=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_61f);var _624=ITHit.WebDAV.Client.Methods.Put.Go(_622,_623,"",_621,_620,this.Host);var _625=this._GetErrorFromCreateFileResponse(_624.Response,_623);if(_625){_622.MarkFinish();throw _625;}var _626=ITHit.WebDAV.Client.File.OpenItem(_622,_623);_622.MarkFinish();return _626;},CreateFileAsync:function(_627,_628,_629,_62a){_628=_628||null;_629=_629||"";var _62b=this.Session.CreateRequest(this.__className+".CreateFileAsync()",2);var _62c=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_627);var that=this;ITHit.WebDAV.Client.Methods.Put.GoAsync(_62b,_62c,"",_629,_628,this.Host,function(_62e){if(_62e.IsSuccess){_62e.Error=that._GetErrorFromCreateFileResponse(_62e.Result.Response);if(_62e.Error!==null){_62e.IsSuccess=false;_62e.Result=null;}}if(_62e.IsSuccess){ITHit.WebDAV.Client.File.OpenItemAsync(_62b,_62c,function(_62f){_62b.MarkFinish();_62a(_62f);});}else{_62b.MarkFinish();_62a(_62e);}});return _62b;},CreateResource:function(_630,_631,_632){return this.CreateFile(_630,_631,_632);},CreateResourceAsync:function(_633,_634,_635,_636){return this.CreateFileAsync(_633,_634,_635,_636);},CreateLockNull:function(_637,_638,_639,_63a,_63b){var _63c=this.Session.CreateRequest(this.__className+".CreateLockNull()");var _63d=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_637);var _63e=ITHit.WebDAV.Client.Methods.Lock.Go(_63c,_63d,_63b,_638,this.Host,_639,_63a);_63c.MarkFinish();return _63e.LockInfo;},GetChildren:function(_63f,_640){_63f=_63f||false;_640=_640||[];var _641=this.Session.CreateRequest(this.__className+".GetChildren()");var _642=ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(_640);var _643=_642.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());var _644=ITHit.WebDAV.Client.Methods.Propfind.Go(_641,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,_643,_63f?ITHit.WebDAV.Client.Depth.Infinity:ITHit.WebDAV.Client.Depth.One,this.Host);var _645=ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(_644.Response,_641,this.Href,_642);_641.MarkFinish();return _645;},GetChildrenAsync:function(_646,_647,_648){_646=_646||false;if(typeof _647==="function"){_648=_647;_647=[];}else{_647=_647||[];_648=_648||function(){};}var _649=this.Session.CreateRequest(this.__className+".GetChildrenAsync()");var _64a=ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(_647);var _64b=_64a.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());var that=this;ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_649,this.Href,ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,_64b,_646?ITHit.WebDAV.Client.Depth.Infinity:ITHit.WebDAV.Client.Depth.One,this.Host,function(_64d){if(_64d.IsSuccess){_64d.Result=ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(_64d.Result.Response,_649,that.Href,_64a);}_649.MarkFinish();_648(_64d);});return _649;},GetFolder:function(_64e){var _64f=this.Session.CreateRequest(this.__className+".GetFolder()");var _650=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_64e);var _651=self.OpenItem(_64f,_650);_64f.MarkFinish();return _651;},GetFolderAsync:function(_652,_653){var _654=this.Session.CreateRequest(this.__className+".GetFolderAsync()");var _655=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_652);self.OpenItemAsync(_654,_655,function(_656){_654.MarkFinish();_653(_656);});return _654;},GetFile:function(_657){var _658=this.Session.CreateRequest(this.__className+".GetFile()");var _659=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_657);var _65a=ITHit.WebDAV.Client.File.OpenItem(_658,_659);_658.MarkFinish();return _65a;},GetFileAsync:function(_65b,_65c){var _65d=this.Session.CreateRequest(this.__className+".GetFileAsync()");var _65e=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_65b);ITHit.WebDAV.Client.File.OpenItemAsync(_65d,_65e,function(_65f){_65d.MarkFinish();_65c(_65f);});return _65d;},GetResource:function(_660){return this.GetFile(_660);},GetResourceAsync:function(_661,_662){return this.GetFileAsync(_661,_662);},GetItem:function(_663){var _664=this.Session.CreateRequest(this.__className+".GetItem()");var _665=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_663);var _666=ITHit.WebDAV.Client.HierarchyItem.OpenItem(_664,_665);_664.MarkFinish();return _666;},GetItemAsync:function(_667,_668){var _669=this.Session.CreateRequest(this.__className+".GetItemAsync()");var _66a=ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_667);ITHit.WebDAV.Client.HierarchyItem.OpenItemAsync(_669,_66a,function(_66b){_669.MarkFinish();_668(_66b);});return _669;},ItemExists:function(_66c){var _66d=this.Session.CreateRequest(this.__className+".ItemExists()",2);try{var _66e=ITHit.WebDAV.Client.Methods.Head.Go(_66d,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_66c),this.Host);}catch(oError){if(oError instanceof ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException){try{ITHit.WebDAV.Client.Methods.Propfind.Go(_66d,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_66c),ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,[ITHit.WebDAV.Client.DavConstants.DisplayName],ITHit.WebDAV.Client.Depth.Zero,this.Host);}catch(oSubError){if(oSubError instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException){_66d.MarkFinish();return false;}throw oSubError;}_66d.MarkFinish();return true;}throw oError;}_66d.MarkFinish();return _66e.IsOK;},ItemExistsAsync:function(_66f,_670){var _671=this.Session.CreateRequest(this.__className+".ItemExistsAsync()",2);var that=this;ITHit.WebDAV.Client.Methods.Head.GoAsync(_671,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href,_66f),this.Host,function(_673){if(_673.Error instanceof ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException){ITHit.WebDAV.Client.Methods.Propfind.GoAsync(_671,ITHit.WebDAV.Client.HierarchyItem.AppendToUri(that.Href,_66f),ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,[ITHit.WebDAV.Client.DavConstants.DisplayName],ITHit.WebDAV.Client.Depth.Zero,that.Host,function(_674){_674.Result=_674.IsSuccess;if(_674.Error instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException){_674.IsSuccess=true;_674.Result=false;}_671.MarkFinish();_670(_674);});return;}_673.Result=_673.Result.IsOK;_671.MarkFinish();_670(_673);});return _671;},SearchByQuery:function(_675){var _676=this.Session.CreateRequest(this.__className+".SearchByQuery()");var _677=ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(_675.SelectProperties);_675.SelectProperties=_677.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());var _678=ITHit.WebDAV.Client.Methods.Search.Go(_676,this.Href,this.Host,_675);var _679=ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(_678.Response,_676,this.Href,_677);_676.MarkFinish();return _679;},SearchByQueryAsync:function(_67a,_67b){var _67c=this.Session.CreateRequest(this.__className+".SearchByQueryAsync()");var _67d=ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(_67a.SelectProperties);_67a.SelectProperties=_67d.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());var that=this;ITHit.WebDAV.Client.Methods.Search.GoAsync(_67c,this.Href,this.Host,_67a,function(_67f){if(_67f.IsSuccess){_67f.Result=ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(_67f.Result.Response,_67c,that.Href,_67d);}_67c.MarkFinish();_67b(_67f);});return _67c;},Search:function(_680,_681){var _682=new ITHit.WebDAV.Client.SearchQuery(_680);_682.SelectProperties=_681||[];return this.SearchByQuery(_682);},SearchAsync:function(_683,_684,_685){var _686=new ITHit.WebDAV.Client.SearchQuery(_683);_686.SelectProperties=_684||[];return this.SearchByQueryAsync(_686,_685);},_GetErrorFromCreateFileResponse:function(_687,_688){if(!_687.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Created)&&!_687.Status.Equals(ITHit.WebDAV.Client.HttpStatus.OK)){return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedCreateFile,_688,null,_687.Status,null);}return null;}});})();(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.Methods.UpdateToVersion",ITHit.WebDAV.Client.Methods.HttpMethod,{__static:{Go:function(_68a,_68b,_68c,_68d){var _68e=this.createRequest(_68a,_68b,_68c,_68d);var _68f=_68e.GetResponse();return this._ProcessResponse(_68f,_68b);},GoAsync:function(_690,_691,_692,_693,_694){var _695=this.createRequest(_690,_691,_692,_693);var that=this;_695.GetResponse(function(_697){if(!_697.IsSuccess){_694(new ITHit.WebDAV.Client.AsyncResult(null,false,_697.Error));return;}var _698=that._ProcessResponse(_697.Result,_691);_694(new ITHit.WebDAV.Client.AsyncResult(_698,true,null));});return _695;},_ProcessResponse:function(_699,_69a){var _69b=_699.GetResponseStream();return new self(new ITHit.WebDAV.Client.Methods.MultiResponse(_69b,_69a));},createRequest:function(_69c,_69d,_69e,_69f){var _6a0=_69c.CreateWebDavRequest(_69e,_69d);_6a0.Method("UPDATE");_6a0.Headers.Add("Content-Type","text/xml; charset=\"utf-8\"");var _6a1=new ITHit.XMLDoc();var _6a2=ITHit.WebDAV.Client.DavConstants.NamespaceUri;var _6a3=_6a1.createElementNS(_6a2,"update");var _6a4=_6a1.createElementNS(_6a2,"version");var _6a5=_6a1.createElementNS(_6a2,"href");_6a5.appendChild(_6a1.createTextNode(_69f));_6a4.appendChild(_6a5);_6a3.appendChild(_6a4);_6a1.appendChild(_6a3);_6a0.Body(_6a1);return _6a0;}}});})();(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.Version",ITHit.WebDAV.Client.File,{__static:{GetRequestProperties:function(){return [ITHit.WebDAV.Client.DavConstants.DisplayName,ITHit.WebDAV.Client.DavConstants.CreationDate,ITHit.WebDAV.Client.DavConstants.GetContentType,ITHit.WebDAV.Client.DavConstants.GetContentLength,ITHit.WebDAV.Client.DavConstants.VersionName,ITHit.WebDAV.Client.DavConstants.CreatorDisplayName,ITHit.WebDAV.Client.DavConstants.Comment];},GetVersionName:function(_6a7){var _6a8=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_6a7,ITHit.WebDAV.Client.DavConstants.VersionName).Value;if(_6a8.hasChildNodes()){return _6a8.firstChild().nodeValue();}return null;},GetCreatorDisplayName:function(_6a9){var _6aa=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_6a9,ITHit.WebDAV.Client.DavConstants.CreatorDisplayName).Value;if(_6aa.hasChildNodes()){return _6aa.firstChild().nodeValue();}return null;},GetComment:function(_6ab){var _6ac=ITHit.WebDAV.Client.HierarchyItem.GetProperty(_6ab,ITHit.WebDAV.Client.DavConstants.Comment).Value;if(_6ac.hasChildNodes()){return _6ac.firstChild().nodeValue();}return null;},GetVersionsFromMultiResponse:function(_6ad,_6ae){var _6af=[];for(var i=0;i<_6ad.length;i++){var _6b1=_6ad[i];_6af.push(new self(_6ae.Session,_6b1.Href,_6ae,this.GetDisplayName(_6b1),this.GetVersionName(_6b1),this.GetCreatorDisplayName(_6b1),this.GetComment(_6b1),this.GetCreationDate(_6b1),this.GetContentType(_6b1),this.GetContentLength(_6b1),_6ae.Host,this.GetCustomProperties(_6b1)));}_6af.sort(function(a,b){var _6b4=parseInt(a.VersionName.replace(/[^0-9]/g,""));var _6b5=parseInt(b.VersionName.replace(/[^0-9]/g,""));if(_6b4===_6b5){return 0;}return _6b4>_6b5?1:-1;});return _6af;},ParseSetOfHrefs:function(_6b6){var _6b7=[];for(var i=0,l=_6b6.length;i<l;i++){var xml=_6b6[i].Value;var _6bb=xml.getElementsByTagNameNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri,"href");for(var i2=0,l2=_6bb.length;i2<l2;i2++){_6b7.push(_6bb[i2].firstChild().nodeValue());}}return _6b7;}},VersionName:null,CreatorDisplayName:null,Comment:null,_File:null,ResumableUpload:null,LastModified:null,ActiveLocks:null,AvailableBytes:null,UsedBytes:null,VersionControlled:null,ResourceType:null,SupportedLocks:null,constructor:function(_6be,_6bf,_6c0,_6c1,_6c2,_6c3,_6c4,_6c5,_6c6,_6c7,_6c8,_6c9){this._File=_6c0;this.VersionName=_6c2;this.CreatorDisplayName=_6c3||"";this.Comment=_6c4||"";this._super(_6be,_6bf,_6c5,_6c2,_6c5,_6c6,_6c7,null,null,_6c8,null,null,null,null,_6c9);},UpdateToThis:function(){return this._File.UpdateToVersion(this);},UpdateToThisAsync:function(_6ca){return this._File.UpdateToVersionAsync(this,_6ca);},Delete:function(){var _6cb=this.Session.CreateRequest(this.__className+".Delete()");ITHit.WebDAV.Client.Methods.Delete.Go(_6cb,this.Href,null,this.Host);_6cb.MarkFinish();},DeleteAsync:function(_6cc){var _6cd=this.Session.CreateRequest(this.__className+".DeleteAsync()");ITHit.WebDAV.Client.Methods.Delete.GoAsync(_6cd,this.Href,null,this.Host,function(_6ce){_6cd.MarkFinish();_6cc(_6ce);});return _6cd;},ReadContentAsync:function(_6cf,_6d0,_6d1){return this._super.apply(this,arguments);},WriteContentAsync:function(_6d2,_6d3,_6d4,_6d5){return this._super.apply(this,arguments);},RefreshAsync:function(_6d6){return this._super.apply(this,arguments);},GetSource:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetSourceAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetSupportedLock:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetSupportedLockAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetParent:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetParentAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},UpdateProperties:function(){throw new ITHit.Exception("The method or operation is not implemented.");},UpdatePropertiesAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},CopyTo:function(){throw new ITHit.Exception("The method or operation is not implemented.");},CopyToAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},MoveTo:function(){throw new ITHit.Exception("The method or operation is not implemented.");},MoveToAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},Lock:function(){throw new ITHit.Exception("The method or operation is not implemented.");},LockAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},RefreshLock:function(){throw new ITHit.Exception("The method or operation is not implemented.");},RefreshLockAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},Unlock:function(){throw new ITHit.Exception("The method or operation is not implemented.");},UnlockAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},SupportedFeatures:function(){throw new ITHit.Exception("The method or operation is not implemented.");},SupportedFeaturesAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetAllProperties:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetAllPropertiesAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetPropertyNames:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetPropertyNamesAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetPropertyValues:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetPropertyValuesAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetVersions:function(){throw new ITHit.Exception("The method or operation is not implemented.");},GetVersionsAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},PutUnderVersionControl:function(){throw new ITHit.Exception("The method or operation is not implemented.");},PutUnderVersionControlAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");},UpdateToVersion:function(){throw new ITHit.Exception("The method or operation is not implemented.");},UpdateToVersionAsync:function(){throw new ITHit.Exception("The method or operation is not implemented.");}});})();ITHit.DefineClass("ITHit.WebDAV.Client.Methods.Undelete",null,{__static:{Go:function(_6d7,_6d8,_6d9){var _6da=ITHit.WebDAV.Client.Methods.Undelete.createRequest(_6d7,_6d8,_6d9);var _6db=_6da.GetResponse();return new ITHit.WebDAV.Client.Methods.Report(_6db);},createRequest:function(_6dc,_6dd,_6de){var _6df=_6dc.CreateWebDavRequest(_6de,_6dd);_6df.Method("UNDELETE");return _6df;}}});ITHit.DefineClass("ITHit.WebDAV.Client.WebDavResponse",null,{__static:{ignoreXmlByMethodAndStatus:{"DELETE":{200:true},"COPY":{201:true,204:true},"MOVE":{201:true,204:true}}},_Response:null,RequestMethod:null,Status:null,constructor:function(_6e0,_6e1){this._Response=_6e0;this.RequestMethod=_6e1;this.Status=new ITHit.WebDAV.Client.HttpStatus(_6e0.Status,_6e0.StatusDescription);},Headers:function(){return this._Response.Headers;},GetResponseStream:function(){var oOut=null;if(this._Response.BodyXml&&!(ITHit.WebDAV.Client.WebDavResponse.ignoreXmlByMethodAndStatus[this.RequestMethod]&&ITHit.WebDAV.Client.WebDavResponse.ignoreXmlByMethodAndStatus[this.RequestMethod][this._Response.Status])){oOut=new ITHit.XMLDoc(this._Response.BodyXml);}return oOut;}});ITHit.DefineClass("ITHit.WebDAV.Client.Methods.ErrorResponse",null,{ResponseDescription:"",Properties:null,constructor:function(_6e3,_6e4){this.Properties=[];var _6e5=new ITHit.WebDAV.Client.PropertyName("responsedescription",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var _6e6=new ITHit.XPath.resolver();_6e6.add("d",ITHit.WebDAV.Client.DavConstants.NamespaceUri);var oRes=ITHit.XPath.evaluate("/d:error/*",_6e3,_6e6);var _6e8;while(_6e8=oRes.iterateNext()){var _6e9=new ITHit.WebDAV.Client.Property(_6e8.cloneNode());if(_6e5.Equals(_6e9.Name)){this.ResponseDescription=_6e9.StringValue();continue;}this.Properties.push(_6e9);}}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.UnauthorizedException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"UnauthorizedException",constructor:function(_6ea,_6eb,_6ec){this._super(_6ea,_6eb,null,ITHit.WebDAV.Client.HttpStatus.Unauthorized,_6ec);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.BadRequestException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"BadRequestException",constructor:function(_6ed,_6ee,_6ef,_6f0,_6f1){this._super(_6ed,_6ee,_6ef,ITHit.WebDAV.Client.HttpStatus.BadRequest,_6f1,_6f0);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.ConflictException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"ConflictException",constructor:function(_6f2,_6f3,_6f4,_6f5,_6f6){this._super(_6f2,_6f3,_6f4,ITHit.WebDAV.Client.HttpStatus.Conflict,_6f6,_6f5);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.LockedException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"LockedException",constructor:function(_6f7,_6f8,_6f9,_6fa,_6fb){this._super(_6f7,_6f8,_6f9,ITHit.WebDAV.Client.HttpStatus.Locked,_6fb,_6fa);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.ForbiddenException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"ForbiddenException",constructor:function(_6fc,_6fd,_6fe,_6ff,_700){this._super(_6fc,_6fd,_6fe,ITHit.WebDAV.Client.HttpStatus.Forbidden,_700,_6ff);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"MethodNotAllowedException",constructor:function(_701,_702,_703,_704,_705){this._super(_701,_702,_703,ITHit.WebDAV.Client.HttpStatus.MethodNotAllowed,_705,_704);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.NotImplementedException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"NotImplementedException",constructor:function(_706,_707,_708,_709,_70a){this._super(_706,_707,_708,ITHit.WebDAV.Client.HttpStatus.NotImplemented,_70a,_709);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.NotFoundException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"NotFoundException",constructor:function(_70b,_70c,_70d){this._super(_70b,_70c,null,ITHit.WebDAV.Client.HttpStatus.NotFound,_70d);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.PreconditionFailedException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"PreconditionFailedException",constructor:function(_70e,_70f,_710,_711,_712){this._super(_70e,_70f,_710,ITHit.WebDAV.Client.HttpStatus.PreconditionFailed,_712,_711);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.DependencyFailedException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"DependencyFailedException",constructor:function(_713,_714,_715,_716,_717){this._super(_713,_714,_715,ITHit.WebDAV.Client.HttpStatus.DependencyFailed,_717,_716);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.InsufficientStorageException",ITHit.WebDAV.Client.Exceptions.WebDavHttpException,{Name:"InsufficientStorageException",constructor:function(_718,_719,_71a,_71b,_71c){this._super(_718,_719,_71a,ITHit.WebDAV.Client.HttpStatus.InsufficientStorage,_71c,_71b);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.QuotaNotExceededException",ITHit.WebDAV.Client.Exceptions.InsufficientStorageException,{Name:"QuotaNotExceededException",constructor:function(_71d,_71e,_71f,_720,_721){this._super(_71d,_71e,_71f,ITHit.WebDAV.Client.HttpStatus.InsufficientStorage,_720,_721);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.SufficientDiskSpaceException",ITHit.WebDAV.Client.Exceptions.InsufficientStorageException,{Name:"SufficientDiskSpaceException",constructor:function(_722,_723,_724,_725,_726){this._super(_722,_723,_724,ITHit.WebDAV.Client.HttpStatus.InsufficientStorage,_725,_726);}});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.Parsers.InsufficientStorage",null,{constructor:function(_727,_728,_729,_72a,_72b){var _72c="InsufficientStorageException";if(1==_72a.Properties.length){var _72d=_72a.Properties[0].Name;if(_72d.Equals(ITHit.WebDAV.Client.DavConstants.QuotaNotExceeded)){_72c="QuotaNotExceededException";}else{if(_72d.Equals(ITHit.WebDAV.Client.DavConstants.SufficientDiskSpace)){_72c="SufficientDiskSpaceException";}}}return new ITHit.WebDAV.Client.Exceptions[_72c]((_72a.Description||_727),_728,_729,_72b,_72a);}});ITHit.DefineClass("ITHit.WebDAV.Client.Error",null,{Description:null,Responses:null});ITHit.DefineClass("ITHit.WebDAV.Client.Exceptions.Info.Error",ITHit.WebDAV.Client.Error,{Description:"",Properties:null,BodyText:"",constructor:function(_72e){this.Properties=[];this._super();if(_72e){this.Description=_72e.ResponseDescription;this.Properties=_72e.Properties;}}});ITHit.Phrases.LoadJSON(ITHit.Temp.WebDAV_Phrases);(function(){var _72f=function(_730){this.Headers=_730;};_72f.prototype.Add=function(_731,_732){this.Headers[_731]=_732;};_72f.prototype.GetAll=function(){return this.Headers;};var self=ITHit.DefineClass("ITHit.WebDAV.Client.WebDavRequest",null,{__static:{_IdCounter:0,Create:function(sUri,_735,_736,_737,_738){if(/^\//.test(sUri)){sUri=_738+sUri.substr(1);}var _739=new self(sUri,_736,_737);if("string"==typeof _735){if(_735){_739.Headers.Add("If","(<"+ITHit.WebDAV.Client.DavConstants.OpaqueLockToken+_735+">)");}}else{if((_735 instanceof Array)&&_735.length){var _73a="";var _73b=true;for(var i=0;i<_735.length;i++){ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(_735[i],"lockToken");_73a+=(_73b?"":" ")+"(<"+ITHit.WebDAV.Client.DavConstants.OpaqueLockToken+_735[i].LockToken+">)";_73b=false;}_739.Headers.Add("If",_73a);}}return _739;},ProcessWebException:function(_73d){var _73e=null;var _73f="";if(_73d.BodyXml&&_73d.BodyXml.childNodes.length){_73e=new ITHit.XMLDoc(_73d.BodyXml);_73f=String(_73e);}var _740=null,_741=null;if(_73e){var _742=new ITHit.WebDAV.Client.Methods.ErrorResponse(_73e,_73d.Href);_741=new ITHit.WebDAV.Client.Exceptions.Info.Error(_742);var _743=new ITHit.WebDAV.Client.Methods.MultiResponse(_73e,_73d.Href);_740=new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(_743);}else{_741=new ITHit.WebDAV.Client.Exceptions.Info.Error();_741.BodyText=_73d.BodyText;}var _744=null,_745;switch(_73d.Status){case ITHit.WebDAV.Client.HttpStatus.Unauthorized.Code:_745=new ITHit.WebDAV.Client.Exceptions.UnauthorizedException(ITHit.Phrases.Exceptions.Unauthorized,_73d.Href,_744);break;case ITHit.WebDAV.Client.HttpStatus.Conflict.Code:_745=new ITHit.WebDAV.Client.Exceptions.ConflictException(ITHit.Phrases.Exceptions.Conflict,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.Locked.Code:_745=new ITHit.WebDAV.Client.Exceptions.LockedException(ITHit.Phrases.Exceptions.Locked,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.BadRequest.Code:_745=new ITHit.WebDAV.Client.Exceptions.BadRequestException(ITHit.Phrases.Exceptions.BadRequest,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.Forbidden.Code:_745=new ITHit.WebDAV.Client.Exceptions.ForbiddenException(ITHit.Phrases.Exceptions.Forbidden,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.MethodNotAllowed.Code:_745=new ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException(ITHit.Phrases.Exceptions.MethodNotAllowed,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.NotImplemented.Code:_745=new ITHit.WebDAV.Client.Exceptions.NotImplementedException(ITHit.Phrases.Exceptions.MethodNotAllowed,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.NotFound.Code:_745=new ITHit.WebDAV.Client.Exceptions.NotFoundException(ITHit.Phrases.Exceptions.NotFound,_73d.Href,_744);break;case ITHit.WebDAV.Client.HttpStatus.PreconditionFailed.Code:_745=new ITHit.WebDAV.Client.Exceptions.PreconditionFailedException(ITHit.Phrases.Exceptions.PreconditionFailed,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.DependencyFailed.Code:_745=new ITHit.WebDAV.Client.Exceptions.DependencyFailedException(ITHit.Phrases.Exceptions.DependencyFailed,_73d.Href,_740,_741,_744);break;case ITHit.WebDAV.Client.HttpStatus.InsufficientStorage.Code:_745=ITHit.WebDAV.Client.Exceptions.Parsers.InsufficientStorage(ITHit.Phrases.Exceptions.InsufficientStorage,_73d.Href,_740,_741,_744);break;default:if(_73f){_73f="\n"+ITHit.Phrases.ServerReturned+"\n----\n"+_73f+"\n----\n";}_745=new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.Http+_73f,_73d.Href,_740,new ITHit.WebDAV.Client.HttpStatus(_73d.Status,_73d.StatusDescription),_744,_741);break;}return _745;}},_Href:null,_Method:"GET",_Headers:null,_Body:"",_User:null,_Password:null,Id:null,Headers:null,PreventCaching:null,ProgressInfo:null,OnProgress:null,_XMLRequest:null,constructor:function(sUri,_747,_748){this._Href=sUri;this._Headers={};this._User=_747||null;this._Password=_748||null;this.Id=self._IdCounter++;this.Headers=new _72f(this._Headers);},Method:function(_749){if(undefined!==_749){this._Method=_749;}return this._Method;},Body:function(_74a){if(undefined!==_74a){this._Body=_74a;}return this._Body;},Abort:function(){if(this._XMLRequest!==null){this._XMLRequest.Abort();}},GetResponse:function(_74b){var _74c=typeof _74b==="function";var _74d=this._Href;if((ITHit.Config.PreventCaching&&this.PreventCaching===null)||this.PreventCaching===true){var _74e=_74d.indexOf("?")!==-1?"&":"?";var _74f=_74e+"nocache="+new Date().getTime();if(_74d.indexOf("#")!==-1){_74d.replace(/#/g,_74f+"#");}else{_74d+=_74f;}}_74d=_74d.replace(/#/g,"%23");var _750=new ITHit.HttpRequest(_74d,this._Method,this._Headers,String(this._Body));var _751=ITHit.Events.DispatchEvent(this,"OnBeforeRequestSend",_750);if(!_751||!(_751 instanceof ITHit.HttpResponse)){_750.User=(null===_750.User)?this._User:_750.User;_750.Password=(null===_750.Password)?this._Password:_750.Password;_750.Body=String(_750.Body)||"";this._XMLRequest=new ITHit.XMLRequest(_750,_74c);}if(_74c){if(this._XMLRequest!==null){var that=this;this._XMLRequest.OnData=function(_753){var _754=null;var _755=true;var _756=null;try{_754=that._onGetResponse(_750,_753);_755=true;}catch(e){_756=e;_755=false;}var _757=new ITHit.WebDAV.Client.AsyncResult(_754,_755,_756);ITHit.Events.DispatchEvent(that,"OnFinish",[_757,that.Id]);_74b.call(this,_757);};this._XMLRequest.OnError=function(_758){var _759=new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(_758.message,_74d,null,null,_758);var _75a=new ITHit.WebDAV.Client.AsyncResult(null,false,_759);ITHit.Events.DispatchEvent(that,"OnFinish",[_75a,that.Id]);_74b.call(this,_75a);};this._XMLRequest.OnProgress=function(_75b){if(!_75b){return;}that.ProgressInfo=_75b;ITHit.Events.DispatchEvent(that,"OnProgress",[_75b,that.Id]);if(typeof that.OnProgress==="function"){that.OnProgress(_75b);}};this._XMLRequest.Send();}else{var _75c=this._onGetResponse(_750,_751);_74b.call(this,_75c);}}else{if(this._XMLRequest!==null){this._XMLRequest.Send();_751=this._XMLRequest.GetResponse();}return this._onGetResponse(_750,_751);}},_onGetResponse:function(_75d,_75e){_75e.RequestMethod=this._Method;ITHit.Events.DispatchEvent(this,"OnResponse",_75e);var _75f=new ITHit.WebDAV.Client.HttpStatus(_75e.Status,_75e.StatusDescription);if(_75e.Status==ITHit.WebDAV.Client.HttpStatus.Redirect.Code){window.location.replace(_75e.Headers["Location"]);}if(!_75f.IsSuccess()){throw self.ProcessWebException(_75e);}return new ITHit.WebDAV.Client.WebDavResponse(_75e,_75d.Method);}});})();(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.RequestProgress",null,{Percent:0,CountComplete:0,CountTotal:0,BytesLoaded:0,BytesTotal:0,LengthComputable:true,_RequestsComplete:null,_RequestsXhr:null,constructor:function(_761){this.CountTotal=_761;this._RequestsComplete={};this._RequestsXhr={};},SetComplete:function(_762){if(this._RequestsComplete[_762]){return;}this._RequestsComplete[_762]=true;this.CountComplete++;if(this._RequestsXhr[_762]){this._RequestsXhr[_762].loaded=this._RequestsXhr[_762].total;this.SetXhrEvent(_762,this._RequestsXhr[_762]);}else{this._UpdatePercent();}},SetXhrEvent:function(_763,_764){this._RequestsXhr[_763]=_764;if(this.LengthComputable===false){return;}this._ResetBytes();for(var iId in this._RequestsXhr){if(!this._RequestsXhr.hasOwnProperty(iId)){continue;}var _766=this._RequestsXhr[iId];if(_766.lengthComputable===false||!_766.total){this.LengthComputable=false;this._ResetBytes();break;}this.BytesLoaded+=_766.loaded;this.BytesTotal+=_766.total;}this._UpdatePercent();},_ResetBytes:function(){this.BytesLoaded=0;this.BytesTotal=0;},_UpdatePercent:function(){if(this.LengthComputable){this.Percent=0;for(var iId in this._RequestsXhr){if(!this._RequestsXhr.hasOwnProperty(iId)){continue;}var _768=this._RequestsXhr[iId];this.Percent+=(_768.loaded*100/_768.total)/this.CountTotal;}}else{this.Percent=this.CountComplete*100/this.CountTotal;}this.Percent=Math.round(this.Percent*100)/100;}});})();(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.Request",null,{__static:{EVENT_ON_PROGRESS:"OnProgress",EVENT_ON_ERROR:"OnError",EVENT_ON_FINISH:"OnFinish",IdCounter:0},Id:null,Session:null,Name:null,Progress:null,_RequestsCount:null,_WebDavRequests:null,_IsFinish:false,constructor:function(_76a,_76b,_76c){_76b=_76b||this.__instanceName;_76c=_76c||1;this.Session=_76a;this.Name=_76b;this.Id=self.IdCounter++;this._WebDavRequests=[];this._RequestsCount=_76c;this.Progress=new ITHit.WebDAV.Client.RequestProgress(_76c);},AddListener:function(_76d,_76e,_76f){_76f=_76f||null;switch(_76d){case self.EVENT_ON_PROGRESS:case self.EVENT_ON_ERROR:case self.EVENT_ON_FINISH:ITHit.Events.AddListener(this,_76d,_76e,_76f);break;default:throw new ITHit.WebDAV.Client.Exceptions.WebDavException("Not found event name `"+_76d+"`");}},RemoveListener:function(_770,_771,_772){_772=_772||null;switch(_770){case self.EVENT_ON_PROGRESS:case self.EVENT_ON_ERROR:case self.EVENT_ON_FINISH:ITHit.Events.RemoveListener(this,_770,_771,_772);break;default:throw new ITHit.WebDAV.Client.Exceptions.WebDavException("Not found event name `"+_770+"`");}},Abort:function(){for(var i=0,l=this._WebDavRequests.length;i<l;i++){this._WebDavRequests[i].Abort();}},MarkFinish:function(){if(this._IsFinish===true){return;}this._IsFinish=true;ITHit.Events.DispatchEvent(this,self.EVENT_ON_FINISH,[{Request:this}]);var _775=new Date();ITHit.Logger.WriteMessage("["+this.Id+"] ----------------- Finished: "+_775.toUTCString()+" ["+_775.getTime()+"] -----------------"+"\n",ITHit.LogLevel.Info);},CreateWebDavRequest:function(_776,_777,_778){var sId=this.Id;var _77a=new Date();if(this._WebDavRequests.length>=this._RequestsCount&&typeof window.console!=="undefined"){console.error("Wrong count of requests in ["+this.Id+"] `"+this.Name+"`");}ITHit.Logger.WriteMessage("\n["+sId+"] ----------------- Started: "+_77a.toUTCString()+" ["+_77a.getTime()+"] -----------------",ITHit.LogLevel.Info);ITHit.Logger.WriteMessage("["+sId+"] Context Name: "+this.Name,ITHit.LogLevel.Info);var _77b=this.Session.CreateWebDavRequest(_776,_777,_778);ITHit.Events.AddListener(_77b,"OnBeforeRequestSend","_OnBeforeRequestSend",this);ITHit.Events.AddListener(_77b,"OnResponse","_OnResponse",this);ITHit.Events.AddListener(_77b,"OnProgress","_OnProgress",this);ITHit.Events.AddListener(_77b,"OnFinish","_OnFinish",this);this._WebDavRequests.push(_77b);return _77b;},_OnBeforeRequestSend:function(_77c){this._WriteRequestLog(_77c);},_OnResponse:function(_77d){this._WriteResponseLog(_77d);},_OnProgress:function(_77e,_77f){var _780=this.Progress.Percent;this.Progress.SetXhrEvent(_77f,_77e);if(this.Progress.Percent!==_780){ITHit.Events.DispatchEvent(this,self.EVENT_ON_PROGRESS,[{Progress:this.Progress,Request:this}]);}},_OnFinish:function(_781,_782){var _783=this.Progress.Percent;this.Progress.SetComplete(_782);if(this.Progress.Percent!==_783){ITHit.Events.DispatchEvent(this,self.EVENT_ON_PROGRESS,[{Progress:this.Progress,Request:this}]);}if(!_781.IsSuccess){ITHit.Events.DispatchEvent(this,self.EVENT_ON_ERROR,[{Error:_781.Error,AsyncResult:_781,Request:this}]);}},_WriteRequestLog:function(_784){ITHit.Logger.WriteMessage("["+this.Id+"] "+_784.Method+" "+_784.Href,ITHit.LogLevel.Info);var _785=[];for(var _786 in _784.Headers){if(_784.Headers.hasOwnProperty(_786)){_785.push(_786+": "+_784.Headers[_786]);}}ITHit.Logger.WriteMessage("["+this.Id+"] "+_785.join("\n"),ITHit.LogLevel.Info);var _787=String(_784.Body)||"";if(_784.Method.toUpperCase()!=="PUT"&&_784.Body){ITHit.Logger.WriteMessage("["+this.Id+"] "+_787,ITHit.LogLevel.Info);}},_WriteResponseLog:function(_788){ITHit.Logger.WriteMessage("\n["+this.Id+"] "+_788.Status+" "+_788.StatusDescription,ITHit.LogLevel.Info);var _789=[];for(var _78a in _788.Headers){if(_788.Headers.hasOwnProperty(_78a)){_789.push(_78a+": "+_788.Headers[_78a]);}}ITHit.Logger.WriteMessage("["+this.Id+"] "+_789.join("\n"),ITHit.LogLevel.Info);var _78b=(parseInt(_788.Status/100)==2);var _78c=_788.BodyXml&&_788.BodyXml.childNodes.length?String(new ITHit.XMLDoc(_788.BodyXml)):_788.BodyText;if(!_78b||_788.RequestMethod.toUpperCase()!=="GET"){ITHit.Logger.WriteMessage("["+this.Id+"] "+_78c,_78b?ITHit.LogLevel.Info:ITHit.LogLevel.Debug);}}});})();(function(){var self=ITHit.DefineClass("ITHit.WebDAV.Client.WebDavSession",null,{__static:{Version:"1.8.0.1342",EVENT_ON_BEFORE_REQUEST_SEND:"OnBeforeRequestSend",EVENT_ON_RESPONSE:"OnResponse"},ServerEngine:null,_IsIisDetected:null,_User:"",_Pass:"",constructor:function(){},AddListener:function(_78e,_78f,_790){_790=_790||null;switch(_78e){case self.EVENT_ON_BEFORE_REQUEST_SEND:case self.EVENT_ON_RESPONSE:ITHit.Events.AddListener(this,_78e,_78f,_790);break;default:throw new ITHit.WebDAV.Client.Exceptions.WebDavException("Not found event name `"+_78e+"`");}},RemoveListener:function(_791,_792,_793){_793=_793||null;switch(_791){case self.EVENT_ON_BEFORE_REQUEST_SEND:case self.EVENT_ON_RESPONSE:ITHit.Events.RemoveListener(this,_791,_792,_793);break;default:throw new ITHit.WebDAV.Client.Exceptions.WebDavException("Not found event name `"+_791+"`");}},OpenFile:function(_794){var _795=this.CreateRequest(this.__className+".OpenFile()");var _796=ITHit.WebDAV.Client.File.OpenItem(_795,_794);_795.MarkFinish();return _796;},OpenFileAsync:function(_797,_798){var _799=this.CreateRequest(this.__className+".OpenFileAsync()");ITHit.WebDAV.Client.File.OpenItemAsync(_799,_797,function(_79a){_799.MarkFinish();_798(_79a);});return _799;},OpenResource:function(_79b){return this.OpenFile(_79b);},OpenResourceAsync:function(_79c,_79d){return this.OpenFileAsync(_79c,_79d);},OpenFolder:function(_79e){var _79f=this.CreateRequest(this.__className+".OpenFolder()");var _7a0=ITHit.WebDAV.Client.Folder.OpenItem(_79f,_79e);_79f.MarkFinish();return _7a0;},OpenFolderAsync:function(_7a1,_7a2){var _7a3=this.CreateRequest(this.__className+".OpenFolderAsync()");ITHit.WebDAV.Client.Folder.OpenItemAsync(_7a3,_7a1,function(_7a4){_7a3.MarkFinish();_7a2(_7a4);});return _7a3;},OpenItem:function(_7a5){var _7a6=this.CreateRequest(this.__className+".OpenItem()");var _7a7=ITHit.WebDAV.Client.HierarchyItem.OpenItem(_7a6,_7a5);_7a6.MarkFinish();return _7a7;},OpenItemAsync:function(_7a8,_7a9){var _7aa=this.CreateRequest(this.__className+".OpenItemAsync()");ITHit.WebDAV.Client.HierarchyItem.OpenItemAsync(_7aa,_7a8,function(_7ab){_7aa.MarkFinish();_7a9(_7ab);});return _7aa;},CreateRequest:function(_7ac,_7ad){return new ITHit.WebDAV.Client.Request(this,_7ac,_7ad);},CreateWebDavRequest:function(_7ae,_7af,_7b0){if("undefined"==typeof _7b0){_7b0=[];}var _7b1=ITHit.WebDAV.Client.WebDavRequest.Create(_7af,_7b0,this._User,this._Pass,_7ae);ITHit.Events.AddListener(_7b1,"OnBeforeRequestSend","OnBeforeRequestSendHandler",this);ITHit.Events.AddListener(_7b1,"OnResponse","OnResponseHandler",this);return _7b1;},OnBeforeRequestSendHandler:function(_7b2,_7b3){ITHit.Events.RemoveListener(_7b3,"OnBeforeRequestSend","OnBeforeRequestSendHandler",this);return ITHit.Events.DispatchEvent(this,"OnBeforeRequestSend",_7b2);},OnResponseHandler:function(_7b4,_7b5){var _7b5=arguments[arguments.length-1];if(this.ServerEngine===null){this.ServerEngine=_7b4.GetResponseHeader("x-engine",true);}if(this._IsIisDetected===null){var _7b6=_7b4.GetResponseHeader("server",true);this._IsIisDetected=(/^Microsoft-IIS\//i.test(_7b6));}ITHit.Events.RemoveListener(_7b5,"OnResponse","OnResponseHandler",this);return ITHit.Events.DispatchEvent(this,"OnResponse",_7b4);},Undelete:function(_7b7){var _7b8=this.CreateRequest(this.__className+".Undelete()");_7b7=ITHit.WebDAV.Client.Encoder.EncodeURI(_7b7);var _7b9=ITHit.WebDAV.Client.Methods.Undelete.Go(_7b8,_7b7,ITHit.WebDAV.Client.HierarchyItem.GetHost(_7b7));_7b8.MarkFinish();return _7b9;},SetCredentials:function(_7ba,_7bb){this._User=_7ba;this._Pass=_7bb;},GetIisDetected:function(){return this._IsIisDetected;}});})();ITHit.Temp={};
+
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Exception for Logger class.
+ * @class ITHit.Exceptions.LoggerException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the LoggerException class with a specified error message and a reference to the inner exception that is the cause of this exception. 
+ * @constructor LoggerException
+ * 
+ * @param {String} sMessage The error message string.
+ * @param {optional ITHit.Exception} oInnerException The ITHit.Exception instance that caused the current exception.
+ */
+ITHit.oNS.LoggerException = function(sMessage, oInnerException) {
+	
+	// Inheritance definition.
+	ITHit.Exceptions.LoggerException.baseConstructor.call(this, sMessage, oInnerException);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.LoggerException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.LoggerException.prototype.Name = 'LoggerException';
+
+/**
+ * Type of information being logged.
+ * @api
+ * @enum {number}
+ * @class ITHit.LogLevel
+ */
+ITHit.DefineClass('ITHit.LogLevel', null, {}, /** @lends ITHit.LogLevel */{
+
+	/**
+	 * All messages will be written to log.
+	 * @type {number}
+	 */
+	All: 32,
+	
+	/**
+	 * Messages with LogLevel.Debug level will be written to log.
+	 * @type {number}
+	 */
+	Debug: 16,
+	
+	/**
+	 * Messages with LogLevel.Info level will be written to log.
+	 * @type {number}
+	 */
+	Info: 8,
+	
+	/**
+	 * Messages with LogLevel.Warn level will be written to log.
+	 * @type {number}
+	 */
+	Warn: 4,
+	
+	/**
+	 * Messages with LogLevel.Error level will be written to log.
+	 * @type {number}
+	 */
+	Error: 2,
+	
+	/**
+	 * Messages with LogLevel.Fatal level will be written to log.
+	 * @type {number}
+	 */
+	Fatal: 1,
+	
+	/**
+	 * No messages will be written to log.
+	 * @type {number}
+	 */
+	Off: 0
+});
+
+
+;
+(function() {
+	
+	// Log listeners.
+	var oListeners = {}
+	
+	// Declare counter for listeners
+	var oListenersCount = {};
+	
+	// Declare all listeners listening each log level.
+	var oListenersForLevels = {};
+	
+	// Initialize list of lesteners and counter.
+	for (var sProp in ITHit.LogLevel) {
+		oListeners[ITHit.LogLevel[sProp]]          = [];
+		oListenersForLevels[ITHit.LogLevel[sProp]] = [];
+	}
+
+	var recheck = function(bIncrease, iFrom, iTo, fHandler) {
+
+		for (var sProp in ITHit.LogLevel) {
+
+			// Skip elements with higher log level.
+			if (ITHit.LogLevel[sProp] > iTo) {
+				continue;
+			}
+
+			// Skip elements with lower log level
+			if (!ITHit.LogLevel[sProp]
+				|| (iFrom >= ITHit.LogLevel[sProp])
+			) {
+				continue;
+			}
+
+			// Increase log level listeners list.
+			if (bIncrease) {
+				oListenersForLevels[ITHit.LogLevel[sProp]].push(fHandler);
+
+				// Decrease log level listeners list.
+			} else {
+				for (var i = 0; i < oListenersForLevels[ITHit.LogLevel[sProp]].length; i++) {
+					if (oListenersForLevels[ITHit.LogLevel[sProp]][i] == fHandler) {
+
+						// Delete element from list.
+						oListenersForLevels[ITHit.LogLevel[sProp]].splice(i, 1);
+					}
+				}
+			}
+		}
+
+	};
+
+	recheck.add = function(iTo, fHandler) {
+		recheck.increase(ITHit.LogLevel.Off, iTo, fHandler);
+	};
+
+	recheck.del = function(iTo, fHandler) {
+		recheck.decrease(ITHit.LogLevel.Off, iTo, fHandler);
+	};
+
+	recheck.increase = function(iFrom, iTo, fHandler) {
+		recheck(true, iFrom, iTo, fHandler);
+	};
+
+	recheck.decrease = function(iFrom, iTo, fHandler) {
+		recheck(false, iFrom, iTo, fHandler);
+	};
+
+	/**
+	 * Provides static methods for logging.
+	 * @api
+	 * @class ITHit.Logger
+	 */
+	ITHit.DefineClass('ITHit.Logger', null, {}, /** @lends ITHit.Logger */{
+
+		Level: ITHit.Config.LogLevel || ITHit.LogLevel.Debug,
+
+		/**
+		 * Handler function called when event is trigger.
+		 * @callback ITHit.Logger~EventHandler
+		 */
+
+		/**
+		 * Adds log listener.
+		 * @api
+		 * @param {ITHit.Logger~EventHandler} fHandler Handler function.
+		 * @param {number} iLogLevel Log level messages capturing.
+		 */
+		AddListener: function (fHandler, iLogLevel) {
+
+			// Delete listener from listeners list.
+			if (iLogLevel == ITHit.LogLevel.Off) {
+				this.RemoveListener();
+			}
+
+			// Initialize indexes.
+			var iLevel = 0;
+			var iIndex = 0;
+
+			// Set outer loop exit lable.
+			outer:
+				// Loop through all log levels.
+				for (var iProp in oListeners) {
+
+					// Loop through all listeners for log level.
+					for (var i = 0; i < oListeners[iProp].length; i++) {
+
+						// If handler is found then save it's position for future comparison.
+						if (oListeners[iProp][i] == fHandler) {
+
+							// Save indexes for founded listener.
+							iLevel = iProp;
+							iIndex = i;
+
+							// Break outer loop.
+							break outer;
+						}
+					}
+				}
+
+			// Listener is not found.
+			if (!iLevel) {
+
+				// Add listener for specified log level.
+				oListeners[iLogLevel].push(fHandler);
+
+				recheck.add(iLogLevel, fHandler);
+
+				// Listener has been found.
+			} else {
+
+				// If specified log level for listener is not the same.
+				if (iLogLevel != iLevel) {
+
+					// Delete listener for old log level.
+					oListeners[iLevel].splice(iIndex, 1);
+
+					// Declare listener for specified log level.
+					oListeners[iLogLevel].push(fHandler);
+
+					if (iLogLevel > iLevel) {
+						recheck.increase(iLevel, iLogLevel, fHandler);
+					} else {
+						recheck.decrease(iLogLevel, iLevel, fHandler);
+					}
+				}
+			}
+		},
+
+		/**
+		 * Removes log listener.
+		 * @api
+		 * @param {ITHit.Logger~EventHandler} fHandler Handler function.
+		 */
+		RemoveListener: function (fHandler) {
+
+			// Set lable for outer loop.
+			outer:
+				// Loop through all log levels.
+				for (var iLogLevel in oListeners) {
+
+					// Loop through all listeners for log level.
+					for (var i = 0; i < oListeners[iLogLevel].length; i++) {
+
+						// Listener is found.
+						if (oListeners[iLogLevel][i] == fHandler) {
+
+							// Delete specified listener.
+							oListeners[iLogLevel].splice(i, 1);
+
+							recheck.del(iLogLevel, fHandler);
+
+							// Break outer loop.
+							break outer;
+						}
+					}
+				}
+
+			return true;
+		},
+
+		/**
+		 * Set log level for listener.
+		 * @param fHandler
+		 * @param iLogLevel
+		 * @returns {*}
+		 */
+		SetLogLevel: function (fHandler, iLogLevel) {
+			return this.AddListener(fHandler, iLogLevel, true);
+		},
+
+		/**
+		 * Get log level for listener.
+		 * @param fHandler
+		 * @returns {*}
+		 */
+		GetLogLevel: function (fHandler) {
+
+			// Loop through all log levels.
+			for (var iLogLevel in oListeners) {
+
+				// Loop through all listeners for log level.
+				for (var i = 0; i < oListeners[iLogLevel].length; i++) {
+
+					// Listener has been found.
+					if (oListeners[iLogLevel][i] == fHandler) {
+
+						// Return log level for specified listener..
+						return iLogLevel;
+					}
+				}
+			}
+
+			// Listener has not been found in listeners list.
+			return false;
+		},
+
+		/**
+		 * Get listeners for specified log level.
+		 * @param iLogLevel
+		 * @returns {*}
+		 */
+		GetListenersForLogLevel: function (iLogLevel) {
+			return oListenersForLevels[iLogLevel];
+		},
+
+		/**
+		 * Get count of listeners for specified log level.
+		 * @param iLogLevel
+		 * @returns {*}
+		 */
+		GetCount: function (iLogLevel) {
+			return oListenersForLevels[iLogLevel].length;
+		},
+
+		/**
+		 * Writes response data to log if Level value is LogLevel.Info or higher.
+		 *
+		 * @param {Object} oResponse Response object.
+		 */
+		WriteResponse: function (oResponse) {
+
+			// Check count of listeners for LogLevel.Info messages.
+			if (Logger.GetCount(ITHit.LogLevel.Info)) {
+
+				var sStr = '';
+
+				// Add status and description data.
+				if (oResponse instanceof HttpWebResponse) {
+					sStr += '\n' + oResponse.StatusCode + ' ' + oResponse.StatusDescription + '\n';
+				}
+
+				// Add response URI.
+				sStr += oResponse.ResponseUri + '\n';
+
+				// Add all response headers.
+				for (var sProp in oResponse.Headers) {
+					sStr += sProp + ': ' + oResponse.Headers[sProp] + '\n';
+				}
+
+				// Add response body.
+				sStr += oResponse.GetResponse();
+
+				// Write response data to log.
+				this.WriteMessage(sStr);
+			}
+		},
+
+		/**
+		 * Writs a message to log with a specified log level. Default log level is {@link ITHit.LogLevel#Info}
+		 * @api
+		 * @param {string} sMessage Message to be logged.
+		 * @param {number} iLogLevel Logging level.
+		 * @throws ITHit.Exceptions.LoggerException Function was expected as log listener.
+		 */
+		WriteMessage: function (sMessage, iLogLevel) {
+
+			// Check log level.
+			iLogLevel = ('undefined' == typeof iLogLevel) ? ITHit.LogLevel.Info : parseInt(iLogLevel);
+
+			// Check whether there are listeners for current log level.
+			if (ITHit.Logger.GetCount(iLogLevel)) {
+
+				// Get listeners for current log level.
+				var aListeners = this.GetListenersForLogLevel(iLogLevel);
+
+				var sMessage = String(sMessage).replace(/([^\n])$/, '$1\n');
+
+				// Loop through listeners.
+				for (var i = 0; i < aListeners.length; i++) {
+					try {
+						// Pass message to lestener.
+						aListeners[i](sMessage, ITHit.LogLevel.Info);
+					} catch (e) {
+
+						if (!aListeners[i] instanceof Function) {
+							throw new ITHit.Exceptions.LoggerException('Log listener expected function, passed: "' + aListeners[i] + '"', e);
+						} else {
+							throw new ITHit.Exceptions.LoggerException('Message could\'not be logged.', e);
+						}
+					}
+				}
+			}
+		},
+
+		StartLogging: function () {
+		},
+
+		FinishLogging: function () {
+		},
+
+		StartRequest: function () {
+			//this.WriteMessage('--- Request started ---', ITHit.LogLevel.Info);
+		},
+
+		FinishRequest: function () {
+			//this.WriteMessage('--- Request finished ---', ITHit.LogLevel.Info);
+		}
+	});
+
+})();
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Exception for Phrases class.
+ * @class ITHit.Exceptions.PhraseException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the PhraseException class with a specified error message and a reference to the inner exception that is the cause of this exception.
+ * @constructor PhraseException
+ * 
+ * @param {String} sMessage The error message string.
+ * @param {optional ITHit.Exception} oInnerException The ITHit.Exception instance that caused the current exception.
+ */
+ITHit.oNS.PhraseException = function(sMessage, oInnerException) {
+	
+	// Inheritance definition.
+	ITHit.Exceptions.PhraseException.baseConstructor.call(this, sMessage, oInnerException);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.PhraseException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.PhraseException.prototype.Name = 'PhraseException';
+
+/*
+ * Class for work with the text. Allows parse transferred JSON text and gives the convenient 
+ *    mechanism for returning phrases with an opportunity of replacement placeholders.
+ * @struct {static} ITHit.Phrases
+ */
+ITHit.Phrases = (function() {
+	
+	var PhrasesToEval = {};
+	
+	/*
+	 * Class for replacing placeholders. Class for using with replace method.
+	 * @class _callbackReplace
+	 */
+	/*
+	 * Initializes a new instance of the _callbackReplace class.
+	 * @constructor _callbackReplace
+	 * 
+	 * @param {Object} oArguments Phrases to replace.
+	 */
+	var _callbackReplace = function(oArguments) {
+		this._arguments = oArguments;
+	}
+	/*
+	 * Method for replacing placeholders.
+	 * @function {private String} _callbackReplace.Replace
+	 * 
+	 * @param {String} sPlaceholder Placeholder for replacing.
+	 * 
+	 * @returns Sentence.
+	 */
+	_callbackReplace.prototype.Replace = function(sPlaceholder) {
+		
+		var iIndex = sPlaceholder.substr(1, sPlaceholder.length-2);
+		return ('undefined' != typeof this._arguments[iIndex]) ? this._arguments[iIndex] : sPlaceholder;
+	}
+	
+	var Phrase = function(sPhrase) {
+		this._phrase = sPhrase;
+	}
+		
+	/*
+	 * Method for returning a phrase. It is implicitly caused at access to object in a context of a line.
+	 * @function {String} ITHit.Phrases.Phrase.toString
+	 *
+	 * @returns Phrase.
+	 */
+	Phrase.prototype.toString = function() {
+		return this._phrase;
+	}
+
+	/*
+	 * A method for replacement placeholders. Accepts unlimited number of parameters for replacement.
+	 * @function {String} ITHit.Phrases.Phrase.Paste
+	 *
+	 * @returns Phrase.
+	 */
+	Phrase.prototype.Paste = function() {
+		
+		var sPhrase = this._phrase;
+		if (/\{\d+?\}/.test(sPhrase)) {
+			var oReplace = new _callbackReplace(arguments);
+			sPhrase = sPhrase.replace(/\{(\d+?)\}/g, function(args){return oReplace.Replace(args);});
+		}
+		
+		return sPhrase;
+	}
+	
+	var Phrases = function() {}
+	
+	/*
+	 * A method for transformation JSON text into javascript object.
+	 * @function {Boolean} ITHit.Phrases.loadJSON
+	 * 
+	 * @paramset Syntax 1
+	 * @param {String} mPhrases A line containing JSON text of phrases.
+	 * @param {optional String} sNamespace A way in which phrases will be stored. It is set in the form of: "name1.name2".
+	 * @paramset Syntax 2
+	 * @param {Object} mPhrases A line containing JSON object of phrases.
+	 * @param {optional String} sNamespace A way in which phrases will be stored. It is set in the form of: "name1.name2".
+	 * 
+	 * @throws ITHit.Exceptions.PhraseException &nbsp;Wrong text structure if failed to eval passed JSON text or namespace expected to be a string.
+	 */
+	Phrases.prototype.LoadJSON = function(mPhrases, sNamespace) {
+		
+		var utilsNs = ITHit.Utils
+		
+		if ( sNamespace && !utilsNs.IsString(sNamespace) ) {
+			throw new ITHit.Exceptions.PhraseException('Namespace expected to be a string.');
+		}
+		
+		var _context = this;
+		
+		// Select or create context if specified.
+		if (sNamespace) {
+			_context = ITHit.Declare(sNamespace);
+		}
+		
+		try {
+			var oPhrases = mPhrases;
+			
+			// Eval JSON string to obtain an object.
+			if (utilsNs.IsString(oPhrases)) {
+				oPhrases = eval('('+ mPhrases +')');
+			}
+			
+			this._AddPhrases(oPhrases, _context);
+			
+		} catch(e) {
+			console.dir(e);
+			throw new ITHit.Exceptions.PhraseException('Wrong text structure.', e);
+		}
+	}
+	
+	Phrases.prototype.LoadLocalizedJSON = function(defaultPhrases, localizedPhrases, namespace) {
+		
+		var utilsNs     = ITHit.Utils,
+		    isUndefined = utilsNs.IsUndefined,
+		    isObject    = utilsNs.IsObject;
+		
+		if (!defaultPhrases || !utilsNs.IsObjectStrict(defaultPhrases)) {
+			throw new ITHit.Exceptions.PhraseException('Default phrases expected to be an JSON object.');
+		}
+		if (localizedPhrases && !utilsNs.IsObjectStrict(localizedPhrases)) {
+			throw new ITHit.Exceptions.PhraseException('Default phrases expected to be an JSON object');
+		}
+		
+		var mergedPhrases;
+		if (localizedPhrases) {
+			
+			mergedPhrases = {};
+			
+			// Clone localized phrases.
+			this._MergePhrases(mergedPhrases, localizedPhrases);
+			
+			// Add default phrases whether localized is not set.
+			this._MergePhrases(mergedPhrases, defaultPhrases);
+			
+		} else {
+			mergedPhrases = defaultPhrases;
+		}
+		
+		this.LoadJSON(mergedPhrases, namespace);
+	}
+	
+	Phrases.prototype._MergePhrases = function(dest, source) {
+		
+		var utilsNs     = ITHit.Utils,
+		    isUndefined = utilsNs.IsUndefined,
+		    isObject    = utilsNs.IsObject;
+		
+		for (var prop in source) {
+			if (!source.hasOwnProperty(prop)) continue;
+			
+			if (isUndefined(dest[prop])) {
+				dest[prop] = source[prop];
+			} else if (isObject(dest[prop])) {
+				this._MergePhrases(dest[prop], source[prop]);
+			}
+		}
+	}
+	
+	/*
+	 * A method for converting phrases into objects.
+	 * @function {private} ITHit.Phrases._AddPhrases
+	 * 
+	 * @param {Object} oPhrases Phrase object.
+	 * @param {Object} _context A way in which phrases will be stored.
+	 *
+	 * @throws ITHit.Exceptions.PhraseException &nbsp;Passed phrase is one of reserved words.
+	 */
+	Phrases.prototype._AddPhrases = function(oPhrases, _context) {
+		
+		// Get context.
+		_context = _context || this;
+		
+		// Loop through phrases.
+		for (var phrase in oPhrases) {
+			if ( ('object' != typeof oPhrases[phrase]) || !(oPhrases[phrase] instanceof Object) ) {
+				
+				switch (phrase) {
+					case '_AddPhrases':
+					case 'LoadJSON':
+					case 'LoadLocalizedJSON':
+					case '_Merge':
+					case 'prototype':
+					case 'toString':
+						throw new ITHit.Exceptions.PhraseException('"'+ phrase +'" is reserved word.');
+						break;
+				}
+				
+				_context[phrase] = new Phrase(oPhrases[phrase]);
+			} else {
+				this._AddPhrases(oPhrases[phrase], _context[phrase] ? _context[phrase] : (_context[phrase] = {}));
+			}
+		}
+	}
+	
+	return new Phrases();
+})();
+
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Exception for XPath class.
+ * @class ITHit.Exceptions.XPathException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the XPathException class with a specified error message and a reference to the inner exception that is the cause of this exception.
+ * @constructor XMLDocException
+ * 
+ * @param {String} sMessage Variable name.
+ * @param {optional ITHit.Exception} oInnerException The ITHit.Exception instance that caused the current exception.
+ */
+ITHit.oNS.XPathException = function(sMessage, oInnerException) {
+	
+	// Inheritance definition.
+	ITHit.Exceptions.XPathException.baseConstructor.call(this, sMessage, oInnerException);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.XPathException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.XPathException.prototype.Name = 'XPathException';
+
+/*
+ * XPath class.
+ * @class ITHit.XPath
+ */
+ITHit.XPath = {
+	_component: null,
+	_version: null
+};
+
+/*
+ * Static method for executing search.
+ * @constructor XPath
+ * 
+ * @param {String} sExpression String expression for search.
+ * @param {ITHit.XMLDoc} oXmlDom XML DOM object.
+ * @param {optional ITHit.XPath.resolver} mResolver Namespace resolver object or null if namespace is not specified for search.
+ * @param {optional ITHit.XPath.result} mResult Result object to reuse result object for search results or null for creating new result object.
+ * 
+ * @returns Result object or XML DOM element.
+ * 
+ * @throws ITHit.Exceptions.XPathException &nbsp;
+ */
+/*
+ * @function {ITHit.XPath.result} ITHit.XPath
+ */
+ITHit.XPath.evaluate = function(sExpression, oXmlDom, oResolver, oResult, _bSelectSingle) {
+	
+	// Check whether variables has valid types.
+	if ( ('string' != typeof sExpression) && !(sExpression instanceof String) ) {
+		throw new ITHit.Exceptions.XPathException('Expression was expected to be a string in ITHit.XPath.eveluate.');
+	}
+	
+	if ( !(oXmlDom instanceof ITHit.XMLDoc) ) {
+		throw new ITHit.Exceptions.XPathException('Element was expected to be an ITHit.XMLDoc object in ITHit.XPath.evaluate.');
+	}
+	
+	if ( oResolver && !(oResolver instanceof ITHit.XPath.resolver) ) {
+		throw new ITHit.Exceptions.XPathException('Namespace resolver was expected to be an ITHit.XPath.resolver object in ITHit.XPath.evaluate.');
+	}
+	
+	if ( oResult && !(oResult instanceof ITHit.XPath.result) ) {
+		throw new ITHit.Exceptions.XPathException('Result expected to be an ITHit.XPath.result object in ITHit.XPath.evaluate.');
+	}
+	
+	// Set default values if is not passed.
+	oResolver = oResolver || null;
+	oResult   = oResult   || null;
+	
+	if ( document.implementation.hasFeature('XPath', '3.0') && document.evaluate ) {
+		
+		// Get XML DOM Element.
+		var oContext = oXmlDom._get();
+		var oContextDocument = oContext.ownerDocument || oContext;
+		
+		// If specified then reuse result for search.
+		if (oResult) {
+			oContextDocument.evaluate(sExpression, oContext, oResolver, ITHit.XPath.result.UNORDERED_NODE_SNAPSHOT_TYPE, oResult._res);
+			return;
+		}
+		
+		// Return result set.
+		var oRes = new ITHit.XPath.result(oContextDocument.evaluate(sExpression, oContext, oResolver, ITHit.XPath.result.UNORDERED_NODE_SNAPSHOT_TYPE, null));
+		
+		// Return result set.
+		if (!_bSelectSingle) {
+			return oRes;
+			
+		// Return single (first) result.
+		} else {
+			return oRes.iterateNext();
+		}
+	} else if (undefined !== window.ActiveXObject) {
+			
+		// Get XML DOM Element.
+		var oContext = oXmlDom._get();
+		
+		// Check whether setProperty method is supported.
+		var bIsSetProp = false;
+		try {
+			oContext.getProperty('SelectionNamespaces');
+			bIsSetProp = true;
+		} catch(e) {}
+		
+		var bChangedNs = false;
+		if (3 == ITHit.XMLDoc._version) {
+			
+			var sXml = oContext.xml.replace(/^\s+|\s+$/g, '');
+			
+			// Data to replace.
+			var sReplaceWhat = 'urn:uuid:c2f41010-65b3-11d1-a29f-00aa00c14882/';
+			var sReplaceTo   = 'cutted';
+			
+			if ( -1 != sXml.indexOf(sReplaceWhat) || true) {
+				
+				// Make replace.
+				var sXmlNew = sXml.replace(sReplaceWhat, sReplaceTo);
+				
+				// Create new XML DOM document.
+				var oXmlDoc = new ITHit.XMLDoc();
+				oXmlDoc.load(sXmlNew);
+				
+				// Make replace for namespace resolver.
+				if (oResolver) {
+					var oNs = oResolver.getAll();
+					for (var sAlias in oNs) {
+						if (sReplaceWhat == oNs[sAlias]) {
+							oNs.add(sAlias, sReplaceTo); 
+							break;
+						}
+					}
+				}
+				
+				oContext   = oXmlDoc._get();
+				bIsSetProp = true;
+				bChangedNs = true;
+			}
+		}
+		
+		// Set namespaces.
+		if ( bIsSetProp && oResolver && oResolver.length() ) {
+			
+			var oNsPairs = oResolver.getAll();
+			var aNs = [];
+			for (var sAlias in oNsPairs) {
+				aNs.push("xmlns:"+ sAlias +"='"+ oNsPairs[sAlias] +"'");
+			}
+			
+			oContext.setProperty("SelectionNamespaces", aNs.join(' '));
+		}
+		
+		if (bChangedNs) {
+			oContext = oContext.documentElement;
+		}
+		
+		try {
+			
+			// Return result set.
+			if (!_bSelectSingle) {
+				
+				// Return result.
+				if (!oResult) {
+					return new ITHit.XPath.result(oContext.selectNodes(sExpression));
+					
+				// Reuse result object.
+				} else {
+					oResult._res = oContext.selectNodes(sExpression);
+					return;
+				}
+				
+			// Return single result.
+			} else {
+				
+				// Search single element.
+				var mOut = oContext.selectSingleNode(sExpression);
+				
+				if (mOut) {
+					return new ITHit.XMLDoc(mOut);
+				} else {
+					return mOut;
+				}
+			}
+			
+		} catch(e) {
+			
+			// Check whether XML Document needed to be created.
+			if ( !bIsSetProp
+				&& (-1 != e.message.indexOf('Reference to undeclared namespace prefix'))
+				&& oResolver
+				&& oResolver.length()
+			) {
+				
+				// Create new XML Document with passed XML Dom nodes.
+				var sEl = new ITHit.XMLDoc(oContext).toString();
+				var oEl = new ITHit.XMLDoc();
+				oEl.load(sEl);
+				oContext = oEl._get();
+				
+				// Set namespace resolver.
+				var oNsPairs = oResolver.getAll();
+				var aNs = [];
+				for (var sAlias in oNsPairs) {
+					aNs.push("xmlns:"+ sAlias +"='"+ oNsPairs[sAlias] +"'");
+				}
+				oContext.setProperty("SelectionNamespaces", aNs.join(' '));
+				
+				// Get document element.
+				oContext = oContext.documentElement;
+				
+				// Return result set.
+				if (!_bSelectSingle) {
+					
+					// Return result.
+					if (!oResult) {
+						return new ITHit.XPath.result(oContext.selectNodes(sExpression));
+						
+					// Reuse result object.
+					} else {
+						oResult._res = oContext.selectNodes(sExpression);
+						return;
+					}
+					
+				// Return single result.
+				} else {
+					
+					// Search single element.
+					var mOut = oContext.selectSingleNode(sExpression);
+					
+					if (mOut) {
+						return new ITHit.XMLDoc(mOut);
+					} else {
+						return mOut;
+					}
+				}
+				
+			// Throw exception otherwise.
+			} else {
+				throw new ITHit.Exceptions.XPathException('Evaluation failed for searching "'+ sExpression +'".', e);
+			}
+		}
+	}
+	
+	throw new ITHit.Exceptions.XPathException('XPath support is not implemented for your browser.');
+}
+
+/*
+ * Find single (first) node.
+ * @function {ITHit.XMLDoc} ITHit.XPath.selectSingleNode
+ * 
+ * @param {String} sExpression String expression for search.
+ * @param {ITHit.XMLDoc} oXmlDom XML DOM object.
+ * @param {optional ITHit.XPath.resolver} mResolver Namespace resolver object or null if namespace is not specified for search.
+ */
+ITHit.XPath.selectSingleNode = function(sExpression, oXmlDom, oResolver) {
+	return ITHit.XPath.evaluate(sExpression, oXmlDom, oResolver, false, true);
+}
+
+/*
+ * Class for creating namespace resolver for XPath.
+ * @class ITHit.XPath.resolver
+ */
+/*
+ * Create new instance of resolver class.
+ * @constructor resolver
+ */
+ITHit.XPath.resolver = function() {
+	this._ns     = {};
+	this._length = 0;
+}
+
+/*
+ * Add alias and namespace for it.
+ * @function ITHit.XPath.resolver.add
+ * 
+ * @param {String} sAlias Namespace alias.
+ * @param {String} sNs Namespace
+ */
+ITHit.XPath.resolver.prototype.add = function(sAlias, sNs) {
+	this._ns[sAlias] = sNs;
+	this._length++;
+}
+
+/*
+ * Removes alias and namespace corresponding to it.
+ * @function ITHit.XPath.resolver.remove
+ * 
+ * @param {String} sAlias Alias for namespace to delete.
+ */
+ITHit.XPath.resolver.prototype.remove = function(sAlias) {
+	delete this._ns[sAlias];
+	this._length--;
+}
+
+/*
+ * Get namespace corresponding to passed alias.
+ * @function {String} ITHit.XPath.resolver.get
+ *  
+ * @param {String} sAlias Alias for namespace.
+ * 
+ * @returns Corresponding to alias namespace.
+ */
+ITHit.XPath.resolver.prototype.get = function(sAlias) {
+	return this._ns[sAlias] || null;
+}
+
+/*
+ * Alias for get method.
+ * @function {String} ITHit.XPath.resolver.lookupNamespaceURI
+ * 
+ * @see ITHit.XPath.resolver.get
+ */
+ITHit.XPath.resolver.prototype.lookupNamespaceURI = ITHit.XPath.resolver.prototype.get;
+
+/*
+ * Get list of all namespaces.
+ * @function {Object} ITHit.XPath.resolver.getAll
+ * 
+ * @returns List of aliases as keys and corresponding to it namespaces.
+ */
+ITHit.XPath.resolver.prototype.getAll = function() {
+	
+	var oOut = {};
+	for (var sAlias in this._ns) {
+		oOut[sAlias] = this._ns[sAlias];
+	}
+	
+	return oOut;
+}
+
+/*
+ * Get count of setted namespaces.
+ * @function {Integer} ITHit.XPath.resolver.length
+ * 
+ * @returns Count of added alias and namespace pairs.
+ */
+ITHit.XPath.resolver.prototype.length = function() {
+	return this._length;
+}
+
+/*
+ * Class representing result of XPath query.
+ * @class ITHit.XPath.resolver.result
+ */
+/*
+ * Create new instance of result class.
+ * @constructor result
+ * 
+ * @param {Object} oResult XPath result object.
+ */
+ITHit.XPath.result = function(oResult) {
+	this._res = oResult;
+	this._i   = 0;
+	this.length = oResult.length ? oResult.length : oResult.snapshotLength;
+}
+
+/*
+ * Constants representing result type.
+ */
+ITHit.XPath.result.ANY_TYPE                     = 0;
+ITHit.XPath.result.NUMBER_TYPE                  = 1;
+ITHit.XPath.result.STRING_TYPE                  = 2;
+ITHit.XPath.result.BOOLEAN_TYPE                 = 3;
+ITHit.XPath.result.UNORDERED_NODE_ITERATOR_TYPE = 4;
+ITHit.XPath.result.ORDERED_NODE_ITERATOR_TYPE   = 5;
+ITHit.XPath.result.UNORDERED_NODE_SNAPSHOT_TYPE = 6;
+ITHit.XPath.result.ORDERED_NODE_SNAPSHOT_TYPE   = 7;
+ITHit.XPath.result.ANY_UNORDERED_NODE_TYPE      = 8;
+ITHit.XPath.result.FIRST_ORDERED_NODE_TYPE      = 9;
+
+/*
+ * Iterate through founded nodes.
+ * @function ITHit.XPath.resolver.iterateNext
+ * 
+ * @returns Result value.
+ */
+ITHit.XPath.result.prototype.iterateNext = function(iIndex) {
+	
+	var mOut;
+	if (!iIndex) {
+		if (!this._res.snapshotItem) {
+			try {
+				mOut = this._res[this._i++];
+			} catch(e) {
+				return null;
+			}
+		} else {
+			mOut = this._res.snapshotItem(this._i++);
+		}
+	} else {
+		mOut = this._res[iIndex];
+	}
+	
+	if (mOut) {
+		return new ITHit.XMLDoc(mOut);
+	} else {
+		return mOut;
+	}
+}
+
+/*
+ * Iterate through founded nodes.
+ * @function ITHit.XPath.resolver.snapshotItem
+ * 
+ * @param {Integer} iIndex for result node for snapshot result type.
+ * 
+ * @returns Result value.
+ */
+ITHit.XPath.result.prototype.snapshotItem = ITHit.XPath.result.prototype.iterateNext;
+
+/*
+ * Return type for result.
+ * @function {Integer} ITHit.XPath.resolver.type
+ * 
+ * @returns Result type.
+ */
+ITHit.XPath.result.prototype.type = function() {
+	return this._res.resultType;
+}
+
+ITHit.XPath.result.prototype._get = function() {
+	return this._res;
+}
+
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Exception for XMLDoc class.
+ * @class ITHit.Exceptions.XMLDocException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the XMLDocException class with a specified error message and a reference to the inner exception that is the cause of this exception.
+ * @constructor XMLDocException
+ * 
+ * @param {String} sMessage Variable name.
+ * @param {optional ITHit.Exception} oInnerException The ITHit.Exception instance that caused the current exception.
+ */
+ITHit.oNS.XMLDocException = function(sMessage, oInnerException) {
+	
+	// Inheritance definition.
+	ITHit.Exceptions.XMLDocException.baseConstructor.call(this, sMessage, oInnerException);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.XMLDocException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.XMLDocException.prototype.Name = 'XMLDocException';
+
+/*
+ * Class for manipulating XML document.
+ * @class ITHit.XMLDoc
+ */
+ITHit.XMLDoc = (function() {
+	
+	/*
+	 * Holds AxtiveX Object GUID.
+	 * @property {private String} ITHit.XMLDoc._actXObj
+	 */
+	var _actXObj;
+	
+	// Node types
+	var NODE_ELEMENT = 1;
+	var NODE_ATTRIBUTE = 2;
+	var NODE_TEXT = 3;
+	var NODE_CDATA_SECTION = 4;
+	var NODE_ENTITY_REFERENCE = 5;
+	var NODE_ENTITY = 6;
+	var NODE_PROCESSING_INSTRUCTION = 7;
+	var NODE_COMMENT = 8;
+	var NODE_DOCUMENT = 9;
+	var NODE_DOCUMENT_TYPE = 10;
+	var NODE_DOCUMENT_FRAGMENT = 11;
+	var NODE_NOTATION = 12;
+	
+	/*
+	 * Creates class for working with XML documents.
+	 * @constructor XMLDoc
+	 * 
+	 * @param {optional Object} oDomElem XML DOM element.
+	 */
+	var XMLDoc = function(oDomElem) {
+		
+		this._xml      = null;
+		this._encoding = null;
+		
+		// Whether oDomElem is not null.
+		if (null !== oDomElem) {
+			
+		// If oXmlObj is not passed then create XML document.
+		if ( !oDomElem || ('object' != typeof oDomElem) ) {
+			
+			// Create document in IE.
+		    if (undefined !== window.ActiveXObject) {
+			
+				// Whether activeX object is already have been initialized.
+				if (_actXObj) {
+					
+					// Create instance of the same guid.
+					this._xml = new window.ActiveXObject(_actXObj);
+					
+				// First initialization.
+				} else {
+					
+					// Array of GUIDs for creating XML DOM document.
+					var aComponents = ['Msxml2.DOMDocument.6.0', 'Msxml2.DOMDocument.4.0', 'Msxml2.DOMDocument.3.0'];
+					var aVers       = [6, 4, 3]
+					for (var i = 0; i < aComponents.length; i++) {
+						try {
+							this._xml = new window.ActiveXObject(aComponents[i]);
+							
+							// Save component's version.
+							XMLDoc._version = aVers[i];
+							
+							// Save curent GUID for future instances.
+							_actXObj = aComponents[i];
+							
+							break;
+						} catch(e) {
+							if (3 == aVers[i]) {
+								throw new ITHit.Exception('XML component is not supported.');
+							}
+						}
+					}
+				}
+			
+			// Create XML document in Gecko based brousers.
+			} else if (document.implementation && document.implementation.createDocument) {
+				this._xml = document.implementation.createDocument('', '', null);
+			}
+			
+			// Check whether XML document is not created.
+			if (undefined === this._xml) {
+				throw new ITHit.Exceptions.XMLDocException('XML support for current browser is not implemented.');
+			}
+			
+			// Set XML document load to asyncronous mode.
+			this._xml.async = false;
+		
+		// Assign passed XML element.
+		} else {
+			this._xml = oDomElem;
+		}
+			
+		} else {
+			this._xml = null;
+			return null;
+		}
+	};
+	
+	/*
+	 * Holds version of XML DOM GUID.
+	 * @param {Inreger} ITHit.XMLDoc._version
+	 */
+	XMLDoc._version = 0;
+	
+	XMLDoc.prototype.contentEncoding = function(sEncoding) {
+		if (undefined !== sEncoding) {
+			this._encoding = sEncoding;
+		}
+		
+		return this._encoding;
+	}
+	
+	/*
+	 * Load XML structure from string to specified object.
+	 *  Previous structure will be deleted.
+	 * @function ITHit.XMLDoc.load
+	 * 
+	 * @param {String} sXmlText XML string structure.
+	 * 
+	 * @throws ITHit.Exceptions.XMLDocException &nbsp;Srting was expected as parameter for method or wrong xml structure.
+	 */
+	XMLDoc.prototype.load = function(sXmlText) {
+		
+		if ( !ITHit.Utils.IsString(sXmlText) ) {
+			throw new ITHit.Exceptions.XMLDocException('String was expected for xml parsing.');
+		}
+		
+		if (!sXmlText) {
+			return new XMLDoc();
+		}
+		
+		var oDoc;
+		
+		// MSIE.
+		if (undefined !== window.ActiveXObject) {
+			try {
+				
+				// Replace unsupported in Msxml2.DOMDocument.3.0 namespace. 
+				if (3 == XMLDoc._version) {
+					sXmlText = sXmlText.replace(/(?:urn\:uuid\:c2f41010\-65b3\-11d1\-a29f\-00aa00c14882\/)/g, 'cutted');
+				}
+				
+				if (XMLDoc._version) {
+					this._xml.loadXML(sXmlText);
+				} else {
+					
+					// Create new XML DOM document.
+					var oXmlDoc = new XMLDoc();
+					
+					// Replace unsupported in Msxml2.DOMDocument.3.0 namespace.
+					if (3 == XMLDoc._version) {
+						sXmlText = sXmlText.replace(/(?:urn\:uuid\:c2f41010\-65b3\-11d1\-a29f\-00aa00c14882\/)/g, 'cutted');
+					}
+					
+					// Load XML string.
+					oXmlDoc.load(sXmlText);
+					
+					// Assign XML DOM to current object.
+					this._xml = oXmlDoc._get();
+				}
+				
+			} catch (e) {
+				var oError = e;
+			}
+			
+		// Mozilla and Netscape browsers.
+		} else if (document.implementation.createDocument) {
+			try {
+				var oParser = new DOMParser();
+				oDoc = oParser.parseFromString(sXmlText, "text/xml");
+				this._xml = oDoc;
+			} catch (e) {
+				var oError = e;
+			}
+			
+		} else {
+			throw new ITHit.Exceptions.XMLDocException('Cannot create XML parser object. Support for current browser is not implemented.');
+		}
+		
+		// If error while parsing happend.
+		if (undefined !== oError) {
+			throw new ITHit.Exceptions.XMLDocException('ITHit.XMLDoc.load() method failed.\nPossible reason: syntax error in passed XML string.', oError);
+		}
+	};
+	
+	/*
+	 * Append child element.
+	 * @function ITHit.XMLDoc.appendChild
+	 * 
+	 * @param {Object} oNode XML Dom element witch will be assigned to the current node.
+	 * 
+	 * @returns ITHit.Exceptions.XMLDocException Instance of XMLDoc class was expexted as parametr.
+	 */
+	XMLDoc.prototype.appendChild = function(oNode) {
+		
+		if (!oNode instanceof ITHit.XMLDoc) {
+			throw ITHit.Exceptions.XMLDocException('Instance of XMLDoc was expected in appendChild method.');
+		}
+		
+		this._xml.appendChild(oNode._get());
+	};
+	
+	/*
+	 * Create element method.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.createElement
+	 * 
+	 * @param {String} sElementName Element name.
+	 * 
+	 * @returns XML DOM element.
+	 */
+	XMLDoc.prototype.createElement = function(sElementName) {
+		return new XMLDoc(this._xml.createElement(sElementName));
+	};
+	
+	/*
+	 * Create element with namespace.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.createElementNS
+	 * 
+	 * @param {String} sNS The URI of the namespace.
+	 * @param {String} sElementName The qualified name of the element, as prefix:tagname.
+	 * 
+	 * @returns XML DOM element.
+	 * 
+	 * @throws ITHit.Exceptions.XMLDocException &nbsp;Node is not created.
+	 */
+	XMLDoc.prototype.createElementNS = function(sNS, sElementName) {
+		
+		// For Gecko based browsers
+		if (this._xml.createElementNS) {
+			var oElement = this._xml.createElementNS(sNS, sElementName, '');
+						
+			// Return new XML DOM element
+			return new ITHit.XMLDoc(oElement);
+		
+		// For IE
+		} else {
+			try {
+				return new XMLDoc(this._xml.createNode(NODE_ELEMENT, sElementName, sNS));
+			} catch(e) {
+				throw new ITHit.Exceptions.XMLDocException('Node is not created.', e);
+			}
+		}
+		
+		throw new ITHit.Exceptions.XMLDocException('createElementNS for current browser is not implemented.');
+	};
+	
+	/*
+	 * Create text node.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.createTextNode
+	 * 
+	 * @param {String} sText Text.
+	 * 
+	 * @returns XML DOM text element.
+	 */
+	XMLDoc.prototype.createTextNode = function(sText) {
+		return new XMLDoc(this._xml.createTextNode(sText));
+	};
+	
+	/*
+	 * Get element by it's id.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.getElementById
+	 * 
+	 * @param {String} sId ID of the element.
+	 * 
+	 * @returns Selected element.
+	 */
+	XMLDoc.prototype.getElementById = function(sId) {
+		return new XMLDoc(this._xml.getElementById(sId));
+	};
+	
+	/*
+	 * Get elements by it's tag names
+	 * @function {ITHit.XMLDoc[]} ITHit.XMLDoc.getElementsByTagName
+	 * 
+	 * @param {String} sTagName Tag name of the elements.
+	 * 
+	 * @returns List of XML DOM elements.
+	 */
+	XMLDoc.prototype.getElementsByTagName = function(sTagName) {
+		return new XMLDoc(this._xml.getElementsByTagName(sTagName));
+	};
+	
+	/*
+	 * Get element's child nodes.
+	 * @function {ITHit.XMLDoc[]} ITHit.XMLDoc.childNodes
+	 * 
+	 * @returns List of child nodes.
+	 */
+	XMLDoc.prototype.childNodes = function() {
+		
+		var oNodes    = this._xml.childNodes;
+		var oRetNodes = [];
+		
+		for ( var i = 0; i < oNodes.length; i++ ) {
+			oRetNodes.push(new ITHit.XMLDoc(oNodes[i]));
+		}
+		
+		return oRetNodes;
+	}
+	
+	/*
+	 * Get elements by it's tag names with namespace.
+	 * @function {ITHit.XMLDoc[]} ITHit.XMLDoc.getElementsByTagNameNS
+	 * 
+	 * @param {String} sNamespace Element's namespace.
+	 * @param {String} sTagName Tag name.
+	 * 
+	 * @returns List of selected nodes.
+	 */
+	XMLDoc.prototype.getElementsByTagNameNS = function(sNamespace, sTagName) {
+		
+		if (this._xml.getElementsByTagNameNS) {
+			var oNode = this._xml.getElementsByTagNameNS(sNamespace, sTagName);
+			
+		} else {
+			// Recreate XML DOM document.
+			var sElem = this.toString();
+			var oXmlDoc = new ITHit.XMLDoc();
+			oXmlDoc.load(sElem);
+			
+			// Add namespace resolver.
+			var oResolver = new ITHit.XPath.resolver();
+			oResolver.add('a', sNamespace);
+			
+			// Search corresponding nodes.
+			var oRes = ITHit.XPath.evaluate(('//a:'+ sTagName), oXmlDoc, oResolver);
+			var oNode = oRes._get();
+		}
+		
+		var aRet = [];
+		for (var i = 0; i < oNode.length; i++) {
+			var oNodeI = new ITHit.XMLDoc(oNode[i]);
+			aRet.push(oNodeI);
+		}
+		
+		return aRet;
+	};
+	
+	/*
+	 * Set attribute.
+	 * @function ITHit.XMLDoc.setAttribute
+	 * 
+	 * @paramset Syntax 1
+	 * @param {String} sName Attribute's name.
+	 * @param {String} mValue Atribute's value.
+	 * @paramset Syntax 2
+	 * @param {String} sName Attribute's name.
+	 * @param {Number} mValue Atribute's value.
+	 */
+	XMLDoc.prototype.setAttribute = function(sName, mValue) {
+		this._xml.setAttribute(sName, mValue);
+	};
+	
+	/*
+	 * Check whether attribute with specified name is present in element's attributes list.
+	 * @function {Boolean} ITHit.XMLDoc.hasAttribute
+	 * 
+	 * @param {String} sName Attribute's name.
+	 * 
+	 * @returns true if present, false otherwise.
+	 */
+	XMLDoc.prototype.hasAttribute = function(sName) {
+		
+		return this._xml.hasAttribute(sName);
+	};
+	
+	/*
+	 * Get attribute represented by name.
+	 * @function {String} ITHit.XMLDoc.getAttribute
+	 * 
+	 * @param {String} sName Attribute's name.
+	 * 
+	 * @returns Value of the attribute or 'undefined' if attribute is not set.
+	 */
+	XMLDoc.prototype.getAttribute = function(sName) {
+		
+		return this._xml.getAttribute(sName);
+	};
+	
+	/*
+	 * Remove specified attribute.
+	 * @function ITHit.XMLDoc.removeAttribute
+	 * 
+	 * @param {String} sName Attribute's name.
+	 */
+	XMLDoc.prototype.removeAttribute = function(sName) {
+		
+		this._xml.removeAttribute(sName);
+	};
+	
+	/*
+	 * Check whether attribute with specified name is present in element's attributes list.
+	 * @function {Boolean} ITHit.XMLDoc.hasAttributeNS
+	 * 
+	 * @param {String} sName Attribute's name.
+	 * 
+	 * @returns true if present, false otherwise.
+	 */
+	XMLDoc.prototype.hasAttributeNS = function(sName) {
+		
+		return this._xml.hasAttribute(sName);
+	};
+	
+	/*
+	 * Get attribute represented by name.
+	 * @function {String} ITHit.XMLDoc.getAttributeNS
+	 * 
+	 * @param {String} sName Attribute's name.
+	 * 
+	 * @returna Value of the attribute or 'undefined' if attribute is not set.
+	 */
+	XMLDoc.prototype.getAttributeNS = function(sName) {
+		
+		return this._xml.getAttribute(sName);
+	};
+	
+	/*
+	 * Remove specified attribute.
+	 * @function ITHit.XMLDoc.removeAttributeNS
+	 * 
+	 * @param {String} sName Attribute's name.
+	 */
+	XMLDoc.prototype.removeAttributeNS = function(sName) {
+		this._xml.removeAttribute(sName);
+	};
+	
+	/*
+	 * Remove specified child node with all it's subnodes from current XML DOM tree.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.removeChild
+	 * 
+	 * @param {ITHit.XMLDoc} oNode Node for deleting.
+	 * 
+	 * @returns Deleted element.
+	 * 
+	 * @throws ITHit.Exceptions.XMLDocException &nbsp;Instance of XMLDoc was expected as method parameter.
+	 */
+	XMLDoc.prototype.removeChild = function(oNode) {
+		
+		if (!oNode instanceof ITHit.XMLDoc) {
+			throw ITHit.Exceptions.XMLDocException('Instance of XMLDoc was expected in ITHit.XMLDoc.removeChild() method.');
+		}
+		
+		this._xml.removeChild(oNode);
+		
+		return new ITHit.XMLDoc(oNode);
+	};
+	
+	/*
+	 * Remove specified node with all it's subnodes from current XML DOM tree.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.removeNode
+	 * 
+	 * @param {ITHit.XMLDoc} oNode Node for deleting.
+	 * 
+	 * @returns Deleted element.
+	 * 
+	 * @throws ITHit.Exceptions.XMLDocException &nbsp;Instance of XMLDoc was expected as method parameter.
+	 */
+	XMLDoc.prototype.removeNode = function(oNode) {
+		
+		if (!oNode instanceof ITHit.XMLDoc) {
+			throw ITHit.Exceptions.XMLDocException('Instance of XMLDoc was expected in ITHit.XMLDoc.removeNode() method.');
+		}
+		
+		oNode = oNode._get();
+		
+		if (oNode.removeNode) {
+			return new XMLDoc(oNode.removeNode(true));
+		} else {
+			return new XMLDoc(oNode.parentNode.removeChild(oNode));
+		}
+	};
+	
+	/*
+	 * Clone specified node.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.cloneNode
+	 * 
+	 * @param {ITHit.XMLDoc} oNode Node for cloning.
+	 * @param {Boolean} bWithChildren Whether node be cloned with all it's subnodes.
+	 * 
+	 * @returns Cloned element.
+	 * 
+	 * @throws ITHit.Exceptions.XMLDocException &nbsp;Instance of XMLDoc was expected as method parameter.
+	 */
+	XMLDoc.prototype.cloneNode = function(bWithChildren) {
+		
+		if (undefined === bWithChildren) {
+			bWithChildren = true;
+		}
+		
+		return new ITHit.XMLDoc(this._xml.cloneNode(bWithChildren));
+	};
+	
+	/*
+	 * Get specified property.
+	 * @function {String} ITHit.XMLDoc.getProperty
+	 * 
+	 * @param {String} sPropName Property name.
+	 * 
+	 * @returns Property value.
+	 */
+	XMLDoc.prototype.getProperty = function(sPropName) {
+		return this._xml[sPropName];
+	};
+	
+	/*
+	 * Set specified property.
+	 * @function {String} ITHit.XMLDoc.setProperty
+	 * 
+	 * @param {String} sPropName Property name.
+	 * @param {String, Number} mValue Property value.
+	 */
+	XMLDoc.prototype.setProperty = function(sPropName, mValue) {
+		this._xml[sPropName] = mValue;
+	};
+	
+	/*
+	 * Get node name with nprefix if specified.
+	 * @function {String} ITHit.XMLDoc.nodeName
+	 * 
+	 * @returns Node name.
+	 */
+	XMLDoc.prototype.nodeName = function() {
+		return this._xml.nodeName;
+	};
+	
+	/*
+	 * Get next sibling.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.nextSibling
+	 * 
+	 * @returns Next sibling.
+	 */
+	XMLDoc.prototype.nextSibling = function() {
+		return new ITHit.XMLDoc(this._xml.nextSibling);
+	};
+	
+	/*
+	 * Get element's namespace.
+	 * @function {String} ITHit.XMLDoc.namespaceURI
+	 * 
+	 * @returns Element's namespace.
+	 */
+	XMLDoc.prototype.namespaceURI = function() {
+		return this._xml.namespaceURI;
+	};
+	
+	/*
+	 * Whether element has child nodes.
+	 *  @function {Boolean} ITHit.XMLDoc.hasChildNodes
+	 *  
+	 *  @returns true if element has child nodes, false otherwise.
+	 */
+	XMLDoc.prototype.hasChildNodes = function() {
+		return (this._xml && this._xml.hasChildNodes());
+	}
+	
+	/*
+	 * Get first child node.
+	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.firstChild
+	 * 
+	 * @returns First child node.
+	 */
+	XMLDoc.prototype.firstChild = function() {
+		return new XMLDoc(this._xml.firstChild);
+	}
+	
+	/*
+	 * Get local name (without prefix).
+	 * @function {String} ITHit.XMLDoc.localName
+	 * 
+	 * @returns Element's name.
+	 */
+	XMLDoc.prototype.localName = function() {
+		return this._xml.localName || this._xml.baseName;
+	};
+	
+	/*
+	 * Get node value.
+	 * @function ITHit.XMLDoc.nodeValue
+	 * 
+	 * @returns Node's value.
+	 */
+	XMLDoc.prototype.nodeValue = function() {
+		
+		var mValue = '';
+			
+		if (this._xml) {
+			mValue = this._xml.nodeValue;
+		}
+		
+		if ('object' != typeof mValue) {
+			return mValue;
+		} else {
+			return new ITHit.XMLDoc(mValue);
+		}
+	};
+	
+	/*
+	 * Get node type.
+	 * @function ITHit.XMLDoc.nodeType
+	 * 
+	 * @return Node's type.
+	 */
+	XMLDoc.prototype.nodeType = function() {
+		return this._xml.nodeType;
+	}
+	
+	XMLDoc.prototype._get = function() {
+		return this._xml;
+	};
+	
+	/*
+	 * Returns XML DOM document as string. 
+	 * @function {String} ITHit.XMLDoc.toString
+	 * 
+	 * @returns String representation of XML DOM element.
+	 */
+	XMLDoc.prototype.toString = function(bWithoutDeclaration) {
+		return XMLDoc.toString(this._xml, this._encoding, bWithoutDeclaration);
+	};
+	
+	/*
+	 * Returns XML DOM document as string. Static method.
+	 * @function {static String} ITHit.XMLDoc.toString
+	 * 
+	 * @returns String representation of XML DOM element.
+	 */
+	XMLDoc.toString = function(oXmlObj, sEncoding, bWithoutDeclaration) {
+		
+		if (!oXmlObj) {
+			throw new ITHit.Exceptions.XMLDocException('ITHit.XMLDoc: XML object expected.');
+		}
+		
+		var sOutput = '';
+		var bRaiseException = true;
+		
+		// Check whether IE conversion method.
+		if (undefined !== oXmlObj.xml) {
+			sOutput = oXmlObj.xml.replace(/^\s+|\s+$/g, '');
+			bRaiseException = false;
+			
+		// Check for XMLSerializer support by browser.
+		} else if (document.implementation.createDocument && (undefined !== XMLSerializer)) {
+			sOutput = new XMLSerializer().serializeToString(oXmlObj);
+			bRaiseException = false;
+		}
+		
+		// Check for output data.
+		if (sOutput) {
+			
+			// Whether encoding is specified.
+			if (sEncoding) {
+				// Add encoding data.
+				sEncoding = ' encoding="'+ this._encoding +'"'
+			} else {
+				// Clear encoding.
+				sEncoding = '';
+			}
+			
+			// Return string XML document.
+			var sOut = ( (!bWithoutDeclaration) ? '<?xml version="1.0"'+ sEncoding +'?>' : '' )+ sOutput.replace(/^<\?xml[^?]+\?>/, ''); // Replace xml declaration if is set.
+			
+			return sOut;
+		}
+		
+		if (bRaiseException) {
+			throw new ITHit.Exceptions.XMLDocException('XML parser object is not created.');
+		}
+		
+		return sOutput;
+	};
+	
+	// Return reference of the constructor for the XMLDoc class.
+	return XMLDoc;
+})();
+
+/*
+ * XML DOM node types
+ */
+ITHit.XMLDoc.nodeTypes = {
+	NODE_ELEMENT: 1,
+	NODE_ATTRIBUTE: 2,
+	NODE_TEXT: 3,
+	NODE_CDATA_SECTION: 4,
+	NODE_ENTITY_REFERENCE: 5,
+	NODE_ENTITY: 6,
+	NODE_PROCESSING_INSTRUCTION: 7,
+	NODE_COMMENT: 8,
+	NODE_DOCUMENT: 9,
+	NODE_DOCUMENT_TYPE: 10,
+	NODE_DOCUMENT_FRAGMENT: 11,
+	NODE_NOTATION: 12
+};
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Wrong argument value.
+ * @class ITHit.Exceptions.ArgumentException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the ArgumentException class with a specified error message and variable name wrong value of which is caused an exception.
+ * @constructor ArgumentException
+ * 
+ * @param {String} sMessage  The error message that explains the reason for the exception.
+ * @param {String} sVariable The name of the parameter that caused the current exception.
+ */
+ITHit.oNS.ArgumentException = function(sMessage, sVariable) {
+	
+	sMessage += ' Variable name: "'+ sVariable +'"';
+	
+	// Inheritance definition.
+	ITHit.Exceptions.ArgumentException.baseConstructor.call(this, sMessage);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.ArgumentException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.ArgumentException.prototype.Name = 'ArgumentException';
+
+;
+(function () {
+
+	/**
+	 * @class ITHit.WebDAV.Client.Depth
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.Depth', null, /** @lends ITHit.WebDAV.Client.Depth.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.Depth */{
+
+			/**
+			 * @type {ITHit.WebDAV.Client.Depth}
+			 */
+			Zero: null,
+
+			/**
+			 * @type {ITHit.WebDAV.Client.Depth}
+			 */
+			One: null,
+
+			/**
+			 * @type {ITHit.WebDAV.Client.Depth}
+			 */
+			Infinity: null,
+
+			Parse: function (sValue) {
+
+				// Switch depth variant.
+				switch (sValue.toLowerCase()) {
+
+					// Depth 0.
+					case '0':
+						return ITHit.WebDAV.Client.Depth.Zero;
+						break;
+
+					// Get one level.
+					case '1':
+						return ITHit.WebDAV.Client.Depth.One;
+						break;
+
+					// Get all.
+					case 'infinity':
+						return ITHit.WebDAV.Client.Depth.Infinity;
+						break;
+
+					default:
+						throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.InvalidDepthValue, 'sValue');
+
+				}
+
+			}
+		},
+
+		/**
+		 *
+		 * @param {string|number} mValue
+		 */
+		constructor: function (mValue) {
+			this.Value = mValue;
+		}
+
+	});
+
+	self.Zero = new self(0);
+	self.One = new self(1);
+	self.Infinity = new self('Infinity');
+
+})();
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.HttpMethod', null, /** @lends ITHit.WebDAV.Client.Methods.HttpMethod.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.HttpMethod */{
+
+		/**
+		 * @param {ITHit.WebDAV.Client.Request} oRequest
+		 * @param {string} sHref
+		 * @param {...*} otherParam
+		 * @returns {ITHit.WebDAV.Client.WebDavRequest}
+		 */
+		Go: function (oRequest, sHref, otherParam) {
+			// Create request.
+			var oWebDavRequest = this._CreateRequest.apply(this, arguments);
+			var oResponse = oWebDavRequest.GetResponse();
+
+			return this._ProcessResponse(oResponse, sHref);
+		},
+
+		/**
+		 * @param {ITHit.WebDAV.Client.Request} oRequest
+		 * @param {string} sHref
+		 * @param {...*} otherParam
+		 * @returns {ITHit.WebDAV.Client.WebDavRequest}
+		 */
+		GoAsync: function (oRequest, sHref, otherParam) {
+			// Create request.
+			var fCallback = arguments[arguments.length - 1];
+			var oWebDavRequest = this._CreateRequest.apply(this, arguments);
+
+			var that = this;
+			oWebDavRequest.GetResponse(function (oAsyncResult) {
+				if (oAsyncResult.IsSuccess) {
+					oAsyncResult.Result = that._ProcessResponse(oAsyncResult.Result, sHref);
+				}
+				fCallback(oAsyncResult);
+			});
+
+			return oWebDavRequest;
+		},
+
+		/**
+		 *
+		 * @protected
+		 * @returns {ITHit.WebDAV.Client.WebDavRequest}
+		 */
+		_CreateRequest: function () {
+			// @todo throw not implement
+		},
+
+		_ProcessResponse: function (oResponse, sHref) {
+			return new this(oResponse, sHref);
+		}
+
+	},
+
+	/**
+	 * @type {ITHit.WebDAV.Client.WebDavResponse}
+	 */
+	Response: null,
+
+	/**
+	 * @type {string}
+	 */
+	Href: null,
+
+	/**
+	 * Base class for all Http methods. Provides logging functionality.
+	 * @constructs
+	 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+	 * @param {string} sHref
+	 */
+	constructor: function (oResponse, sHref) {
+		this.Response = oResponse;
+		this.Href = sHref;
+
+		this._Init();
+	},
+
+	_Init: function () {
+	}
+});
+
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Wrong argument value.
+ * @class ITHit.Exceptions.ArgumentNullException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the ArgumentNullException class with a variable name caused an exception.
+ * @constructor ArgumentNullException
+ * 
+ * @param {String} sMessage Variable name.
+ */
+ITHit.oNS.ArgumentNullException = function(sVariable) {
+	
+	var sMessage = 'Variable "'+ sVariable +'" nas null value.';
+	
+	// Inheritance definition.
+	ITHit.Exceptions.ArgumentNullException.baseConstructor.call(this, sMessage);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.ArgumentNullException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.ArgumentNullException.prototype.Name = 'ArgumentNullException';
+
+/**
+ * Utilities container.
+ * @class ITHit.WebDAV.Client.WebDavUtil
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.WebDavUtil', null, {
+	__static: /** @lends ITHit.WebDAV.Client.WebDavUtil */{
+
+		/**
+		 * Check for non null value.
+		 * @throws ITHit.Exceptions.ArgumentNullException Argument is null.
+		 */
+		VerifyArgumentNotNull: function (oArgument, sArgumentName) {
+			if (oArgument === null) {
+				throw new ITHit.Exceptions.ArgumentNullException(sArgumentName);
+			}
+		},
+
+		/**
+		 * Check for non empty and non null value.
+		 * @throws ITHit.Exceptions.ArgumentNullException Argument is null or empty.
+		 */
+		VerifyArgumentNotNullOrEmpty: function (oArgument, sArgumentName) {
+			if (oArgument === null || oArgument === '') {
+				throw new ITHit.Exceptions.ArgumentNullException(sArgumentName);
+			}
+		}
+
+	}
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.PropertyName', null, /** @lends ITHit.WebDAV.Client.PropertyName.prototype */{
+
+	/**
+	 * Name of the property.
+	 * @api
+	 * @type {string}
+	 */
+	Name: null,
+
+	/**
+	 * Namespace of the property.
+	 * @api
+	 * @type {string}
+	 */
+	NamespaceUri: null,
+
+	/**
+	 * Initializes new instance of PropertyName.
+	 * @classdesc WebDAV property name.
+	 * @constructs
+	 * @param {string} sName Name of the property.
+	 * @param {string} sNamespaceUri Namespace of the property.
+	 * @throws ITHit.Exceptions.ArgumentNullException
+	 */
+	constructor: function(sName, sNamespaceUri) {
+
+		// Check passed arguments type
+		ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(sName, "sName");
+
+		this.Name         = sName;
+		this.NamespaceUri = sNamespaceUri;
+	},
+
+	/**
+	 * Checks whether objects are equal.
+	 * @param {ITHit.WebDAV.Client.PropertyName} oObj An object to compare with the PropertyName object.
+	 * @returns {boolean} True if the PropertyName and oObj are both PropertyName objects, and every component
+	 * of the PropertyName object matches the corresponding component of oObj; otherwise, false.
+	 */
+	Equals: function(oObj) {
+
+		if (this == oObj) {
+			return true;
+		}
+
+		if ( !oObj instanceof ITHit.WebDAV.Client.PropertyName ) {
+			return false;
+		}
+
+		return (this.Name === oObj.Name) && (this.NamespaceUri === oObj.NamespaceUri);
+	},
+
+	/**
+	 * Check whether property is standard.
+	 * @returns {boolean} Whether property is standard.
+	 */
+	IsStandardProperty: function () {
+
+		// Declare standard properties.
+		if (!ITHit.WebDAV.Client.PropertyName.StandardNames) {
+			ITHit.WebDAV.Client.PropertyName.StandardNames = [
+				ITHit.WebDAV.Client.DavConstants.ResourceType,
+				ITHit.WebDAV.Client.DavConstants.DisplayName,
+				ITHit.WebDAV.Client.DavConstants.CreationDate,
+				ITHit.WebDAV.Client.DavConstants.GetLastModified,
+				ITHit.WebDAV.Client.DavConstants.GetContentLength,
+				ITHit.WebDAV.Client.DavConstants.GetContentType,
+				ITHit.WebDAV.Client.DavConstants.GetETag,
+				ITHit.WebDAV.Client.DavConstants.IsCollection,
+				ITHit.WebDAV.Client.DavConstants.IsFolder,
+				ITHit.WebDAV.Client.DavConstants.IsHidden,
+				ITHit.WebDAV.Client.DavConstants.SupportedLock,
+				ITHit.WebDAV.Client.DavConstants.LockDiscovery,
+				ITHit.WebDAV.Client.DavConstants.GetContentLanguage,
+				ITHit.WebDAV.Client.DavConstants.Source,
+				ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes,
+				ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes,
+				new ITHit.WebDAV.Client.PropertyName("Win32FileAttributes", 'urn:schemas-microsoft-com:')
+			];
+		}
+
+		// Search whether property is standard.
+		for (var i = 0; i < ITHit.WebDAV.Client.PropertyName.StandardNames.length; i++) {
+			if (this.Equals(ITHit.WebDAV.Client.PropertyName.StandardNames[i])) {
+				return true;
+			}
+		}
+
+		return false;
+	},
+
+	/**
+	 * Check exists "DAV:" namespace
+	 * @returns {boolean} Whether property is standard.
+	 */
+	HasDavNamespace: function () {
+		return this.NamespaceUri === ITHit.WebDAV.Client.DavConstants.NamespaceUri;
+	},
+
+	/**
+	 * Returns string representation of current property name.
+	 * @api
+	 * @returns {string} String representation of current property name.
+	 */
+	toString: function() {
+		return this.NamespaceUri + ':' + this.Name;
+	}
+
+});
+
+
+
+;
+(function () {
+
+	var sNamespaceUri = 'DAV:';
+
+	/**
+	 * WebDAV properties and constants enumeration
+	 * @enum {ITHit.WebDAV.Client.PropertyName}
+	 * @class ITHit.WebDAV.Client.DavConstants
+	 */
+	ITHit.DefineClass('ITHit.WebDAV.Client.DavConstants', null, {
+		__static: /** @lends ITHit.WebDAV.Client.DavConstants */{
+
+			/**
+			 * WebDAV default namespace uri
+			 * @readonly
+			 * @type {string}
+			 */
+			NamespaceUri: sNamespaceUri,
+
+			/**
+			 * WebDAV property `comment`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			Comment: new ITHit.WebDAV.Client.PropertyName("comment", sNamespaceUri),
+
+			/**
+			 * WebDAV property `creationdate`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			CreationDate: new ITHit.WebDAV.Client.PropertyName("creationdate", sNamespaceUri),
+
+			/**
+			 * WebDAV property `creator-displayname`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			CreatorDisplayName: new ITHit.WebDAV.Client.PropertyName("creator-displayname", sNamespaceUri),
+
+			/**
+			 * WebDAV property `displayname`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			DisplayName: new ITHit.WebDAV.Client.PropertyName("displayname", sNamespaceUri),
+
+			/**
+			 * WebDAV property `getcontentlength`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			GetContentLength: new ITHit.WebDAV.Client.PropertyName("getcontentlength", sNamespaceUri),
+
+			/**
+			 * WebDAV property `getcontenttype`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			GetContentType: new ITHit.WebDAV.Client.PropertyName("getcontenttype", sNamespaceUri),
+
+			/**
+			 * WebDAV property `getetag`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			GetETag: new ITHit.WebDAV.Client.PropertyName("getetag", sNamespaceUri),
+
+			/**
+			 * WebDAV property `getlastmodified`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			GetLastModified: new ITHit.WebDAV.Client.PropertyName("getlastmodified", sNamespaceUri),
+
+			/**
+			 * WebDAV property `iscollection`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			IsCollection: new ITHit.WebDAV.Client.PropertyName("iscollection", sNamespaceUri),
+
+			/**
+			 * WebDAV property `isFolder`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			IsFolder: new ITHit.WebDAV.Client.PropertyName("isFolder", sNamespaceUri),
+
+			/**
+			 * WebDAV property `ishidden`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			IsHidden: new ITHit.WebDAV.Client.PropertyName("ishidden", sNamespaceUri),
+
+			/**
+			 * WebDAV property `resourcetype`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			ResourceType: new ITHit.WebDAV.Client.PropertyName("resourcetype", sNamespaceUri),
+
+			/**
+			 * WebDAV property `supportedlock`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			SupportedLock: new ITHit.WebDAV.Client.PropertyName("supportedlock", sNamespaceUri),
+
+			/**
+			 * WebDAV property `lockdiscovery`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			LockDiscovery: new ITHit.WebDAV.Client.PropertyName("lockdiscovery", sNamespaceUri),
+
+			/**
+			 * WebDAV property `getcontentlanguage`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			GetContentLanguage: new ITHit.WebDAV.Client.PropertyName("getcontentlanguage", sNamespaceUri),
+
+			/**
+			 * WebDAV property `source`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			Source: new ITHit.WebDAV.Client.PropertyName("source", sNamespaceUri),
+
+			/**
+			 * WebDAV property `quota-available-bytes`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			QuotaAvailableBytes: new ITHit.WebDAV.Client.PropertyName("quota-available-bytes", sNamespaceUri),
+
+			/**
+			 * WebDAV property `quota-used-bytes`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			QuotaUsedBytes: new ITHit.WebDAV.Client.PropertyName("quota-used-bytes", sNamespaceUri),
+
+			/**
+			 * WebDAV property `version-name`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			VersionName: new ITHit.WebDAV.Client.PropertyName("version-name", sNamespaceUri),
+
+			/**
+			 * WebDAV property `version-history`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			VersionHistory: new ITHit.WebDAV.Client.PropertyName("version-history", sNamespaceUri),
+
+			/**
+			 * WebDAV property `checked-in`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			CheckedIn: new ITHit.WebDAV.Client.PropertyName("checked-in", sNamespaceUri),
+
+			/**
+			 * WebDAV property `checked-out`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			CheckedOut: new ITHit.WebDAV.Client.PropertyName("checked-out", sNamespaceUri),
+
+			/**
+			 * WebDAV constant `src`
+			 * @readonly
+			 * @type {string}
+			 */
+			Src: 'src',
+
+			/**
+			 * WebDAV constant `dst`
+			 * @readonly
+			 * @type {string}
+			 */
+			Dst: 'dst',
+
+			/**
+			 * WebDAV constant `link`
+			 * @readonly
+			 * @type {string}
+			 */
+			Link: 'link',
+
+			/**
+			 * WebDAV slash constant
+			 * @readonly
+			 * @type {string}
+			 */
+			Slash: '/',
+
+			/**
+			 * WebDAV depndency failed error code
+			 * @readonly
+			 * @type {number}
+			 */
+			DepndencyFailedCode: 424,
+
+			/**
+			 * WebDAV locked error code
+			 * @readonly
+			 * @type {number}
+			 */
+			LockedCode: 423,
+
+			/**
+			 * WebDAV opaque lock token constant
+			 * @readonly
+			 * @type {string}
+			 */
+			OpaqueLockToken: 'opaquelocktoken:',
+
+			/**
+			 * WebDAV error property `quota-not-exceeded`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			QuotaNotExceeded: new ITHit.WebDAV.Client.PropertyName("quota-not-exceeded", sNamespaceUri),
+
+			/**
+			 * WebDAV error property `sufficient-disk-space`
+			 * @readonly
+			 * @type {ITHit.WebDAV.Client.PropertyName}
+			 */
+			SufficientDiskSpace: new ITHit.WebDAV.Client.PropertyName("sufficient-disk-space", sNamespaceUri)
+
+		}
+	});
+
+})();
+
+
+;
+(function() {
+
+	/**
+	 * Structure that describes HTTP response's status.
+	 * @api
+	 * @class ITHit.WebDAV.Client.HttpStatus
+	 */
+	ITHit.DefineClass('ITHit.WebDAV.Client.HttpStatus', null, /** @lends ITHit.WebDAV.Client.HttpStatus.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.HttpStatus */{
+
+			/**
+			 * No status defined.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			None: null,
+
+			/**
+			 * The request requires user authentication.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			Unauthorized: null,
+
+			/**
+			 * The request has succeeded.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			OK: null,
+
+			/**
+			 * The request has been fulfilled and resulted in a new resource being created.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			Created: null,
+
+			/**
+			 * The server has fulfilled the request but does not need to return an entity-body, and might want to
+			 * return updated meta information.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			NoContent: null,
+
+			/**
+			 * The server has fulfilled the partial GET request for the resource.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			PartialContent: null,
+
+			/**
+			 * This status code provides status for multiple independent operations.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			MultiStatus: null,
+
+			/**
+			 * This status code is used instead if 302 redirect. This is because 302 code is processed automatically
+			 * and there is no way to process redirect to login page.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			Redirect: null,
+
+			/**
+			 * The request could not be understood by the server due to malformed syntax. The client SHOULD NOT repeat
+			 * the request without modifications.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			BadRequest: null,
+
+			/**
+			 * The server has not found anything matching the Request-URI.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			NotFound: null,
+
+			/**
+			 * The method specified in the Request-Line is not allowed for the resource identified by the Request-URI.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			MethodNotAllowed: null,
+
+			/**
+			 * The precondition given in one or more of the request-header fields evaluated to false when it was tested
+			 * on the server.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			PreconditionFailed: null,
+
+			/**
+			 * The source or destination resource of a method is locked.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			Locked: null,
+
+			/**
+			 * The method could not be performed on the resource because the requested action depended on another
+			 * action and that action failed.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			DependencyFailed: null,
+
+			/**
+			 * The server understood the request, but is refusing to fulfill it.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			Forbidden: null,
+
+			/**
+			 * The request could not be completed due to a conflict with the current state of the resource.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			Conflict: null,
+
+			/**
+			 * The server does not support the functionality required to fulfill the request.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			NotImplemented: null,
+
+			/**
+			 * The server, while acting as a gateway or proxy, received an invalid response from the upstream
+			 * server it accessed in attempting to fulfill the request.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			BadGateway: null,
+
+			/**
+			 * The method could not be performed on the resource because the server is unable to store the
+			 * representation needed to successfully complete the request.
+			 * @api
+			 * @type {ITHit.WebDAV.Client.HttpStatus}
+			 */
+			InsufficientStorage: null,
+
+			/**
+			 * Parses HttpStatus structure from string containing status information.
+			 * @api
+			 * @param {string} sStatus String containing status information.
+			 * @returns {ITHit.WebDAV.Client.HttpStatus} HttpStatus structure that describes current status.
+			 */
+			Parse: function(sStatus) {
+				var aParts  = sStatus.split(' ');
+				var iStatus = parseInt(aParts[1]);
+
+				aParts.splice(0, 2);
+
+				return new ITHit.WebDAV.Client.HttpStatus(iStatus, aParts.join(' '));
+			}
+
+		},
+
+		/**
+		 * @type {number}
+		 */
+		Code: null,
+
+		/**
+		 * @type {string}
+		 */
+		Description: null,
+
+		/**
+		 * Represents response status.
+		 * Initializes a new instance of t,he HttpStatus structure with code and description specified.
+		 * @param {number} iCode Code of the status.
+		 * @param {string} sDescription Description of the status.
+		 */
+		constructor: function(iCode, sDescription) {
+			this.Code = iCode;
+			this.Description = sDescription;
+		},
+
+		/**
+		 * Indicates whether the current HttpStatus structure is equal to another HttpStatus structure.
+		 * @api
+		 * @param {ITHit.WebDAV.Client.HttpStatus} oHttpStatus HttpStatus object to compare.
+		 * @returns {boolean} True if the current object is equal to the other parameter; otherwise, false.
+		 */
+		Equals: function(oHttpStatus) {
+			if ( !oHttpStatus || !(oHttpStatus instanceof ITHit.WebDAV.Client.HttpStatus) ) {
+				return false;
+			}
+
+			return this.Code === oHttpStatus.Code;
+		},
+
+		/**
+		 * Returns true if status is successful for Create operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Create operation.
+		 */
+		IsCreateOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.Created);
+		},
+
+		/**
+		 * Returns true if status is successful for Delete operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Delete operation.
+		 */
+		IsDeleteOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK) || this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent);
+		},
+
+		/**
+		 * Returns true if status is successful.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful.
+		 */
+		IsOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK);
+		},
+
+		/**
+		 * Returns true if status is successful for Copy or Move operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Copy or Move operation.
+		 */
+		IsCopyMoveOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent) || this.Equals(ITHit.WebDAV.Client.HttpStatus.Created);
+		},
+
+		/**
+		 * Returns true if status is successful for Get operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Get operation.
+		 */
+		IsGetOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK) || this.Equals(ITHit.WebDAV.Client.HttpStatus.PartialContent);
+		},
+
+		/**
+		 * Returns true if status is successful for Put operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Put operation.
+		 */
+		IsPutOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK) || this.Equals(ITHit.WebDAV.Client.HttpStatus.Created) || this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent);
+		},
+
+		/**
+		 * Returns true if status is successful for Unlock operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Unlock operation.
+		 */
+		IsUnlockOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK) || this.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent);
+		},
+
+		/**
+		 * Returns true if status is successful for Head operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Head operation.
+		 */
+		IsHeadOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK) || this.Equals(ITHit.WebDAV.Client.HttpStatus.NotFound);
+		},
+
+
+		/**
+		 * Returns true if status is successful for Proppatch operation.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful for Proppatch operation.
+		 */
+		IsUpdateOk: function() {
+			return this.Equals(ITHit.WebDAV.Client.HttpStatus.OK) || this.Equals(ITHit.WebDAV.Client.HttpStatus.None);
+		},
+
+		/**
+		 * Returns true if status is successful.
+		 * @api
+		 * @returns {boolean} Returns true if status is successful.
+		 */
+		IsSuccess: function() {
+			return (parseInt(this.Code / 100) == 2);
+		}
+
+	});
+
+})();
+
+ITHit.WebDAV.Client.HttpStatus.None =                new ITHit.WebDAV.Client.HttpStatus(0, '');
+ITHit.WebDAV.Client.HttpStatus.Unauthorized =        new ITHit.WebDAV.Client.HttpStatus(401, 'Unauthorized');
+ITHit.WebDAV.Client.HttpStatus.OK =                  new ITHit.WebDAV.Client.HttpStatus(200, 'OK');
+ITHit.WebDAV.Client.HttpStatus.Created =             new ITHit.WebDAV.Client.HttpStatus(201, 'Created');
+ITHit.WebDAV.Client.HttpStatus.NoContent =           new ITHit.WebDAV.Client.HttpStatus(204, 'No Content');
+ITHit.WebDAV.Client.HttpStatus.PartialContent =      new ITHit.WebDAV.Client.HttpStatus(206, 'Partial Content');
+ITHit.WebDAV.Client.HttpStatus.MultiStatus =         new ITHit.WebDAV.Client.HttpStatus(207, 'Multi-Status');
+ITHit.WebDAV.Client.HttpStatus.Redirect =            new ITHit.WebDAV.Client.HttpStatus(278, 'Redirect');
+ITHit.WebDAV.Client.HttpStatus.BadRequest =          new ITHit.WebDAV.Client.HttpStatus(400, 'Bad Request');
+ITHit.WebDAV.Client.HttpStatus.NotFound =            new ITHit.WebDAV.Client.HttpStatus(404, 'Not Found');
+ITHit.WebDAV.Client.HttpStatus.MethodNotAllowed =    new ITHit.WebDAV.Client.HttpStatus(405, 'Method Not Allowed');
+ITHit.WebDAV.Client.HttpStatus.PreconditionFailed =  new ITHit.WebDAV.Client.HttpStatus(412, 'Precondition Failed');
+ITHit.WebDAV.Client.HttpStatus.Locked =              new ITHit.WebDAV.Client.HttpStatus(423, 'Locked');
+ITHit.WebDAV.Client.HttpStatus.DependencyFailed =    new ITHit.WebDAV.Client.HttpStatus(424, 'Dependency Failed');
+ITHit.WebDAV.Client.HttpStatus.Forbidden =           new ITHit.WebDAV.Client.HttpStatus(403, 'Forbidden');
+ITHit.WebDAV.Client.HttpStatus.Conflict =            new ITHit.WebDAV.Client.HttpStatus(409, 'Conflict');
+ITHit.WebDAV.Client.HttpStatus.NotImplemented =      new ITHit.WebDAV.Client.HttpStatus(501, 'Not Implemented');
+ITHit.WebDAV.Client.HttpStatus.BadGateway =          new ITHit.WebDAV.Client.HttpStatus(502, 'Bad gateway');
+ITHit.WebDAV.Client.HttpStatus.InsufficientStorage = new ITHit.WebDAV.Client.HttpStatus(507, 'Insufficient Storage');
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Property', null, /** @lends ITHit.WebDAV.Client.Property.prototype */{
+
+	/**
+	 * Property Name.
+	 * @api
+	 * @type {string|ITHit.WebDAV.Client.PropertyName}
+	 */
+	Name: null,
+
+	/**
+	 * Property value.
+	 * @api
+	 * @type {*}
+	 */
+	Value: null,
+
+	/**
+	 * Initializes new string valued property.
+	 * @api
+	 * @classdesc Represents custom property exposed by WebDAV hierarchy items.
+	 * @constructs
+	 * @param {string|ITHit.WebDAV.Client.PropertyName} sName Name of the property.
+	 * @param {string} [sValue] Property value.
+	 * @param {string} [sNamespace] Namespace of the property.
+	 * @throws ITHit.Exception
+	 */
+	constructor: function(sName, sValue, sNamespace) {
+		switch (arguments.length) {
+
+			case 1:
+				// Declare variable.
+				var oElement = sName;
+
+				// Check variable.
+				ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(oElement, 'oElement');
+
+				this.Name    = new ITHit.WebDAV.Client.PropertyName(oElement.localName(), oElement.namespaceURI());
+				this.Value   = oElement;
+
+				break;
+
+			case 2:
+				// Declare variables.
+				var oName        = sName,
+					sStringValue = sValue;
+
+				// Check variables.
+				ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(oName, 'oName');
+				ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(sStringValue, 'sStringValue');
+
+				this.Name   = oName;
+
+				// Create element.
+				var oXmlDoc = new ITHit.XMLDoc(),
+					oElem   = oXmlDoc.createElementNS(oName.NamespaceUri, oName.Name);
+				oElem.appendChild(oXmlDoc.createTextNode(sStringValue));
+				this.Value  = oElem;
+
+				break;
+
+			case 3:
+				// Declare variables.
+				var sName      = sName,
+					sValue     = sValue,
+					sNameSpace = sNamespace;
+
+				// Check variables.
+				ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(sName, "sName");
+				ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(sValue, "sValue");
+				ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(sNameSpace, "sNameSpace");
+
+				this.Name   = new ITHit.WebDAV.Client.PropertyName(sName, sNameSpace);
+
+				// Create element.
+				var oXmlDoc = new ITHit.XMLDoc(),
+					oElem   = oXmlDoc.createElementNS(sNameSpace, sName);
+				oElem.appendChild(oXmlDoc.createTextNode(sValue));
+				this.Value  = oElem;
+
+				break;
+
+			default:
+				throw ITHit.Exception(ITHit.Phrases.Exceptions.WrongCountPropertyInputParameters.Paste(arguments.length));
+		}
+	},
+
+	/**
+	 * String value of the custom property.
+	 * @api
+	 * @returns {string} String value of the custom property.
+	 */
+	StringValue: function() {
+		return this.Value.firstChild().nodeValue();
+	},
+
+	/**
+	 * Returns string representation of current property.
+	 * @returns {string} String representation of PropertyName.
+	 */
+	toString: function() {
+		return this.Name.toString();
+	}
+
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Propstat', null, /** @lends ITHit.WebDAV.Client.Methods.Propstat.prototype */{
+
+	PropertiesByNames: null,
+	Properties: null,
+	ResponseDescription: '',
+	Status: '',
+
+	/**
+	 * @constructs
+	 * @param oElement
+	 */
+	constructor: function(oElement) {
+
+		// Declare class variables.
+		this.PropertiesByNames   = {};
+		this.Properties          = [];
+
+		var oNode;
+
+		// Create namespace resolver.
+		var oResolver = new ITHit.XPath.resolver();
+		oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+		// Get response description.
+		if ( oNode = ITHit.XPath.selectSingleNode('d:responsedescription', oElement, oResolver) ) {
+			this.ResponseDescription = oNode.firstChild().nodeValue();
+		}
+
+		// Get status.
+		oNode = ITHit.XPath.selectSingleNode('d:status', oElement, oResolver);
+		this.Status = ITHit.WebDAV.Client.HttpStatus.Parse(oNode.firstChild().nodeValue());
+
+		// Get properties.
+		var oRes = ITHit.XPath.evaluate('d:prop/*', oElement, oResolver);
+		while ( oNode = oRes.iterateNext() ) {
+
+			var oProperty = new ITHit.WebDAV.Client.Property(oNode.cloneNode());
+			var sPropName = oProperty.Name;
+
+			if ('undefined' == typeof this.PropertiesByNames[sPropName]) {
+				this.PropertiesByNames[sPropName] = oProperty;
+			} else {
+				var aChildNodes = oNode.childNodes();
+
+				for ( var i = 0; i < aChildNodes.length; i++ ) {
+					this.PropertiesByNames[sPropName].Value.appendChild(aChildNodes[i]);
+				}
+			}
+			this.Properties.push(oProperty);
+		}
+	}
+
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Response', null, /** @lends ITHit.WebDAV.Client.Methods.Response.prototype */{
+
+	Href: '',
+	ResponseDescription: '',
+	Status: '',
+	Propstats: null,
+
+	/**
+	 * @constructs
+	 * @param oResponseItem
+	 * @param sOriginalUri
+	 */
+	constructor: function(oResponseItem, sOriginalUri) {
+
+		// Declare class properties.
+		this.Propstats = [];
+
+		// Declare variables.
+		var oNode;
+
+		// Create namespace resolver.
+		var oResolver = new ITHit.XPath.resolver();
+		oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+		// Get response href.
+		this.Href = ITHit.XPath.selectSingleNode('d:href', oResponseItem, oResolver).firstChild().nodeValue();
+
+		// Get description if specified.
+		if ( oNode = ITHit.XPath.selectSingleNode('d:responsedescription', oResponseItem, oResolver) ) {
+			this.ResponseDescription = oNode.firstChild().nodeValue();
+		}
+
+		// Get response status if specified.
+		if ( oNode = ITHit.XPath.selectSingleNode('d:status', oResponseItem, oResolver) ) {
+			this.Status = ITHit.WebDAV.Client.HttpStatus.Parse(oNode.firstChild().nodeValue());
+		}
+
+		// Get propstat.
+		var oRes = ITHit.XPath.evaluate('d:propstat', oResponseItem, oResolver);
+		while ( oNode = oRes.iterateNext() ) {
+			this.Propstats.push(new ITHit.WebDAV.Client.Methods.Propstat(oNode.cloneNode()));
+		}
+	}
+
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.MultiResponse', null, /** @lends ITHit.WebDAV.Client.Methods.MultiResponse.prototype */{
+
+	ResponseDescription: '',
+	Responses: null,
+
+	/**
+	 *
+	 * @param oXmlDoc
+	 * @param sOriginalUri
+	 * @constructs
+	 */
+	constructor: function(oXmlDoc, sOriginalUri) {
+
+		// Declare properties.
+		this.ResponseDescription = '';
+		this.Responses = [];
+
+		// Create namespace resolver.
+		var oResolver = new ITHit.XPath.resolver();
+		oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+		// Select nodes.
+		var oRes = ITHit.XPath.evaluate('/d:multistatus/d:response', oXmlDoc, oResolver);
+
+		// Loop through selected nodes.
+		var oNode;
+		while( (oNode = oRes.iterateNext())) {
+			this.Responses.push(new ITHit.WebDAV.Client.Methods.Response(oNode.cloneNode(), sOriginalUri));
+		}
+
+		// Get response description if specified.
+		ITHit.XPath.evaluate('/d:multistatus/d:responsedescription', oXmlDoc, oResolver, oRes);
+
+		if ( (oNode = oRes.iterateNext()) ) {
+			this.ResponseDescription = oNode.firstChild().nodeValue();
+		}
+	}
+
+});
+
+
+/**
+ * Instance of this class is passed to callback function. It provides information about success or failure of
+ * the operation as well as you will use it to get the results of the asynchronous call.
+ * @api
+ * @class ITHit.WebDAV.Client.AsyncResult
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.AsyncResult', null, /** @lends ITHit.WebDAV.Client.AsyncResult.prototype */{
+
+	/**
+	 * Result value. Can be any type, each method may put there appropriate object which before was returned directly.
+	 * Null if request was unsuccessful.
+	 * @api
+	 * @type {*}
+	 */
+	Result: null,
+
+	/**
+	 * Flag of either async request result was successful or not.
+	 * @api
+	 * @type {boolean}
+	 */
+	IsSuccess: null,
+
+	/**
+	 * Error (Exception) object. Describes the type of error that occurred. Null if request was successful.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.Exceptions.WebDavException|Error|null}
+	 */
+	Error: null,
+
+	/**
+	 *
+	 * @param {*} oResult
+	 * @param {boolean} bSuccess
+	 * @param {ITHit.WebDAV.Client.Exceptions.WebDavException|Error|null} oError
+	 */
+	constructor: function(oResult, bSuccess, oError) {
+		this.Result = oResult;
+		this.IsSuccess = bSuccess;
+		this.Error = oError;
+	}
+
+});
+
+
+/**
+ * Method to perform Propfind request to a server.
+ * Create new instance of Propfind class.
+ * @class ITHit.WebDAV.Client.Methods.Propfind
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Propfind', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Propfind.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Propfind */{
+
+		/**
+		 * Propfind modes.
+		 */
+		PropfindMode: {
+			SelectedProperties: 'SelectedProperties',
+			PropertyNames: 'PropertyNames'
+		},
+
+		Go: function (oRequest, sUri, iMode, aProperties, oDepth, sHost) {
+			return this.GoAsync(oRequest, sUri, iMode, aProperties, oDepth, sHost);
+		},
+
+		GoAsync: function (oRequest, sUri, iMode, aProperties, oDepth, sHost, fCallback) {
+
+			// Create request object.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.Propfind.createRequest(oRequest, sUri, iMode, aProperties, oDepth, sHost);
+
+			var self = this;
+			var fOnResponse = typeof fCallback === 'function'
+				? function (oResult) {
+				self._GoCallback(oRequest, sUri, oResult, fCallback)
+			}
+				: null;
+
+			// Make request.
+			var oResponse = oWebDavRequest.GetResponse(fOnResponse);
+
+			if (typeof fCallback !== 'function') {
+				var oResult = new ITHit.WebDAV.Client.AsyncResult(oResponse, oResponse != null, null);
+				return this._GoCallback(oRequest, sUri, oResult, fCallback);
+			} else {
+				return oWebDavRequest;
+			}
+		},
+
+		_GoCallback: function (oRequest, sUri, oResult, fCallback) {
+
+			var oResponse = oResult;
+			var bSuccess = true;
+			var oError = null;
+
+			if (oResult instanceof ITHit.WebDAV.Client.AsyncResult) {
+				oResponse = oResult.Result;
+				bSuccess = oResult.IsSuccess;
+				oError = oResult.Error;
+			}
+
+			var oPropfind = null;
+			if (bSuccess) {
+				// Receive data.
+				var oResponseData = oResponse.GetResponseStream();
+
+				var oMultiResponse = new ITHit.WebDAV.Client.Methods.MultiResponse(oResponseData, sUri);
+
+				oPropfind = new ITHit.WebDAV.Client.Methods.Propfind(oMultiResponse);
+			}
+			// Return response.
+			if (typeof fCallback === 'function') {
+				var oPropfindResult = new ITHit.WebDAV.Client.AsyncResult(oPropfind, bSuccess, oError);
+				fCallback.call(this, oPropfindResult);
+			} else {
+				return oPropfind;
+			}
+		},
+
+		createRequest: function (oRequest, sUri, iMode, aProperties, oDepth, sHost) {
+
+			// Create request object.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sUri);
+
+			// Set method.
+			oWebDavRequest.Method('PROPFIND');
+
+			// Add headers.
+			oWebDavRequest.Headers.Add('Depth', oDepth.Value);
+			oWebDavRequest.Headers.Add('Content-Type', 'text/xml; charset="utf-8"');
+
+			// Create XML document.
+			var oWriter = new ITHit.XMLDoc();
+
+			// Create root element.
+			var propfind = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'propfind');
+
+			// Switch property mode.
+			switch (iMode) {
+
+				// Namespace mode.
+				case ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties:
+
+					// All properties.
+					if (!aProperties || !aProperties.length) {
+						var propEl = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'allprop');
+
+						// Selected properties.
+					} else {
+						var propEl = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'prop');
+						for (var i = 0; i < aProperties.length; i++) {
+							var prop = oWriter.createElementNS(aProperties[i].NamespaceUri, aProperties[i].Name);
+							propEl.appendChild(prop);
+						}
+					}
+					break;
+
+				// Property mode.
+				case ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.PropertyNames:
+					var propEl = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'propname');
+					break;
+			}
+
+			// Append created child nodes.
+			propfind.appendChild(propEl);
+			oWriter.appendChild(propfind);
+
+			// Assign created document as body for request.
+			oWebDavRequest.Body(oWriter);
+
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.SingleResponse', null, /** @lends ITHit.WebDAV.Client.Methods.SingleResponse.prototype */{
+
+	Status: null,
+	ResponseDescription: null,
+
+	/**
+	 * Contains information about server's simple response with no XML content.
+	 * Create new instance of SingleResponse class.
+	 * @constructs
+	 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+	 */
+	constructor: function(oResponse) {
+
+		this.Status              = oResponse.Status;
+		this.ResponseDescription = oResponse.Status.Description;
+	}
+
+});
+
+
+/**
+ * Factory class for different inheritors.
+ * @class ITHit.WebDAV.Client.Methods.ResponseFactory
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.ResponseFactory', null, /** @lends ITHit.WebDAV.Client.Methods.ResponseFactory.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.ResponseFactory */{
+
+		/**
+		 * Returns suitable object of IResponse's inheritor: SingleResponse or MultiResponse.
+		 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+		 * @param {string} sOriginalUri Request URI.
+		 * @returns {object} SingleResponse or MultiResponse object corresponding to request.
+		 */
+		GetResponse: function (oResponse, sOriginalUri) {
+
+			// Get response body.
+			var oResponseData = oResponse.GetResponseStream(oResponse);
+
+			// Check whether there is single or multi-response.
+			if (!oResponseData || !oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.MultiStatus)) {
+
+				// Single response.
+				return new ITHit.WebDAV.Client.Methods.SingleResponse(oResponse);
+			} else {
+
+				// Multi-response.
+				return new ITHit.WebDAV.Client.Methods.MultiResponse(oResponseData, sOriginalUri);
+			}
+		}
+
+	}
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.VersionControl
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.VersionControl', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.VersionControl.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.VersionControl */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param oLockTokens
+		 * @param sHost
+		 * @returns {*}
+		 */
+		Go: function (oRequest, sHref, oLockTokens, sHost) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param oLockTokens
+		 * @param sHost
+		 * @param fCallback
+		 * @returns {*}
+		 */
+		GoAsync: function (oRequest, sHref, oLockTokens, sHost, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		_CreateRequest: function (oRequest, sHref, oLockTokens, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, oLockTokens);
+
+			// Set method.
+			oWebDavRequest.Method('VERSION-CONTROL');
+
+			// Return request object.
+			return oWebDavRequest;
+		},
+
+		_ProcessResponse: function (oResponse, sHref) {
+			// Get appropriate response object.
+			var oResp = ITHit.WebDAV.Client.Methods.ResponseFactory.GetResponse(oResponse, sHref);
+
+			return this._super(oResp);
+		}
+
+	}
+});
+
+/**
+ * Enumeration of the item (Resource or Folder).
+ * @api
+ * @enum {string}
+ * @class ITHit.WebDAV.Client.ResourceType
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.ResourceType', null, {
+	__static: /** @lends ITHit.WebDAV.Client.ResourceType */{
+
+		/**
+		 * Item is folder.
+		 * @api
+		 * @readonly
+		 * @type {string}
+		 */
+		Folder: 'Folder',
+
+		/**
+		 * Item is file.
+		 * @api
+		 * @readonly
+		 * @type {string}
+		 */
+		File: 'Resource',
+
+		Resource: 'Resource'
+
+	}
+});
+
+
+/**
+ * Base exception for all exceptions thrown by WebDAV client library.
+ * Initializes a new instance of the WebDavException class with a specified error message.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.WebDavException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.WebDavException', ITHit.Exception, /** @lends ITHit.WebDAV.Client.Exceptions.WebDavException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'WebDavException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, oInnerException) {
+		this._super(sMessage, oInnerException);
+	}
+
+});
+
+
+/**
+ * Represents information about errors occurred in different elements.
+ * @api
+ * @class ITHit.WebDAV.Client.Multistatus
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Multistatus', null, /** @lends ITHit.WebDAV.Client.Multistatus.prototype */{
+
+    /**
+     * Gets the generic description, if available.
+     * @api
+     * @type {string}
+     */
+    Description: null,
+
+    /**
+     * Array of the errors returned by server.
+     * @api
+     * @type {ITHit.WebDAV.Client.MultistatusResponse[]}
+     */
+    Responses: null
+
+});
+
+/**
+ * Represents error occurred in one element.
+ * @api
+ * @class ITHit.WebDAV.Client.MultistatusResponse
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.MultistatusResponse', null, /** @lends ITHit.WebDAV.Client.MultistatusResponse.prototype */{
+
+    /**
+     * Request href
+     * @api
+     * @type {string}
+     */
+    Href: null,
+
+    /**
+     * Array of the errors returned by server.
+     * @api
+     * @type {string}
+     */
+    Description: null,
+
+    /**
+     * HTTP Status of the operation.
+     * @api
+     * @type {ITHit.WebDAV.Client.HttpStatus}
+     */
+    Status: null
+
+});
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.Info.MultistatusResponse', ITHit.WebDAV.Client.MultistatusResponse, /** @lends ITHit.WebDAV.Client.Exceptions.Info.MultistatusResponse.prototype */{
+
+	/**
+	 * Url of the item.
+	 * @type {ITHit.WebDAV.Client.MultistatusResponse.Href}
+	 */
+	Href: null,
+
+	/**
+	 * Description of error, if available.
+	 * @type {ITHit.WebDAV.Client.MultistatusResponse.Description}
+	 */
+	Description: null,
+
+	/**
+	 * HTTP Status of the operation.
+	 * @type {ITHit.WebDAV.Client.MultistatusResponse.Status}
+	 */
+	Status: null,
+
+	/**
+	 * Represents error occurred in one element.
+	 * @constructs
+	 * @extends ITHit.WebDAV.Client.MultistatusResponse
+	 */
+	constructor: function(oResponse) {
+
+		// Define object properties.
+		this.Href = oResponse.Href;
+		this.Description = oResponse.ResponseDescription;
+		this.Status = oResponse.Status;
+
+		// Loop through response propstats, look for first not OK status.
+		for ( var i = 0; i < oResponse.Propstats.length; i++ ) {
+			if (oResponse.Propstats[i] != ITHit.WebDAV.Client.HttpStatus.OK) {
+				this.Status = oResponse.Propstats[i];
+				break;
+			}
+		}
+	}
+
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.Info.Multistatus', ITHit.WebDAV.Client.Multistatus, /** @lends ITHit.WebDAV.Client.Exceptions.Info.Multistatus.prototype */{
+
+	/**
+	 * Gets the generic description, if available. 11
+	 * @type {string}
+	 */
+	Description: '',
+
+	/**
+	 * Array of the errors returned by server.
+	 * @type {ITHit.WebDAV.Client.MultistatusResponse[]}
+	 */
+	Responses: null,
+
+	/**
+	 * Represents information about errors occurred in different elements.
+	 * @constructs
+	 * @extends ITHit.WebDAV.Client.Multistatus
+	 */
+	constructor: function(oMultiResponse) {
+		this.Responses = [];
+
+		// Whether multistatus response object passed.
+		if (oMultiResponse) {
+
+			this.Description = oMultiResponse.ResponseDescription;
+
+			// Loop through all received responses and add it to class' property.
+			for ( var i = 0; i < oMultiResponse.Responses.length; i++ ) {
+				this.Responses.push(new ITHit.WebDAV.Client.Exceptions.Info.MultistatusResponse(oMultiResponse.Responses[i]));
+			}
+		}
+	}
+
+});
+
+
+/**
+ * Is thrown whenever and erroneous http response is received. Initializes a new instance of the WebDavHttpException
+ * class with a specified error message, a reference to the inner exception that is the cause of this exception,
+ * href of the item, multistatus response and status of the response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.WebDavHttpException', ITHit.WebDAV.Client.Exceptions.WebDavException, /** @lends ITHit.WebDAV.Client.Exceptions.WebDavHttpException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'WebDavHttpException',
+
+	/**
+	 * Multistatus Contains {@link ITHit.WebDAV.Client.Multistatus} with elements that had errors, if multistatus information was available in response.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.Multistatus}
+	 */
+	Multistatus: null,
+
+	/**
+	 * Http status with wich request failed.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.HttpStatus}
+	 */
+	Status: null,
+
+	/**
+	 * Uri for which request failed.
+	 * @api
+	 * @type {string}
+	 */
+	Uri: null,
+
+	/**
+	 * Error contains IError with additional info, if error information was available in response.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.Error}
+	 */
+	Error: null,
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.WebDAV.Client.HttpStatus} oStatus Status of response that caused error.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Error} [oError] Error response containing additional error information.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oStatus, oInnerException, oError) {
+		this._super(sMessage, oInnerException);
+
+		this.Multistatus = oMultistatus || new ITHit.WebDAV.Client.Exceptions.Info.Multistatus();
+		this.Status = oStatus;
+		this.Uri = sHref;
+		this.Error = oError;
+	}
+
+});
+
+
+/**
+ * Is raised whenever property processing was unsuccessfull. Initializes a new instance of the PropertyException
+ * class with a specified error message, a reference to the inner exception that is the cause of this exception,
+ * href of the item and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.PropertyException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.PropertyException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.PropertyException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'PropertyException',
+
+	/**
+	 * Name of the property processing of which caused the exception.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.PropertyName}
+	 */
+	PropertyName: null,
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.PropertyName} oPropertyName Name of the property processing of which caused the exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.WebDAV.Client.HttpStatus} oStatus Status of response that caused error.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oPropertyName, oMultistatus, oStatus, oInnerException) {
+		this.PropertyName = oPropertyName;
+		this._super(sMessage, sHref, oMultistatus, oStatus, oInnerException);
+	}
+
+});
+
+
+/**
+ * Thrown when server responded with Property Not Found http response. Initializes a new instance of the
+ * PropertyNotFoundException class with a specified error message, a reference to the inner exception that
+ * is the cause of this exception, href of the item and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException
+ * @extends ITHit.WebDAV.Client.Exceptions.PropertyException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException', ITHit.WebDAV.Client.Exceptions.PropertyException, /** @lends ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'PropertyForbiddenException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.PropertyName} oPropertyName Name of the property processing of which caused the exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oPropertyName, oMultistatus, oInnerException) {
+		this._super(sMessage, sHref, oPropertyName, oMultistatus, ITHit.WebDAV.Client.HttpStatus.NotFound, oInnerException);
+	}
+
+});
+
+
+/**
+ * Thrown when server responded with Property forbidden http response. Initializes a new instance of the
+ * PropertyForbiddenException class with a specified error message, a reference to the inner exception
+ * that is the cause of this exception, href of the item and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException
+ * @extends ITHit.WebDAV.Client.Exceptions.PropertyException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException', ITHit.WebDAV.Client.Exceptions.PropertyException, /** @lends ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'PropertyForbiddenException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.PropertyName} oPropertyName Name of the property processing of which caused the exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oPropertyName, oMultistatus, oInnerException) {
+		this._super(sMessage, sHref, oPropertyName, oMultistatus, ITHit.WebDAV.Client.HttpStatus.Forbidden, oInnerException);
+	}
+
+});
+
+
+/**
+ * Provides means for finding which properties failed to update.
+ * @api
+ * @class ITHit.WebDAV.Client.PropertyMultistatusResponse
+ * @extends ITHit.WebDAV.Client.MultistatusResponse
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.PropertyMultistatusResponse', ITHit.WebDAV.Client.MultistatusResponse, /** @lends ITHit.WebDAV.Client.PropertyMultistatusResponse.prototype */{
+
+	/**
+	 * Name of the property, if element is property. Otherwise null.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.PropertyName}
+	 */
+	PropertyName: null
+
+});
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatusResponse', ITHit.WebDAV.Client.PropertyMultistatusResponse, /** @lends ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatusResponse.prototype */{
+
+	/**
+	 * Url of the item.
+	 * @type {string}
+	 */
+	Href: null,
+
+	/**
+	 * Description of error, if available.
+	 * @type {string}
+	 */
+	Description: null,
+
+	/**
+	 * HTTP Status of the operation.
+	 * @type {ITHit.WebDAV.Client.HttpStatus}
+	 */
+	Status: null,
+
+	/**
+	 * Name of the property, if element is property. Otherwise null.
+	 * @type {ITHit.WebDAV.Client.PropertyMultistatusResponse}
+	 */
+	PropertyName: null,
+
+	/**
+	 * Provides means for finding which properties failed to update.
+	 * @constructs
+	 * @extends ITHit.WebDAV.Client.PropertyMultistatusResponse
+	 */
+	constructor: function(sHref, sDescription, oStatus, oPropertyName) {
+		this._super();
+
+		this.Href = sHref;
+		this.Description = sDescription;
+		this.Status = oStatus;
+		this.PropertyName = oPropertyName;
+	}
+
+});
+
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus', ITHit.WebDAV.Client.Multistatus, /** @lends ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus.prototype */{
+
+	/**
+	 * Gets the generic description, if available.
+	 * @type {string}
+	 */
+	Description: '',
+
+	/**
+	 * Array of the errors returned by server.
+	 * @type {ITHit.WebDAV.Client.MultistatusResponse[]}
+	 */
+	Responses: null,
+
+	/**
+	 * Provides means for finding which properties failed to update.
+	 * Create new instance of PropertyMultistatus class.
+	 * @param {ITHit.WebDAV.Client.Exceptions.Info.MultiResponse} [oMultiResponse] MultiResponse object.
+	 * @constructs
+	 * @extends ITHit.WebDAV.Client.Multistatus
+	 */
+	constructor: function(oMultiResponse) {
+		this.Responses = [];
+
+		if (oMultiResponse) {
+			this.Description = oMultiResponse.ResponseDescription;
+
+			for ( var i = 0; i < oMultiResponse.Responses.length; i++ ) {
+				var oResponse = oMultiResponse.Responses[i];
+				for ( var j = 0; j < oResponse.Propstats.length; j++ ) {
+					var oPropstat = oResponse.Propstats[j];
+					for ( var k = 0; k < oPropstat.Properties.length; k++ ) {
+						this.Responses.push(new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatusResponse(oResponse.Href, oPropstat.ResponseDescription, oPropstat.Status, oPropstat.Properties[k].Name));
+					}
+				}
+			}
+		}
+	}
+
+});
+
+/**
+ * Provides functionality for encoding paths and URLs.
+ * @class ITHit.WebDAV.Client.Encoder
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Encoder', null, {
+	__static: /** @lends ITHit.WebDAV.Client.Encoder */{
+
+		/**
+		 * Encodes path presented by string.
+		 * @param {string} sText Path to encode.
+		 * @returns {string} Encoded path.
+		 */
+		Encode: ITHit.Encode,
+
+		/**
+		 * Decodes path presented by string.
+		 * @param {string} sText Path to decode.
+		 * @returns {string} Decoded path.
+		 */
+		Decode: ITHit.Decode,
+
+		EncodeURI: ITHit.EncodeURI,
+
+		DecodeURI: ITHit.DecodeURI
+
+	}
+});
+
+
+/**
+ * Method to perform Copy or Move request to a server.
+ * @class ITHit.WebDAV.Client.Methods.CopyMove
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.CopyMove', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.CopyMove.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.CopyMove */{
+
+		/**
+		 * Modes for CopyMove methods.
+		 */
+		Mode: {
+			Copy: 'Copy',
+			Move: 'Move'
+		},
+
+
+		Go: function (oRequest, sMode, sSource, sDestination, bIsCollection, bDeep, bOverwrite, aLockTokens, sHost) {
+			// Create request.
+			var oWebDavRequest = this.createRequest(oRequest, sMode, sSource, sDestination, bIsCollection, bDeep, bOverwrite, aLockTokens, sHost);
+			var oResponse = oWebDavRequest.GetResponse();
+			return this._ProcessResponse(oResponse, sSource);
+		},
+
+		GoAsync: function (oRequest, sMode, sSource, sDestination, bIsCollection, bDeep, bOverwrite, aLockTokens, sHost, fCallback) {
+			// Create request.
+			var oWebDavRequest = this.createRequest(oRequest, sMode, sSource, sDestination, bIsCollection, bDeep, bOverwrite, aLockTokens, sHost);
+
+			var that = this;
+			oWebDavRequest.GetResponse(function (oAsyncResult) {
+				if (!oAsyncResult.IsSuccess) {
+					fCallback(new ITHit.WebDAV.Client.AsyncResult(null, false, oAsyncResult.Error));
+					return;
+				}
+
+				var oResult = that._ProcessResponse(oAsyncResult.Result, sSource);
+				fCallback(new ITHit.WebDAV.Client.AsyncResult(oResult, true, null));
+			});
+
+			return oWebDavRequest;
+		},
+
+		_ProcessResponse: function (oResponse, sSource) {
+			// Get appropriate response object.
+			var oResp = ITHit.WebDAV.Client.Methods.ResponseFactory.GetResponse(oResponse, sSource);
+
+			// Return result.
+			return new ITHit.WebDAV.Client.Methods.CopyMove(oResp);
+		},
+
+		createRequest: function (oRequest, sMode, sSource, sDestination, bIsCollection, bDeep, bOverwrite, aLockTokens, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sSource, aLockTokens);
+
+			// TODO: Remove after when encoding special characters on server will be fixed.
+			sDestination = ITHit.WebDAV.Client.Encoder.EncodeURI(sDestination).replace(/#/g, '%23').replace(/'/g, '%27');
+
+			if (/^\//.test(sDestination)) {
+				sDestination = sHost + sDestination.substr(1);
+			}
+
+			// Add headers
+			oWebDavRequest.Method((sMode == ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy) ? 'COPY' : 'MOVE');
+			oWebDavRequest.Headers.Add('Content-Type', 'text/xml; charset="utf-8"');
+			oWebDavRequest.Headers.Add('Destination', ITHit.DecodeHost(sDestination));
+			oWebDavRequest.Headers.Add('Overwrite', bOverwrite ? "T" : "F");
+
+			// Set depth property if specified by input parameters.
+			if (bIsCollection && (sMode == ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy)) {
+				// Built-in IIS 8.0 WebDAV does not support Depth: Infinity
+				if (!bDeep) {
+					oWebDavRequest.Headers.Add("Depth", ITHit.WebDAV.Client.Depth.Zero.Value);
+				}
+			}
+
+			// Create XML DOM document.
+			var oWriter = new ITHit.XMLDoc();
+
+			// Create XML document.
+			var propBehav = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'propertybehavior');
+			var keepAlive = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'keepalive')
+			keepAlive.appendChild(oWriter.createTextNode('*'));
+			propBehav.appendChild(keepAlive);
+			oWriter.appendChild(propBehav);
+
+			// Add XML document as request body.
+			oWebDavRequest.Body(oWriter);
+
+			// Return request object.
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Delete
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Delete', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Delete.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Delete */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param oLockTokens
+		 * @param sHost
+		 * @returns {*}
+		 */
+		Go: function (oRequest, sHref, oLockTokens, sHost) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param oLockTokens
+		 * @param sHost
+		 * @param fCallback
+		 * @returns {*}
+		 */
+		GoAsync: function (oRequest, sHref, oLockTokens, sHost, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		_CreateRequest: function (oRequest, sHref, oLockTokens, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, oLockTokens);
+
+			// Set method.
+			oWebDavRequest.Method('DELETE');
+
+			// Return request object.
+			return oWebDavRequest;
+		},
+
+		_ProcessResponse: function (oResponse, sHref) {
+			// Get appropriate response object.
+			var oResp = ITHit.WebDAV.Client.Methods.ResponseFactory.GetResponse(oResponse, sHref);
+
+			return this._super(oResp);
+		}
+
+	}
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Proppatch
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Proppatch', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Proppatch.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Proppatch */{
+
+		Go: function (oRequest, sHref, aPropsToAddOrUpdate, aPropsToDelete, sLockToken, sHost) {
+
+			// Create request.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.Proppatch.createRequest(
+				oRequest,
+				sHref,
+				aPropsToAddOrUpdate,
+				aPropsToDelete,
+				sLockToken,
+				sHost
+			);
+
+			// Get response.
+			var oResult = oWebDavRequest.GetResponse();
+
+			// Return response object.
+			return this._ProcessResponse(oResult);
+		},
+
+		GoAsync: function (oRequest, sHref, aPropsToAddOrUpdate, aPropsToDelete, sLockToken, sHost, fCallback) {
+			// Create request.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.Proppatch.createRequest(
+				oRequest,
+				sHref,
+				aPropsToAddOrUpdate,
+				aPropsToDelete,
+				sLockToken,
+				sHost
+			);
+
+			// Get response.
+			var that = this;
+			oWebDavRequest.GetResponse(function (oAsyncResult) {
+
+				if (!oAsyncResult.IsSuccess) {
+					fCallback(new ITHit.WebDAV.Client.AsyncResult(null, false, oAsyncResult.Error));
+					return;
+				}
+
+				var oResult = that._ProcessResponse(oAsyncResult.Result, sHref);
+				fCallback(new ITHit.WebDAV.Client.AsyncResult(oResult, true, null));
+			});
+
+		},
+
+		_ProcessResponse: function (oResponse, sHref) {
+			// Get response data.
+			var oResponseData = oResponse.GetResponseStream();
+
+			// Return response object.
+			return new ITHit.WebDAV.Client.Methods.Proppatch(new ITHit.WebDAV.Client.Methods.MultiResponse(oResponseData, sHref));
+		},
+
+		ItemExists: function (aArr) {
+
+			if (aArr && aArr.length) {
+				for (var i = 0; i < aArr.length; i++) {
+					if (aArr[i]) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		},
+
+		createRequest: function (oRequest, sHref, aPropsToAddOrUpdate, aPropsToDelete, sLockToken, sHost) {
+
+			// Assign default value if needed.
+			sLockToken = sLockToken || null;
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, sLockToken);
+			oWebDavRequest.Method('PROPPATCH');
+			oWebDavRequest.Headers.Add('Content-Type', 'text/xml; charset="utf-8"');
+
+			// Create XML DOM document.
+			var oWriter = new ITHit.XMLDoc();
+
+			// Create XML request.
+			var propUpd = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'propertyupdate');
+
+			// Check whether properties to add or update are specified.
+			if (ITHit.WebDAV.Client.Methods.Proppatch.ItemExists(aPropsToAddOrUpdate)) {
+				var set = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'set');
+
+				for (var i = 0; i < aPropsToAddOrUpdate.length; i++) {
+					if (aPropsToAddOrUpdate[i]) {
+						var prop = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'prop');
+						prop.appendChild(aPropsToAddOrUpdate[i].Value);
+						set.appendChild(prop);
+					}
+				}
+				propUpd.appendChild(set);
+			}
+
+			// Check whether properties to delete are specified.
+			if (ITHit.WebDAV.Client.Methods.Proppatch.ItemExists(aPropsToDelete)) {
+				var remove = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'remove');
+				var prop = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'prop');
+				for (var i = 0; i < aPropsToDelete.length; i++) {
+					if (aPropsToDelete[i]) {
+						var elem = oWriter.createElementNS(aPropsToDelete[i].NamespaceUri, aPropsToDelete[i].Name);
+						prop.appendChild(elem);
+					}
+				}
+				remove.appendChild(prop);
+				propUpd.appendChild(remove);
+			}
+
+			oWriter.appendChild(propUpd);
+			oWebDavRequest.Body(oWriter);
+
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+/**
+ * Scope of the lock.
+ * Represents exclusive or shared lock.
+ * @api
+ * @enum {string}
+ * @class ITHit.WebDAV.Client.LockScope
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.LockScope', null, {
+	__static: /** @lends ITHit.WebDAV.Client.LockScope */{
+
+		/**
+		 * Exclusive lock. No one else can obtain the lock.
+		 * @api
+		 * @type {string}
+		 */
+		Exclusive: 'Exclusive',
+
+		/**
+		 * Shared lock. It will be possible for another clients to get the shared locks.
+		 * @api
+		 * @property {string}
+		 */
+		Shared: 'Shared'
+
+	}
+});
+
+
+/**
+ * Represents pair of resource uri - lock token. Is used to access locked resources.
+ * @api
+ * @class ITHit.WebDAV.Client.LockUriTokenPair
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.LockUriTokenPair', null, /** @lends ITHit.WebDAV.Client.LockUriTokenPair.prototype */{
+
+	/**
+	 * Path to the locked resource.
+	 * @api
+	 * @type {string}
+	 */
+	Href: null,
+
+	/**
+	 * Lock token.
+	 * @api
+	 * @type {string}
+	 */
+	LockToken: null,
+
+	/**
+	 * Initializes new instance of LockUriTokenPair.
+	 * @param {string} sHref Path to the locked resource.
+	 * @param {string} sLockToken Lock token.
+	 * @throws ITHit.Exceptions.ArgumentNullException Whether sHref is null or sLockScope is null or empty.
+	 */
+	constructor: function(sHref, sLockToken) {
+		ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(sHref, "href");
+		ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNullOrEmpty(sLockToken, "lockToken");
+
+		this.Href = sHref;
+		this.LockToken = sLockToken;
+	},
+
+	toString: function() {
+		return this.LockToken;
+	}
+
+});
+
+
+/**
+ * Information about lock set on an item.
+ * @api
+ * @class ITHit.WebDAV.Client.LockInfo
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.LockInfo', null, /** @lends ITHit.WebDAV.Client.LockInfo.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.LockInfo */{
+
+		/**
+		 * Parses activeLocks from lockNode.
+		 * @param {ITHit.XMLDoc} oElement Node containing XML Element with activeLock node.
+		 * @param {string} sHref Request's URI.
+		 * @returns {ITHit.WebDAV.Client.LockInfo} Information about active locks.
+		 */
+		ParseLockInfo: function(oElement, sHref) {
+
+			// Declare resolver for namespace.
+			var oResolver = new ITHit.XPath.resolver();
+			oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+			// Declare node variable.
+			var oNode;
+
+			// Get lock scope.
+			if (!(oNode = ITHit.XPath.selectSingleNode('d:lockscope', oElement, oResolver))) {
+				throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.Exceptions.ActiveLockDoesntContainLockscope);
+			}
+
+			// Detect lock scope
+			var oLockScope = null;
+			var oLockScopeChilds = oNode.childNodes();
+			for (var i = 0, l = oLockScopeChilds.length; i < l; i++) {
+				if (oLockScopeChilds[i].nodeType() === 1) {
+					oLockScope = oLockScopeChilds[i].localName();
+					break;
+				}
+			}
+			switch (oLockScope) {
+				case 'shared':
+					oLockScope = ITHit.WebDAV.Client.LockScope.Shared;
+					break;
+
+				case 'exclusive':
+					oLockScope = ITHit.WebDAV.Client.LockScope.Exclusive;
+					break;
+			}
+
+			// Get depth.
+			if ( !(oNode = ITHit.XPath.selectSingleNode('d:depth', oElement, oResolver)) ) {
+				throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.Exceptions.ActiveLockDoesntContainDepth);
+			}
+
+			var oDepthValue = ITHit.WebDAV.Client.Depth.Parse(oNode.firstChild().nodeValue());
+			var bDeep = (oDepthValue == ITHit.WebDAV.Client.Depth.Infinity);
+
+			// Get owner.
+			var sOwner = null;
+			if ( oNode = ITHit.XPath.selectSingleNode('d:owner', oElement, oResolver) ) {
+				sOwner = oNode.firstChild().nodeValue();
+			}
+
+			// Get timeout.
+			var iTimeOut = -1;
+			if ( oNode = ITHit.XPath.selectSingleNode('d:timeout', oElement, oResolver) ) {
+				var sTimeOut = oNode.firstChild().nodeValue();
+
+				if ('infinite' != sTimeOut.toLowerCase()) {
+					if (-1 != sTimeOut.toLowerCase().indexOf('second-')) {
+						sTimeOut = sTimeOut.substr(7);
+					}
+					var iTimeOut = parseInt(sTimeOut);
+				}
+			}
+
+			// Get lock token.
+
+			var oLockToken = null;
+			if ( oNode = ITHit.XPath.selectSingleNode('d:locktoken', oElement, oResolver) ) {
+				var sLockTokenText = ITHit.XPath.selectSingleNode('d:href', oNode, oResolver).firstChild().nodeValue();
+				sLockTokenText = sLockTokenText.replace(ITHit.WebDAV.Client.DavConstants.OpaqueLockToken, '');
+				oLockToken = new ITHit.WebDAV.Client.LockUriTokenPair(sHref, sLockTokenText);
+			}
+
+			return new ITHit.WebDAV.Client.LockInfo(oLockScope, bDeep, sOwner, iTimeOut, oLockToken);
+		},
+
+		/**
+		 * Parses activeLocks from lockNode.
+		 * @param {ITHit.XMLDoc} oElement Node containing XML Element with activeLock node.
+		 * @param {string} sHref Requests URI
+		 * @returns {Array} Information about active locks.
+		 */
+		ParseLockDiscovery: function(oElement, sHref) {
+
+			// Declare variable list of locks.
+			var aLocks = [];
+
+			// Get a list of active lockes nodes.
+			var aSearchedLocks = oElement.getElementsByTagNameNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'activelock');
+
+			for (var i = 0; i < aSearchedLocks.length; i++) {
+				aLocks.push(ITHit.WebDAV.Client.LockInfo.ParseLockInfo(aSearchedLocks[i], sHref));
+			}
+
+			return aLocks;
+		}
+	},
+
+	/**
+	 * Scope of the lock.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.LockScope}
+	 */
+	LockScope: null,
+
+	/**
+	 * Whether lock is set on item's children.
+	 * @api
+	 * @type {boolean}
+	 */
+	Deep: null,
+
+	/**
+	 * Timeout until lock expires.
+	 * @api
+	 * @type {number}
+	 */
+	TimeOut: null,
+
+	/**
+	 * Owner's name.
+	 * @api
+	 * @type {string}
+	 */
+	Owner: null,
+
+	/**
+	 * Lock token.
+	 * @api
+	 * @type {ITHit.WebDAV.Client.LockUriTokenPair}
+	 */
+	LockToken: null,
+
+	/**
+	 * Initializes new instance of LockInfo.
+	 * @param {ITHit.WebDAV.Client.LockScope} oLockScope Scope of the lock.
+	 * @param {boolean}   bDeep Whether lock is set on item's children.
+	 * @param {string} sOwner Owner's name.
+	 * @param {number} iTimeOut Timeout until lock expires.
+	 * @param {ITHit.WebDAV.Client.LockUriTokenPair} oLockToken Lock token.
+	 */
+	constructor: function(oLockScope, bDeep, sOwner, iTimeOut, oLockToken) {
+		this.LockScope = oLockScope;
+		this.Deep = bDeep;
+		this.TimeOut = iTimeOut;
+		this.Owner = sOwner;
+		this.LockToken = oLockToken;
+	}
+
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Lock
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Lock', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Lock.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Lock */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param iTimeout
+		 * @param sLockTokenOrScope
+		 * @param sHost
+		 * @param bDeep
+		 * @param sOwner
+		 * @returns {*}
+		 * @constructor
+		 */
+		Go: function (oRequest, sHref, iTimeout, sLockTokenOrScope, sHost, bDeep, sOwner) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param iTimeout
+		 * @param sLockTokenOrScope
+		 * @param sHost
+		 * @param bDeep
+		 * @param sOwner
+		 * @param fCallback
+		 * @returns {*}
+		 * @constructor
+		 */
+		GoAsync: function (oRequest, sHref, iTimeout, sLockTokenOrScope, sHost, bDeep, sOwner, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		_CreateRequest: function (oRequest, sHref, iTimeout, sLockTokenOrScope, sHost, bDeep, sOwner) {
+			// Passed lock scope.
+			var sLockScope = sLockTokenOrScope;
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+			oWebDavRequest.Method('LOCK');
+
+			// Add headers.
+			oWebDavRequest.Headers.Add('Timeout',
+				(-1 === iTimeout)
+					? 'Infinite'
+					: 'Second-' + parseInt(iTimeout)
+			);
+			oWebDavRequest.Headers.Add('Depth', bDeep ? ITHit.WebDAV.Client.Depth.Infinity.Value : ITHit.WebDAV.Client.Depth.Zero.Value);
+			oWebDavRequest.Headers.Add('Content-Type', 'text/xml; charset="utf-8"');
+
+			// Create XML DOM document object.
+			var oWriter = new ITHit.XMLDoc();
+
+			// Get namespace for XML elements.
+			var sNamespaceUri = ITHit.WebDAV.Client.DavConstants.NamespaceUri;
+
+			// Create root element.
+			var lockInfo = oWriter.createElementNS(sNamespaceUri, 'lockinfo');
+
+			// Create elements.
+			var lockScope = oWriter.createElementNS(sNamespaceUri, 'lockscope');
+			var lockScopeData = oWriter.createElementNS(sNamespaceUri, sLockScope.toLowerCase());
+			lockScope.appendChild(lockScopeData);
+
+			var lockType = oWriter.createElementNS(sNamespaceUri, 'locktype');
+			var write = oWriter.createElementNS(sNamespaceUri, 'write');
+			lockType.appendChild(write);
+
+			var owner = oWriter.createElementNS(sNamespaceUri, 'owner');
+			owner.appendChild(oWriter.createTextNode(sOwner));
+
+			lockInfo.appendChild(lockScope);
+			lockInfo.appendChild(lockType);
+			lockInfo.appendChild(owner);
+
+			oWriter.appendChild(lockInfo);
+
+			// Add XML document as request body.
+			oWebDavRequest.Body(oWriter);
+
+			return oWebDavRequest;
+		}
+
+	},
+
+	/**
+	 * @type {ITHit.WebDAV.Client.LockInfo}
+	 */
+	LockInfo: null,
+
+	_Init: function () {
+		// Get response data as string.
+		var oXmlDoc = this.Response.GetResponseStream();
+
+		// Create namespace resolver.
+		var oResolver = new ITHit.XPath.resolver();
+		oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+		// Select property element.
+		var oProp = new ITHit.WebDAV.Client.Property(ITHit.XPath.selectSingleNode('/d:prop', oXmlDoc, oResolver));
+
+		try {
+			// Parse property element.
+			var oInfoList = new ITHit.WebDAV.Client.LockInfo.ParseLockDiscovery(oProp.Value, this.Href);
+
+			// Check length of selected elements.
+			if (oInfoList.length !== 1) {
+				throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.UnableToParseLockInfoResponse);
+			}
+
+			// Select property element.
+			this.LockInfo = oInfoList[0];
+
+			// Exception had happened.
+		} catch (e) {
+			throw new ITHit.WebDAV.Client.Exceptions.PropertyException(
+				ITHit.Phrases.Exceptions.ParsingPropertiesException,
+				this.Href,
+				oProp.Name,
+				null,
+				ITHit.WebDAV.Client.HttpStatus.OK,
+				e
+			);
+		}
+	}
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.LockRefresh
+ * @extends ITHit.WebDAV.Client.Methods.Lock
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.LockRefresh', ITHit.WebDAV.Client.Methods.Lock, /** @lends ITHit.WebDAV.Client.Methods.LockRefresh.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.LockRefresh */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param iTimeout
+		 * @param sLockTokenOrScope
+		 * @param sHost
+		 * @param bDeep
+		 * @param sOwner
+		 * @returns {*}
+		 * @constructor
+		 */
+		Go: function (oRequest, sHref, iTimeout, sLockTokenOrScope, sHost, bDeep, sOwner) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param iTimeout
+		 * @param sLockTokenOrScope
+		 * @param sHost
+		 * @param bDeep
+		 * @param sOwner
+		 * @param fCallback
+		 * @returns {*}
+		 * @constructor
+		 */
+		GoAsync: function (oRequest, sHref, iTimeout, sLockTokenOrScope, sHost, bDeep, sOwner, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		_CreateRequest: function (oRequest, sHref, iTimeout, sLockTokenOrScope, sHost, bDeep, sOwner) {
+
+			// Passed lock token.
+			var sLockToken = sLockTokenOrScope;
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, sLockToken);
+			oWebDavRequest.Method('LOCK');
+
+			// Add header.
+			oWebDavRequest.Headers.Add('Timeout',
+				(-1 == iTimeout)
+					? 'Infinite'
+					: 'Second-' + parseInt(iTimeout)
+			);
+
+			oWebDavRequest.Body('');
+
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Unlock
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Unlock', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Unlock.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Unlock */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param sLockToken
+		 * @param sHost
+		 * @returns {ITHit.WebDAV.Client.Methods.Unlock}
+		 */
+		Go: function (oRequest, sHref, sLockToken, sHost) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param sLockToken
+		 * @param sHost
+		 * @param fCallback
+		 * @returns {*}
+		 */
+		GoAsync: function (oRequest, sHref, sLockToken, sHost, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		_ProcessResponse: function (oResponse, sHref) {
+			// Get appropriate response object.
+			var oResp = new ITHit.WebDAV.Client.Methods.SingleResponse(oResponse);
+
+			return this._super(oResp);
+		},
+
+		_CreateRequest: function (oRequest, sHref, sLockToken, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+			oWebDavRequest.Method('UNLOCK');
+
+			// Add header.
+			oWebDavRequest.Headers.Add('Lock-Token', '<' + ITHit.WebDAV.Client.DavConstants.OpaqueLockToken + sLockToken + '>');
+
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+/**
+ * Options of an item, described by supported HTTP extensions.
+ * @api
+ * @class ITHit.WebDAV.Client.OptionsInfo
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.OptionsInfo', null, /** @lends ITHit.WebDAV.Client.OptionsInfo.prototype */{
+
+	/**
+	 * Features supported by WebDAV server. See Features Enumeration {@link ITHit.WebDAV.Client.Features}.
+	 * @api
+	 * @type {number}
+	 */
+	Features: null,
+
+	/**
+	 * A nonstandard header meaning the server supports WebDAV protocol.
+	 * @type {boolean}
+	 */
+	MsAuthorViaDav: null,
+
+	/**
+	 * DeltaV Version History compliant item.
+	 * @type {number}
+	 */
+	VersionControl: null,
+
+	/**
+	 * The item supports search
+	 * @type {boolean}
+	 */
+	Search: null,
+
+	/**
+	 * Server version (engine header)
+	 * @type {string}
+	 */
+	ServerVersion: '',
+
+	/**
+	 * Create new instance of OptionsInfo class.
+	 * @param {number} iFeatures Classes of WebDAV protocol supported by the item.
+	 * @param {boolean} bMsAuthorViaDav A nonstandard header meaning the server supports WebDAV protocol.
+	 * @param {number} iVersionControl
+	 * @param {boolean} bSearchSupported
+	 * @param {string} sServerVersion
+	 */
+	constructor: function(iFeatures, bMsAuthorViaDav, iVersionControl, bSearchSupported, sServerVersion) {
+		this.Features = iFeatures;
+		this.MsAuthorViaDav = bMsAuthorViaDav;
+		this.VersionControl = iVersionControl;
+		this.Search = bSearchSupported;
+		this.ServerVersion = sServerVersion;
+	}
+
+});
+
+/**
+ * Represents features supported by WebDAV server.
+ * @api
+ * @enum {number}
+ * @class ITHit.WebDAV.Client.Features
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Features', null, {
+	__static: /** @lends ITHit.WebDAV.Client.Features */{
+
+		/**
+		 * WebDAV Class 1 compliant item.
+		 * Class 1 items does not support locking.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		Class1: 1,
+
+		/**
+		 * WebDAV Class 2 compliant item.
+		 * Class 2 items support locking.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		Class2: 2,
+
+		/**
+		 * WebDAV Class 3 compliant item.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		Class3: 3,
+
+		/**
+		 * DeltaV version-control compliant item.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		VersionControl: 4,
+
+		/**
+		 * Checkout-in-place item support check out, check in and uncheckout operations.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		CheckoutInPlace: 16,
+
+		/**
+		 * DeltaV Version History compliant item.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		VersionHistory: 32,
+
+		/**
+		 * DeltaV Update compliant item.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		Update: 64,
+
+		/**
+		 * The item supports resumable upload.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		ResumableUpload: 128,
+
+		/**
+		 * The item supports resumable download.
+		 * @api
+		 * @readonly
+		 * @type {number}
+		 */
+		ResumableDownload: 256
+
+	}
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Options', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Options.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Options */{
+
+		Go: function (oRequest, sHref, sHost) {
+			return this.GoAsync(oRequest, sHref, sHost);
+		},
+
+		GoAsync: function (oRequest, sHref, sHost, fCallback) {
+
+			// Create request.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.Options.createRequest(oRequest, sHref, sHost);
+
+			var self = this;
+			var fOnResponse = typeof fCallback === 'function'
+				? function (oResult) {
+				self._GoCallback(oRequest, sHref, oResult, fCallback)
+			}
+				: null;
+
+			// Make request.
+			var oResponse = oWebDavRequest.GetResponse(fOnResponse);
+
+			if (typeof fCallback !== 'function') {
+				var oResult = new ITHit.WebDAV.Client.AsyncResult(oResponse, oResponse != null, null);
+				return this._GoCallback(oRequest, sHref, oResult, fCallback);
+			} else {
+				return oWebDavRequest;
+			}
+		},
+
+		_GoCallback: function (oRequest, sHref, oResult, fCallback) {
+
+			var oResponse = oResult;
+			var bSuccess = true;
+			var oError = null;
+
+			if (oResult instanceof ITHit.WebDAV.Client.AsyncResult) {
+				oResponse = oResult.Result;
+				bSuccess = oResult.IsSuccess;
+				oError = oResult.Error;
+			}
+
+			var oOptions = null;
+			if (bSuccess) {
+				// Get options.
+				var oOptions = new ITHit.WebDAV.Client.Methods.Options(oResponse);
+			}
+
+			// Return response.
+			if (typeof fCallback === 'function') {
+				var oOptionsResult = new ITHit.WebDAV.Client.AsyncResult(oOptions, bSuccess, oError);
+				fCallback.call(this, oOptionsResult);
+			} else {
+				return oOptions;
+			}
+		},
+
+		createRequest: function (oRequest, sHref, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+
+			// Set method.
+			oWebDavRequest.Method('OPTIONS');
+
+			// Return request object.
+			return oWebDavRequest;
+		}
+
+	},
+
+	ItemOptions: null,
+
+	/**
+	 * Method to perform Options request to a server.
+	 * Create new instance of Options class.
+	 * @constructs
+	 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+	 * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+	 */
+	constructor: function (oResponse) {
+		this._super(oResponse);
+
+		// Get DAV request header.
+		var sDav = oResponse._Response.GetResponseHeader('dav', true);
+
+		// Get version of WebDAV server.
+		var iFeatures = 0;
+		var iVersionControl = 0;
+		if (sDav) {
+			if (-1 != sDav.indexOf('2')) {
+				iFeatures = ITHit.WebDAV.Client.Features.Class1 + ITHit.WebDAV.Client.Features.Class2;
+			} else if (-1 != sDav.indexOf('1')) {
+				iFeatures = ITHit.WebDAV.Client.Features.Class1;
+			}
+
+			if (-1 != sDav.indexOf('version-control')) {
+				iVersionControl = ITHit.WebDAV.Client.Features.VersionControl;
+			}
+
+			// Whether server supports ITHit Resumable Upload.
+			if (-1 != sDav.indexOf('resumable-upload')) {
+				iFeatures += ITHit.WebDAV.Client.Features.ResumableUpload;
+			}
+		}
+
+		var bMsAuthorViaDav = false;
+		var sMsAuthorViaHeader = oResponse._Response.GetResponseHeader('ms-author-via', true);
+
+		if (sMsAuthorViaHeader && (-1 != sMsAuthorViaHeader.toLowerCase().indexOf('dav'))) {
+			bMsAuthorViaDav = true;
+		}
+
+		// Detect search support
+		var iSearchSupported = false;
+		var sAllowHeader = oResponse._Response.GetResponseHeader('allow', true) || '';
+		var aAllowList = sAllowHeader.toLowerCase().split(/[^a-z-_]+/);
+		for (var i = 0, l = aAllowList.length; i < l; i++) {
+			if (aAllowList[i] === 'search') {
+				iSearchSupported = true;
+				break;
+			}
+		}
+
+		// Get server version
+		var sServerVersion = oResponse._Response.GetResponseHeader('x-engine', true);
+
+		this.ItemOptions = new ITHit.WebDAV.Client.OptionsInfo(iFeatures, bMsAuthorViaDav, iVersionControl, iSearchSupported, sServerVersion);
+	}
+});
+
+
+ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
+
+/*
+ * Wrong expression.
+ * @class ITHit.Exceptions.ExpressionException
+ * @extends ITHit.Exception
+ */
+/*
+ * Initializes a new instance of the ExpressionException class with a specified error message.
+ * @constructor ExpressionException
+ * 
+ * @param {String} sMessage  The error message that explains the reason for the exception.
+ */
+ITHit.oNS.ExpressionException = function(sMessage) {
+	
+	// Inheritance definition.
+	ITHit.Exceptions.ExpressionException.baseConstructor.call(this, sMessage);
+}
+
+// Extend class.
+ITHit.Extend(ITHit.oNS.ExpressionException, ITHit.Exception);
+
+// Exception name.
+ITHit.oNS.ExpressionException.prototype.Name = 'ExpressionException';
+
+/**
+ * Information about file upload progress.
+ * @api
+ * @class ITHit.WebDAV.Client.UploadProgressInfo
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.UploadProgressInfo', null, /** @lends ITHit.WebDAV.Client.UploadProgressInfo.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.UploadProgressInfo */{
+
+		GetUploadProgress: function(oMultiResponse) {
+
+			var aUploadInfo    = [];
+
+			if (!ITHit.WebDAV.Client.UploadProgressInfo.PropNames) {
+				ITHit.WebDAV.Client.UploadProgressInfo.PropNames = [
+					new ITHit.WebDAV.Client.PropertyName('bytes-uploaded', 'ithit'),
+					new ITHit.WebDAV.Client.PropertyName('last-chunk-saved', 'ithit'),
+					new ITHit.WebDAV.Client.PropertyName('total-content-length', 'ithit')
+				];
+			}
+
+			for (var i = 0, oResponse; oResponse = oMultiResponse.Responses[i]; i++) {
+				for (var j = 0, oPropstat; oPropstat = oResponse.Propstats[j]; j++) {
+
+					var oFoundedProps = [];
+
+					for (var k = 0, oProp; oProp = oPropstat.Properties[k]; k++) {
+
+						// Bytes uploaded.
+						if (oProp.Name.Equals(ITHit.WebDAV.Client.UploadProgressInfo.PropNames[0])) {
+							oFoundedProps[0] = oProp.Value;
+						}
+						// Last chunk saved.
+						else if (oProp.Name.Equals(ITHit.WebDAV.Client.UploadProgressInfo.PropNames[1])) {
+							oFoundedProps[1] = oProp.Value;
+						}
+						// Percent uploaded.
+						else if (oProp.Name.Equals(ITHit.WebDAV.Client.UploadProgressInfo.PropNames[2])) {
+							oFoundedProps[2] = oProp.Value;
+						}
+					}
+
+					if (!oFoundedProps[0] || !oFoundedProps[1] || !oFoundedProps[2]) {
+						throw new ITHit.Exception(ITHit.Phrases.Exceptions.NotAllPropertiesReceivedForUploadProgress.Paste(oResponse.Href));
+					}
+
+					aUploadInfo.push(new ITHit.WebDAV.Client.UploadProgressInfo(oResponse.Href, parseInt(oFoundedProps[0].firstChild().nodeValue()), parseInt(oFoundedProps[2].firstChild().nodeValue()), ITHit.WebDAV.Client.HierarchyItem.GetDate(oFoundedProps[1].firstChild().nodeValue())));
+				}
+			}
+
+			return aUploadInfo;
+		}
+
+	},
+
+	/**
+	 * Item path on the server.
+	 * @api
+	 * @type {string}
+	 */
+	Href: null,
+
+	/**
+	 * Amount of bytes successfully uploaded to server.
+	 * @api
+	 * @type {number}
+	 */
+	BytesUploaded: null,
+
+	/**
+	 * Total file size.
+	 * @api
+	 * @type {number}
+	 */
+	TotalContentLength: null,
+
+	/**
+	 * The date and time when the last chunk of file was saved on server side.
+	 * @api
+	 * @type {Date}
+	 */
+	LastChunkSaved: null,
+
+	/**
+	 * @param {string} sHref Item's path.
+	 * @param {number} iBytesUploaded Uploaded bytes.
+	 * @param {number} iContentLength Total file size.
+	 * @param {Date} [oLastChunkSaved] Last chunk save date.
+	 */
+	constructor: function(sHref, iBytesUploaded, iContentLength, oLastChunkSaved) {
+
+		if (!ITHit.Utils.IsString(sHref) || !sHref) {
+			throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.WrongHref.Paste(), sHref);
+		}
+
+		if (!ITHit.Utils.IsInteger(iBytesUploaded)) {
+			throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.WrongUploadedBytesType, iBytesUploaded);
+		}
+
+		if (!ITHit.Utils.IsInteger(iContentLength)) {
+			throw new ITHit.Exceptions.ArgumentException(ITHit.Phrases.Exceptions.WrongContentLengthType, iContentLength);
+		}
+
+		if (iBytesUploaded > iContentLength) {
+			throw new ITHit.Exceptions.ExpressionException(ITHit.Phrases.Exceptions.BytesUploadedIsMoreThanTotalFileContentLength);
+		}
+
+		this.Href               = sHref;
+		this.BytesUploaded      = iBytesUploaded;
+		this.TotalContentLength = iContentLength;
+		this.LastChunkSaved     = oLastChunkSaved;
+	}
+
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Report', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Report.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Report */{
+
+		ReportType: {
+
+			/**
+			 * Report return upload progress info (default)
+			 * @type {string}
+			 */
+			UploadProgress: 'UploadProgress',
+
+			/**
+			 * Report return versions tree
+			 * @type {string}
+			 */
+			VersionsTree: 'VersionsTree'
+		},
+
+		Go: function (oRequest, sHref, sHost, reportType, aProperties) {
+			return this.GoAsync(oRequest, sHref, sHost, reportType, aProperties);
+		},
+
+		GoAsync: function (oRequest, sHref, sHost, reportType, aProperties, fCallback) {
+
+			// by default
+			if (!reportType) {
+				reportType = ITHit.WebDAV.Client.Methods.Report.ReportType.UploadProgress;
+			}
+
+			// Create request.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.Report.createRequest(oRequest, sHref, sHost, reportType, aProperties);
+
+
+			var self = this;
+			var fOnResponse = typeof fCallback === 'function'
+				? function (oResult) {
+				self._GoCallback(sHref, oResult, reportType, fCallback)
+			}
+				: null;
+
+			// Make request.
+			var oResponse = oWebDavRequest.GetResponse(fOnResponse);
+
+			if (typeof fCallback !== 'function') {
+				var oResult = new ITHit.WebDAV.Client.AsyncResult(oResponse, oResponse != null, null);
+				return this._GoCallback(sHref, oResult, reportType, fCallback);
+			} else {
+				return oWebDavRequest;
+			}
+		},
+
+		_GoCallback: function (sHref, oResult, reportType, fCallback) {
+
+			var oResponse = oResult;
+			var bSuccess = true;
+			var oError = null;
+
+			if (oResult instanceof ITHit.WebDAV.Client.AsyncResult) {
+				oResponse = oResult.Result;
+				bSuccess = oResult.IsSuccess;
+				oError = oResult.Error;
+			}
+
+			var oReport = null;
+			if (bSuccess) {
+				// Receive data.
+				var oResponseData = oResponse.GetResponseStream();
+
+				oReport = new ITHit.WebDAV.Client.Methods.Report(new ITHit.WebDAV.Client.Methods.MultiResponse(oResponseData, sHref), reportType);
+			}
+
+			// Return response.
+			if (typeof fCallback === 'function') {
+				var oReportResult = new ITHit.WebDAV.Client.AsyncResult(oReport, bSuccess, oError);
+				fCallback.call(this, oReportResult);
+			} else {
+				return oReport;
+			}
+		},
+
+		createRequest: function (oRequest, sHref, sHost, reportType, aProperties) {
+
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+
+			oWebDavRequest.Method('REPORT');
+			oWebDavRequest.Headers.Add('Content-Type', 'text/xml; charset="utf-8"');
+
+			// Create XML DOM document.
+			var oWriter = new ITHit.XMLDoc();
+
+			switch (reportType) {
+				case ITHit.WebDAV.Client.Methods.Report.ReportType.UploadProgress:
+					var oElem = oWriter.createElementNS('ithit', 'upload-progress');
+					oWriter.appendChild(oElem);
+					break;
+
+				case ITHit.WebDAV.Client.Methods.Report.ReportType.VersionsTree:
+					// Create root element.
+					var oVersionTreeElement = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'version-tree');
+
+					// All properties.
+					if (!aProperties || !aProperties.length) {
+						var propEl = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'allprop');
+
+						// Selected properties.
+					} else {
+						var propEl = oWriter.createElementNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'prop');
+						for (var i = 0; i < aProperties.length; i++) {
+							var prop = oWriter.createElementNS(aProperties[i].NamespaceUri, aProperties[i].Name);
+							propEl.appendChild(prop);
+						}
+					}
+
+					// Append created child nodes.
+					oVersionTreeElement.appendChild(propEl);
+					oWriter.appendChild(oVersionTreeElement);
+					break;
+			}
+
+			oWebDavRequest.Body(oWriter);
+
+			// Return request object.
+			return oWebDavRequest;
+		}
+
+	},
+
+	/**
+	 * @constructs
+	 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+	 * @param {string} reportType
+	 */
+	constructor: function (oResponse, reportType) {
+		this._super(oResponse);
+
+		switch (reportType) {
+			case ITHit.WebDAV.Client.Methods.Report.ReportType.UploadProgress:
+				return ITHit.WebDAV.Client.UploadProgressInfo.GetUploadProgress(oResponse);
+		}
+	}
+});
+
+
+;
+(function() {
+
+	/**
+	 * Represents one WebDAV item (file, folder or lock-null).
+	 * @api
+	 * @class ITHit.WebDAV.Client.HierarchyItem
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.HierarchyItem', null, /** @lends ITHit.WebDAV.Client.HierarchyItem.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.HierarchyItem */{
+
+			GetRequestProperties: function() {
+				return ITHit.WebDAV.Client.File.GetRequestProperties();
+			},
+
+			GetCustomRequestProperties: function(aCustomProperties) {
+				// Set node properties for selection.
+				var aProperties = this.GetRequestProperties();
+
+				// Normalize additional properties (clean duplicates)
+				var aNormalizedAdditionalProperties = [];
+				for (var i = 0, l = aCustomProperties.length; i < l; i++) {
+					var oProperty = aCustomProperties[i];
+					var bFinedInDefaults = false;
+
+					// Find in defaults
+					for (var i2 = 0, l2 = aProperties.length; i2 < l2; i2++) {
+						if (oProperty.Equals(aProperties[i2])) {
+							bFinedInDefaults = true;
+							break;
+						}
+					}
+
+					if (!bFinedInDefaults) {
+						aNormalizedAdditionalProperties.push(oProperty);
+					}
+				}
+
+				// Append additional properties
+				return aNormalizedAdditionalProperties;
+			},
+
+			ParseHref: function(sHref) {
+				return {
+					Href: sHref,
+					Host: ITHit.WebDAV.Client.HierarchyItem.GetHost(sHref)
+				};
+			},
+
+			/**
+			 * Load item from server.
+			 * @deprecated Use asynchronous method instead
+			 * @param {ITHit.WebDAV.Client.Request} oRequest Current WebDAV session.
+			 * @param {string} sHref This item path on the server.
+			 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+			 * @returns {ITHit.WebDAV.Client.HierarchyItem} Loaded item.
+			 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException A Folder was expected or the response doesn't have required item.
+			 */
+			OpenItem: function(oRequest, sHref, aProperties) {
+				aProperties = aProperties || [];
+
+				// Normalize custom properties
+				aProperties = this.GetCustomRequestProperties(aProperties);
+
+				var oHrefObject = this.ParseHref(sHref);
+				var oResult = ITHit.WebDAV.Client.Methods.Propfind.Go(
+					oRequest,
+					oHrefObject.Href,
+					ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+					[].concat(this.GetRequestProperties()).concat(aProperties),
+					ITHit.WebDAV.Client.Depth.Zero,
+					oHrefObject.Host
+				);
+
+				return this.GetItemFromMultiResponse(oResult.Response, oRequest, sHref, aProperties);
+			},
+
+			/**
+			 * Callback function to be called when folder loaded from server.
+			 * @callback ITHit.WebDAV.Client.HierarchyItem~OpenItemAsyncCallback
+			 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+			 * @param {ITHit.WebDAV.Client.HierarchyItem} oResult.Result Loaded item.
+			 */
+
+			/**
+			 * Load item from server.
+			 * @param {ITHit.WebDAV.Client.Request} oRequest Current WebDAV session.
+			 * @param {string} sHref This item path on the server.
+			 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+			 * @param {ITHit.WebDAV.Client.HierarchyItem~OpenItemAsyncCallback} fCallback Function to call when operation is completed.
+			 * @returns {ITHit.WebDAV.Client.Request} Request object.
+			 */
+			OpenItemAsync: function(oRequest, sHref, aProperties, fCallback) {
+				aProperties = aProperties || [];
+
+				// Normalize custom properties
+				aProperties = this.GetCustomRequestProperties(aProperties);
+
+				var oHrefObject = this.ParseHref(sHref);
+				ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+					oRequest,
+					oHrefObject.Href,
+					ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+					[].concat(this.GetRequestProperties()).concat(aProperties),
+					ITHit.WebDAV.Client.Depth.Zero,
+					oHrefObject.Host,
+					function(oAsyncResult) {
+						if (oAsyncResult.IsSuccess) {
+							try {
+								oAsyncResult.Result = self.GetItemFromMultiResponse(oAsyncResult.Result.Response, oRequest, sHref, aProperties);
+							} catch(oError) {
+								oAsyncResult.Error = oError;
+								oAsyncResult.IsSuccess = false;
+							}
+						}
+
+						fCallback(oAsyncResult);
+					}
+				);
+
+				return oRequest;
+			},
+
+			GetItemFromMultiResponse: function(oMultiResponse, oRequest, sHref, aCustomProperties) {
+				aCustomProperties = aCustomProperties || [];
+
+				// Loop through result items.
+				for (var i = 0; i < oMultiResponse.Responses.length; i++) {
+					var oResponse = oMultiResponse.Responses[i];
+
+					// Whether item is found.
+					if (!ITHit.WebDAV.Client.HierarchyItem.HrefEquals(oResponse.Href, sHref)) {
+						continue;
+					}
+
+					return this.GetItemFromResponse(oResponse, oRequest, sHref, aCustomProperties);
+				}
+
+				throw new ITHit.WebDAV.Client.Exceptions.NotFoundException(ITHit.Phrases.FolderNotFound.Paste(sHref));
+			},
+
+			GetItemsFromMultiResponse: function (oMultiResponse, oRequest, sHref, aCustomProperties) {
+				aCustomProperties = aCustomProperties || [];
+
+				var aItems = [];
+
+				// Loop through result items.
+				for (var i = 0; i < oMultiResponse.Responses.length; i++) {
+					var oResponse = oMultiResponse.Responses[i];
+
+					// Do not include current node, get only it's child nodes.
+					if (ITHit.WebDAV.Client.HierarchyItem.HrefEquals(oResponse.Href, sHref)) {
+						continue;
+					}
+
+					// Ignore element whether it's status is set and not OK.
+					if (oResponse.Status && !oResponse.Status.IsOk()) {
+						continue;
+					}
+
+					aItems.push(this.GetItemFromResponse(oResponse, oRequest, sHref, aCustomProperties));
+				}
+
+				return aItems;
+			},
+
+			GetItemFromResponse: function(oResponse, oRequest, sHref, aCustomProperties) {
+				var oHrefObject = this.ParseHref(sHref);
+
+				// Append custom properties
+				var aPropertyList = ITHit.WebDAV.Client.HierarchyItem.GetPropertiesFromResponse(oResponse);
+
+				// Set null for not-exists properties
+				for (var i2 = 0, l2 = aCustomProperties.length; i2 < l2; i2++) {
+					if (!ITHit.WebDAV.Client.HierarchyItem.HasProperty(oResponse, aCustomProperties[i2])) {
+						aPropertyList.push(new ITHit.WebDAV.Client.Property(aCustomProperties[i2], ''));
+					}
+				}
+
+				switch (ITHit.WebDAV.Client.HierarchyItem.GetResourceType(oResponse)) {
+					case ITHit.WebDAV.Client.ResourceType.File:
+						return new ITHit.WebDAV.Client.File(
+							oRequest.Session,
+							oResponse.Href,
+							ITHit.WebDAV.Client.HierarchyItem.GetLastModified(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetDisplayName(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetCreationDate(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetContentType(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetContentLength(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetSupportedLock(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetActiveLocks(oResponse, sHref),
+							oHrefObject.Host,
+							ITHit.WebDAV.Client.HierarchyItem.GetQuotaAvailableBytes(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetQuotaUsedBytes(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetCkeckedIn(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetCheckedOut(oResponse),
+							aPropertyList
+						);
+						break;
+
+					case ITHit.WebDAV.Client.ResourceType.Folder:
+						return new ITHit.WebDAV.Client.Folder(
+							oRequest.Session,
+							oResponse.Href,
+							ITHit.WebDAV.Client.HierarchyItem.GetLastModified(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetDisplayName(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetCreationDate(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetSupportedLock(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetActiveLocks(oResponse, sHref),
+							oHrefObject.Host,
+							ITHit.WebDAV.Client.HierarchyItem.GetQuotaAvailableBytes(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetQuotaUsedBytes(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetCkeckedIn(oResponse),
+							ITHit.WebDAV.Client.HierarchyItem.GetCheckedOut(oResponse),
+							aPropertyList
+						);
+
+					default:
+						throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.Exceptions.UnknownResourceType);
+				}
+			},
+
+			/**
+			 * Get item's full path.
+			 * @param {string} sUri Base URI.
+			 * @param {string} sDestinationName Item name.
+			 * @returns {string} Item full path.
+			 */
+			AppendToUri: function(sUri, sDestinationName) {
+				return ITHit.WebDAV.Client.HierarchyItem.GetAbsoluteUriPath(sUri) + ITHit.WebDAV.Client.Encoder.EncodeURI(sDestinationName);
+			},
+
+			/**
+			 * Retrieves locks for this item.
+			 * @returns {ITHit.WebDAV.Client.LockInfo[]} List of LockInfo objects.
+			 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+			 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+			 */
+			GetActiveLocks: function(oResp, sHref){
+
+				// Get lock name.
+				var oLockDiscovery = ITHit.WebDAV.Client.DavConstants.LockDiscovery.toString();
+
+
+				for (var i = 0; i < oResp.Propstats.length; i++) {
+					var oPropstat = oResp.Propstats[i];
+
+					if (!oPropstat.Status.IsOk()) {
+						break;
+					}
+
+					if ('undefined' != typeof oPropstat.PropertiesByNames[oLockDiscovery]) {
+						var oProp = oPropstat.PropertiesByNames[oLockDiscovery];
+
+						try {
+							// Return active locks.
+							return ITHit.WebDAV.Client.LockInfo.ParseLockDiscovery(oProp.Value, sHref);
+						} catch (e) {
+							if (typeof window.console !== 'undefined') {
+								console.error(e.stack || e.toString());
+							}
+							break;
+						}
+
+					} else {
+						break;
+					}
+				}
+
+				return [];
+			},
+
+			/**
+			 * Retrieves locks for this item.
+			 * @returns {Array} Supported locks.
+			 */
+			GetSupportedLock: function(oResp) {
+
+				var oSupportedLock = ITHit.WebDAV.Client.DavConstants.SupportedLock;
+
+				for (var i = 0; i < oResp.Propstats.length; i++ ) {
+					var oPropstat = oResp.Propstats[i];
+
+					if (!oPropstat.Status.IsOk()) {
+						break;
+					}
+
+					var out = [];
+					for (var p in oPropstat.PropertiesByNames) {
+						out.push(p);
+					}
+
+					if ('undefined' != typeof oPropstat.PropertiesByNames[oSupportedLock]) {
+						var oProp = oPropstat.PropertiesByNames[oSupportedLock];
+						try {
+							return ITHit.WebDAV.Client.HierarchyItem.ParseSupportedLock(oProp.Value);
+						} catch (e) {
+							break;
+						}
+					}
+				}
+
+				return [];
+			},
+
+			/**
+			 * Parse supported locks.
+			 * @param {ITHit.XMLDoc} oSupportedLockProp XML DOM lock property element.
+			 * @returns {Array} Supported locks.
+			 */
+			ParseSupportedLock: function(oSupportedLockProp) {
+
+				var aLocks = [];
+
+				// Create namespace resolver.
+				var oResolver = new ITHit.XPath.resolver();
+				oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+				var oNode       = null;
+				var oNode1      = null;
+				var iNodeElType = ITHit.XMLDoc.nodeTypes.NODE_ELEMENT;
+
+				var oRes  = ITHit.XPath.evaluate('d:lockentry', oSupportedLockProp, oResolver);
+				while ( oNode = oRes.iterateNext() ) {
+
+					var oRes1     = ITHit.XPath.evaluate('d:*', oNode, oResolver);
+					while (oNode1 = oRes1.iterateNext()) {
+
+						if (oNode1.nodeType() == iNodeElType) {
+
+							var sNodeName = '';
+
+							if (oNode1.hasChildNodes()) {
+
+								var oChildNode = oNode1.firstChild();
+								while (oChildNode) {
+									if (oChildNode.nodeType() == iNodeElType) {
+										sNodeName = oChildNode.localName();
+										break;
+									}
+									oChildNode = oChildNode.nextSibling();
+								}
+							}
+							else {
+								sNodeName = oNode1.localName();
+							}
+
+							switch (sNodeName.toLowerCase()) {
+
+								case 'shared':
+									aLocks.push(ITHit.WebDAV.Client.LockScope.Shared);
+									break;
+
+								case 'exclusive':
+									aLocks.push(ITHit.WebDAV.Client.LockScope.Exclusive);
+									break;
+							}
+						}
+					}
+				}
+
+				return aLocks;
+			},
+
+			/**
+			 * Retrieves information about quota available bytes.
+			 * @returns {number} Available bytes.
+			 */
+			GetQuotaAvailableBytes: function(oResp) {
+
+				var oAvailableBytes = ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes;
+
+				for (var i = 0; i < oResp.Propstats.length; i++ ) {
+					var oPropstat = oResp.Propstats[i];
+
+					if (!oPropstat.Status.IsOk()) {
+						break;
+					}
+
+					if ('undefined' != typeof oPropstat.PropertiesByNames[oAvailableBytes]) {
+						var oProp = oPropstat.PropertiesByNames[oAvailableBytes];
+						try {
+							return parseInt(oProp.Value.firstChild().nodeValue());
+						} catch (e) {
+							break;
+						}
+					}
+				}
+
+				return -1;
+			},
+
+			/**
+			 * Retrieves information about quota used bytes.
+			 * @returns {number} Used bytes.
+			 */
+			GetQuotaUsedBytes: function(oResp) {
+
+				var oUsedBytes = ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes;
+
+				for (var i = 0; i < oResp.Propstats.length; i++ ) {
+					var oPropstat = oResp.Propstats[i];
+
+					if (!oPropstat.Status.IsOk()) {
+						break;
+					}
+
+					if ('undefined' != typeof oPropstat.PropertiesByNames[oUsedBytes]) {
+						var oProp = oPropstat.PropertiesByNames[oUsedBytes];
+						try {
+							return parseInt(oProp.Value.firstChild().nodeValue());
+						} catch (e) {
+							break;
+						}
+					}
+				}
+
+				return -1;
+			},
+
+			/**
+			 * Retrieves information about checked-in item.
+			 * @returns {Array|boolean} Array checked-in files or false, if versions is not supported
+			 */
+			GetCkeckedIn: function(oResp) {
+
+				var CheckedIn = ITHit.WebDAV.Client.DavConstants.CheckedIn;
+
+				for (var i = 0; i < oResp.Propstats.length; i++ ) {
+					var oPropstat = oResp.Propstats[i];
+
+					if (!oPropstat.Status.IsOk()) {
+						break;
+					}
+
+					if ('undefined' != typeof oPropstat.PropertiesByNames[CheckedIn]) {
+						var oProp = oPropstat.PropertiesByNames[CheckedIn];
+						try {
+							return ITHit.WebDAV.Client.HierarchyItem.ParseChecked(oProp.Value);
+						} catch (e) {
+							break;
+						}
+					}
+				}
+
+				return false;
+			},
+
+			/**
+			 * Retrieves information about checked-out item.
+			 * @returns {number} Used bytes.
+			 */
+			GetCheckedOut: function(oResp) {
+
+				var CheckedIn = ITHit.WebDAV.Client.DavConstants.CheckedOut;
+
+				for (var i = 0; i < oResp.Propstats.length; i++ ) {
+					var oPropstat = oResp.Propstats[i];
+
+					if (!oPropstat.Status.IsOk()) {
+						break;
+					}
+
+					if ('undefined' != typeof oPropstat.PropertiesByNames[CheckedIn]) {
+						var oProp = oPropstat.PropertiesByNames[CheckedIn];
+						try {
+							return ITHit.WebDAV.Client.HierarchyItem.ParseChecked(oProp.Value);
+						} catch (e) {
+							break;
+						}
+					}
+				}
+
+				return false;
+			},
+
+			/**
+			 * Parse checked-in/out files.
+			 * @param {ITHit.XMLDoc} oCheckedProp XML DOM lock property element.
+			 * @returns {Array} Checked files.
+			 */
+			ParseChecked: function(oCheckedProp) {
+
+				var aCheckeds = [];
+
+				// Create namespace resolver.
+				var oResolver = new ITHit.XPath.resolver();
+				oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+				var oNode       = null;
+				var iNodeElType = ITHit.XMLDoc.nodeTypes.NODE_ELEMENT;
+
+				var oRes  = ITHit.XPath.evaluate('d:href', oCheckedProp, oResolver);
+				while ( oNode = oRes.iterateNext() ) {
+					if (oNode.nodeType() == iNodeElType) {
+						aCheckeds.push(oNode.firstChild().nodeValue());
+					}
+				}
+
+				return aCheckeds;
+			},
+
+			/**
+			 * Get resource type.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {string} Resource type.
+			 */
+			GetResourceType: function(oResponse) {
+
+				var oProperty = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.ResourceType);
+				var sResourceType = ITHit.WebDAV.Client.ResourceType.File;
+
+				if (oProperty.Value.getElementsByTagNameNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'collection').length > 0) {
+					sResourceType = ITHit.WebDAV.Client.ResourceType.Folder;
+				}
+
+				return sResourceType;
+			},
+
+			/**
+			 * Has property.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @param {ITHit.WebDAV.Client.PropertyName} oPropName Property name.
+			 * @returns {boolean} Searched property exits.
+			 */
+			HasProperty: function(oResponse, oPropName) {
+
+				for ( var i = 0; i < oResponse.Propstats.length; i++ ) {
+					var oPropstat = oResponse.Propstats[i];
+					for ( var j = 0; j < oPropstat.Properties.length; j++ ) {
+						var oProperty = oPropstat.Properties[j];
+						if (oProperty.Name.Equals(oPropName)) {
+							return true;
+						}
+					}
+				}
+
+				return false;
+			},
+
+			/**
+			 * Get property.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponce Response object.
+			 * @param {ITHit.WebDAV.Client.PropertyName} oPropName Property name.
+			 * @returns {ITHit.WebDAV.Client.Property} Searched property.
+			 * @throws ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException Property was not found.
+			 */
+			GetProperty: function(oResponse, oPropName) {
+
+				for ( var i = 0; i < oResponse.Propstats.length; i++ ) {
+					var oPropstat = oResponse.Propstats[i];
+					for ( var j = 0; j < oPropstat.Properties.length; j++ ) {
+						var oProperty = oPropstat.Properties[j];
+						if (oProperty.Name.Equals(oPropName)) {
+							return oProperty;
+						}
+					}
+				}
+
+				throw new ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException(ITHit.Phrases.Exceptions.PropertyNotFound, oResponse.Href, oPropName, null, null);
+			},
+
+			/**
+			 * Get custom properties key-value object.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {ITHit.WebDAV.Client.Property[]} Custom properties.
+			 */
+			GetPropertiesFromResponse: function(oResponse) {
+				var aProperties = [];
+
+				for ( var i = 0; i < oResponse.Propstats.length; i++ ) {
+					var oPropstat = oResponse.Propstats[i];
+					for ( var i2 = 0; i2 < oPropstat.Properties.length; i2++ ) {
+						aProperties.push(oPropstat.Properties[i2]);
+					}
+				}
+
+				return aProperties;
+			},
+
+			/**
+			 * Get item's name.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {string} Item's name.
+			 */
+			GetDisplayName: function(oResponse) {
+
+				var oElement = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse,  ITHit.WebDAV.Client.DavConstants.DisplayName).Value;
+				var sName;
+
+				if (oElement.hasChildNodes()) {
+					sName = oElement.firstChild().nodeValue();
+				} else {
+					sName = ITHit.WebDAV.Client.Encoder.Decode(ITHit.WebDAV.Client.HierarchyItem.GetLastName(oResponse.Href));
+				}
+
+				return sName;
+			},
+
+			/**
+			 * Get item's last modified date.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {Date} Item's last modified date.
+			 */
+			GetLastModified: function(oResponse) {
+				if (!ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.GetLastModified)) {
+					return ITHit.WebDAV.Client.HierarchyItem.GetDate();
+				}
+
+				var oProp = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.GetLastModified);
+
+				return ITHit.WebDAV.Client.HierarchyItem.GetDate(oProp.Value.firstChild().nodeValue(), 'rfc1123');
+			},
+
+			/**
+			 * Get item's content type.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {string} Item's content type.
+			 */
+			GetContentType: function(oResponse) {
+
+				var sContentType = null;
+				var oValue = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.GetContentType).Value;
+				if (oValue.hasChildNodes()) {
+					sContentType = oValue.firstChild().nodeValue();
+				}
+				return sContentType;
+			},
+
+			/**
+			 * Get file content length.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {number} Content length.
+			 */
+			GetContentLength: function(oResponse) {
+
+				var iContentLength = 0;
+				var oValue = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.GetContentLength).Value;
+				if (oValue.hasChildNodes()) {
+					iContentLength = parseInt(oValue.firstChild().nodeValue());
+				}
+				return iContentLength;
+			},
+
+			/**
+			 * Get item's creating date.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {Date} Item's creation date.
+			 */
+			GetCreationDate: function(oResponse) {
+				if (!ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.CreationDate)) {
+					return ITHit.WebDAV.Client.HierarchyItem.GetDate();
+				}
+
+				var oProp = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.CreationDate);
+
+				return ITHit.WebDAV.Client.HierarchyItem.GetDate(oProp.Value.firstChild().nodeValue(), 'tz');
+			},
+
+			GetDate: function(sDate, sDateFormat) {
+
+				var oDate;
+				var i = 0; // rfc1123
+
+				if ('tz' == sDateFormat) {
+					i++; // tz
+				}
+
+				if (!sDate) {
+					return new Date(0);
+				}
+
+				for (var e = i + 1; i <= e; i++) {
+
+					if (0 == i % 2) {
+
+						// rfc1123
+						var oDate = new Date(sDate);
+
+						if (!isNaN(oDate)) {
+							break;
+						}
+					}
+					else {
+
+						// tz
+						var aTime = sDate.match(/([\d]{4})\-([\d]{2})\-([\d]{2})T([\d]{2}):([\d]{2}):([\d]{2})(\.[\d]+)?((?:Z)|(?:[\+\-][\d]{2}:[\d]{2}))/);
+
+						if (aTime && aTime.length >= 7) {
+
+							aTime.shift();
+
+							var oDate = new Date(aTime[0], aTime[1] - 1, aTime[2], aTime[3], aTime[4], aTime[5]);
+
+							var iCounter = 6;
+							if (('undefined' != typeof aTime[iCounter]) && (-1 != aTime[iCounter].indexOf('.'))) {
+								oDate.setMilliseconds(aTime[iCounter].replace(/[^\d]/g, ''));
+							}
+							iCounter++;
+
+							if (('undefined' != typeof aTime[iCounter]) && ('-00:00' != aTime[iCounter]) && (-1 != aTime[iCounter].search(/(?:\+|-)/))) {
+
+								var aParts = aTime[iCounter].slice(1).split(':');
+								var iOffset = parseInt(aParts[1]) + (60 * aParts[0]);
+
+								if ('+' == aTime[iCounter][0]) {
+									oDate.setMinutes(oDate.getMinutes() - iOffset);
+								}
+								else {
+									oDate.setMinutes(oDate.getMinutes() + iOffset);
+								}
+
+								iCounter++;
+							}
+
+							oDate.setMinutes(oDate.getMinutes() + (-1 * oDate.getTimezoneOffset()));
+
+							break;
+						}
+					}
+				}
+
+				if (!oDate || isNaN(oDate)) {
+					oDate = new Date(0);
+				}
+
+				return oDate;
+
+			},
+
+			/**
+			 * Get folder's absolute path.
+			 * @param {string} sHref Folder's URL.
+			 * @returns {string} Folder's URL.
+			 */
+			GetAbsoluteUriPath: function(sHref) {
+				return sHref.replace(/\/?$/, '/');
+			},
+
+			/**
+			 * Get path without host.
+			 * @param {string} sHref Folder's URL.
+			 * @return {string} Folder's URL.
+			 */
+			GetRelativePath: function(sHref) {
+				return sHref.replace(/^[a-z]+\:\/\/[^\/]+\//, '\/');
+			},
+
+			GetLastName: function(sHref) {
+
+				// Get relative path.
+				var sName = ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(sHref).replace(/\/$/, '');
+
+				return sName.match(/[^\/]*$/)[0];
+			},
+
+			/**
+			 * Check whether hrefs are equals.
+			 * @param {string} sHref1 URL 1.
+			 * @param {string} sHref2 URL 2.
+			 * @returns {boolean} True if URLs are equals, false otherwise.
+			 */
+			HrefEquals: function(sHref1, sHref2) {
+
+				// TODO: Uncomment when encoding special characters on server will be fixed.
+				//	var iPos         = sHref1.indexOf('?');
+				//	if (-1 != iPos) {
+				//		sHref1 = sHref1.substr(0, iPos);
+				//	}
+				//	var iPos         = sHref1.indexOf('#');
+				//	if (-1 != iPos) {
+				//		sHref1 = sHref1.substr(0, iPos);
+				//	}
+
+				//	var iPos         = sHref2.indexOf('?');
+				var iPos         = sHref2.search(/\?[^\/]+$/);
+				if (-1 != iPos) {
+					sHref2 = sHref2.substr(0, iPos);
+				}
+				//	var iPos         = sHref2.indexOf('#');
+				var iPos         = sHref2.search(/\?[^\/]+$/);
+				if (-1 != iPos) {
+					sHref2 = sHref2.substr(0, iPos);
+				}
+
+				return ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(ITHit.WebDAV.Client.Encoder.Decode(sHref1)).replace(/\/$/, '') == ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(ITHit.WebDAV.Client.Encoder.Decode(sHref2)).replace(/\/$/, '');
+			},
+
+			/**
+			 * Get folder parent path.
+			 * @param {string} sHref Folder URL.
+			 * @returns {string} Folder parent URL.
+			 */
+			GetFolderParentUri: function(sHref) {
+
+				// Get parent folder URI.
+				var sHost = /^https?\:\/\//.test(sHref) ? sHref.match(/^https?\:\/\/[^\/]+/)[0] + '/' : '/';
+				var sPath = ITHit.WebDAV.Client.HierarchyItem.GetRelativePath(sHref);
+				sPath = sPath.replace(/\/?$/, '');
+
+				if (sPath === '') {
+					return null;
+				}
+
+				sPath = sPath.substr(0, sPath.lastIndexOf('/') + 1);
+				sPath = sPath.substr(1);
+
+				return sHost + sPath;
+			},
+
+			/**
+			 * Get host from URL.
+			 * @param {string} sHref Item's URL.
+			 * @returns {string} Server host.
+			 */
+			GetHost: function(sHref) {
+
+				var sHost;
+
+				if (/^https?\:\/\//.test(sHref)) {
+					sHost = sHref.match(/^https?\:\/\/[^\/]+/)[0] + '/';
+				}
+				else {
+					sHost = location.protocol +'//'+ location.host +'/';
+				}
+
+				return sHost;
+			},
+
+			GetPropertyValuesFromMultiResponse: function(oMultiResponses, sHref) {
+
+				for (var i = 0; i < oMultiResponses.Responses.length; i++) {
+					var oResponse = oMultiResponses.Responses[i];
+
+					if (!ITHit.WebDAV.Client.HierarchyItem.HrefEquals(oResponse.Href, sHref)) {
+						continue;
+					}
+
+					var oProperties = [];
+					for (var j = 0; j < oResponse.Propstats.length; j++) {
+						var oPropstat = oResponse.Propstats[j];
+						if (!oPropstat.Properties.length) {
+							continue;
+						}
+
+						// Success
+						if (oPropstat.Status.IsSuccess()) {
+
+							for (var k = 0; k < oPropstat.Properties.length; k++) {
+								var oProperty = oPropstat.Properties[k];
+
+								// Add only custom properties.
+								if (!oProperty.Name.IsStandardProperty()) {
+									oProperties.push(oProperty);
+								}
+							}
+							continue;
+						}
+
+						if (oPropstat.Status.Equals(ITHit.WebDAV.Client.HttpStatus.NotFound)) {
+							throw new ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException(ITHit.Phrases.Exceptions.PropertyNotFound, sHref, oPropstat.Properties[0].Name, new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(oMultiResponses), null);
+						}
+
+						if (oPropstat.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Forbidden)) {
+							throw new ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException(ITHit.Phrases.Exceptions.PropertyForbidden, sHref, oPropstat.Properties[0].Name, new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(oMultiResponses), null);
+						}
+
+						throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.PropertyFailed, sHref, oPropstat.Properties[0].Name, new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(oMultiResponses), oPropstat.Status, null);
+					}
+					return oProperties;
+				}
+
+				throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseItemNotFound.Paste(sHref));
+			},
+
+			GetPropertyNamesFromMultiResponse: function(oMultiResponses, sHref) {
+
+				var oPropertyNames = [];
+				var oProperties = this.GetPropertyValuesFromMultiResponse(oMultiResponses, sHref);
+				for (var i = 0, l = oProperties.length; i < l; i++) {
+					oPropertyNames.push(oProperties[i].Name);
+				}
+
+				return oPropertyNames;
+			},
+
+			GetSourceFromMultiResponse: function(oResponses, sHref) {
+
+				for (var i = 0; i < oResponses.length; i++) {
+					var oResponse = oResponses[i];
+
+					if (!ITHit.WebDAV.Client.HierarchyItem.HrefEquals(oResponse.Href, sHref)) {
+						continue;
+					}
+
+					var oSources = []
+					for (var j = 0; j < oResponse.Propstats; j++) {
+						var oPropstat = oResponse.Propstats[j];
+
+						if (!oPropstat.Status.IsOk()) {
+							if (oPropstat.Status.Equals(ITHit.WebDAV.Client.HttpStatus.NotFound)) {
+								return null;
+							}
+
+							throw new ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException(
+								ITHit.Phrases.PropfindFailedWithStatus.Paste(oPropstat.Status.Description),
+								sHref,
+								oPropstat.Properties[0].Name,
+								new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(oResponse)
+							);
+						}
+
+						for (var k = 0; k < oPropstat.Properties.length; k++) {
+							var oProperty = oPropstat.Properties[k];
+
+							if (oProperty.Name.Equals(ITHit.WebDAV.Client.DavConstants.Source)) {
+								var aLinks = oProperty.Value.GetElementsByTagNameNS(DavConstants.NamespaceUri, DavConstants.Link);
+								for (var l = 0; l < aLinks.length; l++) {
+									var oLink = aLinks[i];
+									var oSource = new ITHit.WebDAV.Client.Source(
+										oLink.GetElementsByTagName(ITHit.WebDAV.Client.DavConstants.NamespaceUri, ITHit.WebDAV.Client.DavConstants.Src)[0].firstChild().nodeValue(),
+										oLink.GetElementsByTagName(ITHit.WebDAV.Client.DavConstants.NamespaceUri, ITHit.WebDAV.Client.DavConstants.Dst)[0].firstChild().nodeValue()
+									);
+									oSources.push(oSource);
+								}
+
+								return oSources;
+							}
+						}
+					}
+				}
+
+				throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseItemNotFound.Paste(sHref));
+			}
+
+		},
+
+		/**
+		 * Current WebDAV session.
+		 * @api
+		 * @type {ITHit.WebDAV.Client.WebDavSession}
+		 */
+		Session: null,
+
+		/**
+		 * This item path on the server.
+		 * @api
+		 * @type {string}
+		 */
+		Href: null,
+
+		/**
+		 * Most recent modification date.
+		 * @api
+		 * @type {Date}
+		 */
+		LastModified: null,
+
+		/**
+		 * User friendly item name.
+		 * @api
+		 * @type {string}
+		 */
+		DisplayName: null,
+
+		/**
+		 * The date item was created.
+		 * @api
+		 * @type {Date}
+		 */
+		CreationDate: null,
+
+		/**
+		 * Type of the item (File or Folder).
+		 * @api
+		 * @type {string}
+		 * @see ITHit.WebDAV.Client.ResourceType
+		 */
+		ResourceType: null,
+
+		/**
+		 * Retrieves information about supported locks. Item can support exclusive, shared locks or do not support
+		 * any locks. If you set exclusive lock other users will not be able to set any locks. If you set shared
+		 * lock other users will be able to set shared lock on the item.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.Locks.CheckSupport.CheckLockSupport
+		 * @type {Array}
+		 * @see ITHit.WebDAV.Client.LockScope
+		 */
+		SupportedLocks: null,
+
+		/**
+		 * Retrieves locks for this item.
+		 * @examplecode ITHit.WebDAV.Client.Tests.Locks.GetLocks.GetList
+		 * @api
+		 * @type {Array}
+		 */
+		ActiveLocks: null,
+
+		/**
+		 * List of item properties.
+		 * @api
+		 * @type {ITHit.WebDAV.Client.Property[]}
+		 */
+		Properties: null,
+
+		/**
+		 * Returns true if file is under version control. Otherwise false. To detect if version control could
+		 * be enabled for this item call SupportedFeaturesAsync and check for VersionControl token.
+		 * To enable version control call PutUnderVersionControlAsync.
+		 * @api
+		 * @returns {boolean} Boolean, if true - versions supported
+		 */
+		VersionControlled: null,
+
+		/**
+		 * Server host.
+		 * @type {string}
+		 */
+		Host: null,
+
+		/**
+		 * Number of bytes available for this user on server. -1 if server does not support Quota.
+		 * @api
+		 * @type {number}
+		 */
+		AvailableBytes: null,
+
+		/**
+		 * Number of bytes used by this user on server. -1 if server does not support Quota.
+		 * @api
+		 * @type {number}
+		 */
+		UsedBytes: null,
+
+		/**
+		 * Checked-in files list
+		 * @type {Array|boolean}
+		 */
+		CheckedIn: null,
+
+		/**
+		 * Checked-in files list
+		 * @type {Array|boolean}
+		 */
+		CheckedOut: null,
+
+		/**
+		 * Server version (engine header)
+		 * @type {Array}
+		 */
+		ServerVersion: null,
+
+		/**
+		 * @type {string}
+		 */
+		_Url: null,
+
+		/**
+		 * @type {string}
+		 */
+		_AbsoluteUrl: null,
+
+		/**
+		 * Create new instance of HierarchyItem class which represents one WebDAV item (file, folder or lock-null).
+		 * @param {ITHit.WebDAV.Client.WebDavSession} oSession Current WebDAV session
+		 * @param {string} sHref This item path on the server.
+		 * @param {Date} oLastModified Most recent modification date.
+		 * @param {string} sDisplayName User friendly item name.
+		 * @param {Date} oCreationDate The date item was created.
+		 * @param {string} sResourceType Type of this item, see ResourceType.
+		 * @param {Array} aSupportedLocks
+		 * @param {Array} aActiveLocks
+		 * @param {string} sHost
+		 * @param {number} iAvailableBytes
+		 * @param {number} iUsedBytes
+		 * @param {Array|boolean} aCheckedIn
+		 * @param {Array|boolean} aCheckedOut
+		 * @param {object} aProperties
+		 */
+		constructor: function(oSession, sHref, oLastModified, sDisplayName, oCreationDate, sResourceType, aSupportedLocks, aActiveLocks, sHost, iAvailableBytes, iUsedBytes, aCheckedIn, aCheckedOut, aProperties) {
+			this.Session = oSession;
+			this.ServerVersion = oSession.ServerEngine;
+			this.Href = sHref;
+			this.LastModified = oLastModified;
+			this.DisplayName = sDisplayName;
+			this.CreationDate = oCreationDate;
+			this.ResourceType = sResourceType;
+			this.SupportedLocks = aSupportedLocks;
+			this.ActiveLocks = aActiveLocks;
+			this.Host = sHost;
+			this.AvailableBytes = iAvailableBytes;
+			this.UsedBytes = iUsedBytes;
+			this.CheckedIn = aCheckedIn;
+			this.CheckedOut = aCheckedOut;
+			this.Properties = aProperties || [];
+
+			this.VersionControlled = this.CheckedIn !== false || this.CheckedOut !== false;
+
+			// Add shortcuts, used in AjaxFileBrowser
+			this._AbsoluteUrl = ITHit.Decode(this.Href);
+			this._Url = this._AbsoluteUrl.replace(/^http[s]?:\/\/[^\/]+\/?/, '\/');
+		},
+
+		/**
+		 *
+		 * @returns {boolean}
+		 */
+		IsFolder: function() {
+			return false;
+		},
+
+		/**
+		 * @param {string|ITHit.WebDAV.Client.HierarchyItem} mItem is absolute/relative url or HierarchyItem instance
+		 * @returns {boolean}
+		 */
+		IsEqual: function(mItem) {
+			if (mItem instanceof ITHit.WebDAV.Client.HierarchyItem) {
+				return this.Href === mItem.Href;
+			}
+
+			if (ITHit.Utils.IsString(mItem)) {
+				if (mItem.indexOf('://') !== -1 || mItem.indexOf(':\\') !== -1) {
+					return this.GetAbsoluteUrl() === mItem;
+				}
+
+				return this.GetUrl() === mItem;
+			}
+
+			return false;
+		},
+
+		/**
+		 * @returns {string}
+		 */
+		GetUrl: function() {
+			return this._Url;
+		},
+
+		/**
+		 * @returns {string}
+		 */
+		GetAbsoluteUrl: function() {
+			return this._AbsoluteUrl;
+		},
+
+		/**
+		 * Check to property exists
+		 * @param {ITHit.WebDAV.Client.PropertyName} oPropName Property name.
+		 * @returns {boolean}
+		 */
+		HasProperty: function(oPropName) {
+			for (var i = 0, l = this.Properties.length; i < l; i++) {
+				if (oPropName.Equals(this.Properties[i].Name)) {
+					return true;
+				}
+			}
+			return false;
+		},
+
+		/**
+		 * Get additional property
+		 * @api
+		 * @param {ITHit.WebDAV.Client.PropertyName} oPropName Property name.
+		 * @returns {*}
+		 */
+		GetProperty: function(oPropName) {
+			for (var i = 0, l = this.Properties.length; i < l; i++) {
+				if (oPropName.Equals(this.Properties[i].Name)) {
+					return this.Properties[i].Value.firstChild().nodeValue();
+				}
+			}
+
+			throw new ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException('Not found property `' + oPropName.toString() + '` in resource `' + this.Href + '`.');
+		},
+
+		/**
+		 * Refreshes item loading data from server.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested folder doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		Refresh: function() {
+			var oRequest = this.Session.CreateRequest(this.__className + '.Refresh()');
+
+			var aProperties = [];
+			for (var i = 0, l = this.Properties.length; i < l; i++) {
+				aProperties.push(this.Properties[i].Name);
+			}
+
+			var oItem = self.OpenItem(oRequest, this.Href, aProperties);
+			for (var key in oItem) {
+				if (oItem.hasOwnProperty(key)) {
+					this[key] = oItem[key];
+				}
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when item data loaded from server and item is refreshed.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~RefreshAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Refreshes item loading data from server.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.Refresh.Refresh
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~RefreshAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		RefreshAsync: function(fCallback) {
+			var that = this;
+			var oRequest = this.Session.CreateRequest(this.__className + '.RefreshAsync()');
+
+			var aProperties = [];
+			for (var i = 0, l = this.Properties.length; i < l; i++) {
+				aProperties.push(this.Properties[i].Name);
+			}
+
+			self.OpenItemAsync(oRequest, this.Href, aProperties, function(oAsyncResult) {
+				if (oAsyncResult.IsSuccess) {
+					for (var key in oAsyncResult.Result) {
+						if (oAsyncResult.Result.hasOwnProperty(key)) {
+							that[key] = oAsyncResult.Result[key];
+						}
+					}
+					oAsyncResult.Result = null;
+				}
+
+				oRequest.MarkFinish();
+				fCallback(oAsyncResult);
+			});
+
+			return oRequest;
+		},
+
+		/**
+		 * Copies this item to destination folder.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {ITHit.WebDAV.Client.Folder} oDestinationFolder Folder to move to.
+		 * @param {string} sDestinationName Name to assign to copied item.
+		 * @param {boolean} bDeep Indicates whether children of this item should be copied.
+		 * @param {boolean} bOverwrite Whether existing destination item shall be overwritten.
+		 * @param {ITHit.WebDAV.Client.LockUriTokenPair[]} [oLockTokens] Lock tokens for destination folder.
+		 * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The source and destination URIs are the same.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException The destination folder or items to be overwritten were locked.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PreconditionFailedException The destination item exists and overwrite was false.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error for specific resource.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		CopyTo: function(oDestinationFolder, sDestinationName, bDeep, bOverwrite, oLockTokens) {
+			oLockTokens = oLockTokens || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.CopyTo()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.CopyMove.Go(
+				oRequest,
+				ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy,
+				this.Href,
+				ITHit.WebDAV.Client.HierarchyItem.AppendToUri(oDestinationFolder.Href, sDestinationName),
+				this.ResourceType === ITHit.WebDAV.Client.ResourceType.Folder,
+				bDeep,
+				bOverwrite,
+				oLockTokens,
+				this.Host
+			);
+
+			var oError = this._GetErrorFromCopyResponse(oResult.Response);
+			if (oError) {
+				oRequest.MarkFinish();
+				throw oError;
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when copy operation is complete on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~CopyToAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Copies this item to destination folder.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CopyMove.Copy
+		 * @param {ITHit.WebDAV.Client.Folder} oDestinationFolder Folder to move to.
+		 * @param {string} sDestinationName Name to assign to copied item.
+		 * @param {boolean} bDeep Indicates whether children of this item should be copied.
+		 * @param {boolean} bOverwrite Whether existing destination item shall be overwritten.
+		 * @param {ITHit.WebDAV.Client.LockUriTokenPair[]} [oLockTokens] Lock tokens for destination folder.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~CopyToAsyncCallback} fCallback Function to call when operation is completed.
+		 */
+		CopyToAsync: function(oDestinationFolder, sDestinationName, bDeep, bOverwrite, oLockTokens, fCallback) {
+			oLockTokens = oLockTokens || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.CopyToAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.CopyMove.GoAsync(
+				oRequest,
+				ITHit.WebDAV.Client.Methods.CopyMove.Mode.Copy,
+				this.Href,
+				ITHit.WebDAV.Client.HierarchyItem.AppendToUri(oDestinationFolder.Href, sDestinationName),
+				(this.ResourceType == ITHit.WebDAV.Client.ResourceType.Folder),
+				bDeep,
+				bOverwrite,
+				oLockTokens,
+				this.Host,
+				function (oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Error = that._GetErrorFromCopyResponse(oAsyncResult.Result.Response);
+						if (oAsyncResult.Error !== null) {
+							oAsyncResult.IsSuccess = false;
+							oAsyncResult.Result = null;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Deletes this item.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {ITHit.WebDAV.Client.LockUriTokenPair} [oLockTokens] Lock tokens for this item or any locked child item.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException This folder or any child item is locked and no or invalid lock token was specified.
+		 * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException User has not enough rights to perform this operation.
+		 * @throws ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException Trying to delete lock-null item. Lock-null items must be deleted using Unlock method.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		Delete: function(oLockTokens) {
+			oLockTokens = oLockTokens || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.Delete()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.Delete.Go(oRequest, this.Href, oLockTokens, this.Host);
+
+			var oError = this._GetErrorFromDeleteResponse(oResult.Response);
+			if (oError) {
+				oRequest.MarkFinish();
+				throw oError;
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when delete operation is complete on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~DeleteAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Deletes this item.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.Delete.Delete
+		 * @param {ITHit.WebDAV.Client.LockUriTokenPair} oLockTokens Lock tokens for this item or any locked child item.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~DeleteAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		DeleteAsync: function(oLockTokens, fCallback) {
+			oLockTokens = oLockTokens || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.DeleteAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Delete.GoAsync(oRequest, this.Href, oLockTokens, this.Host, function(oAsyncResult) {
+				if (oAsyncResult.IsSuccess) {
+					oAsyncResult.Error = that._GetErrorFromDeleteResponse(oAsyncResult.Result.Response);
+					if (oAsyncResult.Error !== null) {
+						oAsyncResult.IsSuccess = false;
+						oAsyncResult.Result = null;
+					}
+				}
+
+				oRequest.MarkFinish();
+				fCallback(oAsyncResult);
+			});
+
+			return oRequest;
+		},
+
+		/**
+		 * Returns names of all custom properties exposed by this item.
+		 * @api
+		 * @returns {ITHit.WebDAV.Client.PropertyName[]} List of PropertyName objects.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		GetPropertyNames: function() {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetPropertyNames()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.Propfind.Go(
+				oRequest,
+				this.Href,
+				ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.PropertyNames,
+				null,
+				ITHit.WebDAV.Client.Depth.Zero,
+				this.Host
+			);
+
+			var oPropertyName = self.GetPropertyNamesFromMultiResponse(oResult.Response, this.Href);
+
+			oRequest.MarkFinish();
+			return oPropertyName;
+		},
+
+		/**
+		 * Callback function to be called when property names loaded from server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~GetPropertyNamesAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} oResult.Result List of PropertyName objects.
+		 */
+
+		/**
+		 * Returns names of all custom properties exposed by this item.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyProperties.GetProperties.GetPropertyNames
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~GetPropertyNamesAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		GetPropertyNamesAsync: function(fCallback) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetPropertyNamesAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+				oRequest,
+				this.Href,
+				ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.PropertyNames,
+				null,
+				ITHit.WebDAV.Client.Depth.Zero,
+				this.Host,
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						try {
+							oAsyncResult.Result = self.GetPropertyNamesFromMultiResponse(oAsyncResult.Result.Response, that.Href);
+						} catch(oError) {
+							oAsyncResult.Error = oError;
+							oAsyncResult.IsSuccess = false;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Retrieves values of specific properties.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aNames] Array of requested properties with values.
+		 * @returns {ITHit.WebDAV.Client.Property[]} List of Property objects.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException User has not enough rights to obtain one of requested properties.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException If one of requested properties was not found.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyException Server returned unknown error for specific property.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		GetPropertyValues: function(aNames) {
+			aNames = aNames || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetPropertyValues()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.Propfind.Go(
+				oRequest,
+				this.Href,
+				ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+				aNames,
+				ITHit.WebDAV.Client.Depth.Zero,
+				this.Host
+			);
+
+			var oProperty = self.GetPropertyValuesFromMultiResponse(oResult.Response, this.Href);
+
+			oRequest.MarkFinish();
+			return oProperty;
+		},
+
+		/**
+		 * Callback function to be called when item properties values loaded from server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~GetPropertyValuesAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.Property[]} oResult.Result List of Property objects.
+		 */
+
+		/**
+		 * Retrieves values of specific properties.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyProperties.GetProperties.GetPropertyValues
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aNames
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~GetPropertyValuesAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		GetPropertyValuesAsync: function(aNames, fCallback) {
+			aNames = aNames || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetPropertyValuesAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+				oRequest,
+				this.Href,
+				ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+				aNames,
+				ITHit.WebDAV.Client.Depth.Zero,
+				this.Host,
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						try {
+							oAsyncResult.Result = self.GetPropertyValuesFromMultiResponse(oAsyncResult.Result.Response, that.Href);
+						} catch(oError) {
+							oAsyncResult.Error = oError;
+							oAsyncResult.IsSuccess = false;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Retrieves all custom properties exposed by the item.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @returns {ITHit.WebDAV.Client.Property[]} List of Property objects.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		GetAllProperties: function() {
+			return this.GetPropertyValues(null);
+		},
+
+		/**
+		 * Callback function to be called when all properties loaded from server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~GetAllPropertiesAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.Property[]} oResult.Result List of Property objects.
+		 */
+
+		/**
+		 * Retrieves all custom properties exposed by the item.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyProperties.GetProperties.GetAllProperties
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~GetAllPropertiesAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		GetAllPropertiesAsync: function(fCallback) {
+			return this.GetPropertyValuesAsync(null, fCallback);
+		},
+
+		/**
+		 * Retrieves parent hierarchy item of this item.
+		 * @api
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+		 * @returns {ITHit.WebDAV.Client.Folder} Parent hierarchy item of this item. Null for root item.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		GetParent: function(aProperties) {
+			aProperties = aProperties || [];
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetParent()');
+
+			var sParentHref = ITHit.WebDAV.Client.HierarchyItem.GetFolderParentUri(ITHit.WebDAV.Client.Encoder.Decode(this.Href));
+			if (sParentHref === null) {
+				oRequest.MarkFinish();
+				return null;
+			}
+
+			var oFolder = ITHit.WebDAV.Client.Folder.OpenItem(oRequest, sParentHref, aProperties);
+
+			oRequest.MarkFinish();
+			return oFolder;
+		},
+
+		/**
+		 * Callback function to be called when parent folder loaded from server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~GetParentAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.Folder} oResult.Result Parent hierarchy item of this item. Null for root item.
+		 */
+
+		/**
+		 * Retrieves parent hierarchy item of this item.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.GetParent.GetParent
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~GetParentAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		GetParentAsync: function(aProperties, fCallback) {
+			aProperties = aProperties || [];
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetParentAsync()');
+
+			var sParentHref = ITHit.WebDAV.Client.HierarchyItem.GetFolderParentUri(ITHit.WebDAV.Client.Encoder.Decode(this.Href));
+			if (sParentHref === null) {
+				fCallback(new ITHit.WebDAV.Client.AsyncResult(null, true, null));
+				return null;
+			}
+
+			ITHit.WebDAV.Client.Folder.OpenItemAsync(oRequest, sParentHref, aProperties, fCallback);
+
+			return oRequest;
+		},
+
+		/**
+		 * Retrieves media type independent links.
+		 * @api
+		 * @returns {ITHit.WebDAV.Client.Source[]|null} Media type independent links or null.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException If property is not supported.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		GetSource: function() {
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetSource()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.Propfind.Go(
+				oRequest,
+				this.Href,
+				ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+				[
+					ITHit.WebDAV.Client.DavConstants.Source
+				],
+				ITHit.WebDAV.Client.Depth.Zero,
+				this.Host
+			);
+
+			var aSource = self.GetSourceFromMultiResponse(oResult.Response.Responses, this.Href);
+
+			oRequest.MarkFinish();
+			return aSource;
+		},
+
+		/**
+		 * Callback function to be called when source loaded from server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~GetSourceAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.Source[]|null} oResult.Result Media type independent links or null.
+		 */
+
+		/**
+		 * Retrieves media type independent links.
+		 * @api
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~GetSourceAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		GetSourceAsync: function(fCallback) {
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetSourceAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+				oRequest,
+				this.Href,
+				ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+				[
+					ITHit.WebDAV.Client.DavConstants.Source
+				],
+				ITHit.WebDAV.Client.Depth.Zero,
+				this.Host,
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						try {
+							oAsyncResult.Result = self.GetSourceFromMultiResponse(oAsyncResult.Result.Response.Responses, that.Href);
+						} catch(oError) {
+							oAsyncResult.Error = oError;
+							oAsyncResult.IsSuccess = false;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Locks the item.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {string} sLockScope Scope of the lock.
+		 * @param {boolean} bDeep Whether to lock entire subtree.
+		 * @param {string} sOwner Owner of the lock.
+		 * @param {number} iTimeout Timeout after which lock expires.
+		 * @returns {ITHit.WebDAV.Client.LockInfo} Instance of LockInfo with information about created lock.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PreconditionFailedException The included lock token was not enforceable on this resource or the server could not satisfy the request in the lockinfo XML element.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException The resource is locked. The method has been rejected.
+		 * @throws ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException The item does not support locking.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		Lock: function(sLockScope, bDeep, sOwner, iTimeout) {
+			var oRequest = this.Session.CreateRequest(this.__className + '.Lock()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.Lock.Go(
+				oRequest,
+				this.Href,
+				iTimeout,
+				sLockScope,
+				this.Host,
+				bDeep,
+				sOwner
+			);
+
+			// Return response object.
+			oRequest.MarkFinish();
+			return oResult.LockInfo;
+		},
+
+		/**
+		 * Callback function to be called when item is locked on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~LockAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.LockInfo} oResult.Result Instance of LockInfo with information about created lock.
+		 */
+
+		/**
+		 * Locks the item. If the lock was successfully applied, the server will return a lock token. You will pass this
+		 * lock token back to the server when updating and unlocking the item. The actual lock time applied by the server
+		 * may be different from the one requested by the client.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.Locks.Lock.SetLock
+		 * @param {string} sLockScope Scope of the lock. See LockScope Enumeration {@link ITHit.WebDAV.Client.LockScope}
+		 * @param {boolean} bDeep Whether to lock entire subtree.
+		 * @param {string} sOwner Owner of the lock.
+		 * @param {number} iTimeout Timeout after which lock expires. Pass -1 to request an infinite timeout.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~LockAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		LockAsync: function(sLockScope, bDeep, sOwner, iTimeout, fCallback) {
+			var oRequest = this.Session.CreateRequest(this.__className + '.LockAsync()');
+
+			ITHit.WebDAV.Client.Methods.Lock.GoAsync(
+				oRequest,
+				this.Href,
+				iTimeout,
+				sLockScope,
+				this.Host,
+				bDeep,
+				sOwner,
+				function (oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Result = oAsyncResult.Result.LockInfo;
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Moves this item to another location.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {ITHit.WebDAV.Client.Folder} oDestinationFolder Folder to move to.
+		 * @param {string} sDestinationName Name to assign to moved item.
+		 * @param {boolean} bOverwrite Whether existing destination item shall be overwritten.
+		 * @param {(string|ITHit.WebDAV.Client.LockUriTokenPair[])} [oLockTokens] Lock tokens for item to be moved, for destination folder or file to be overwritten that are locked.
+		 * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The source and destination URIs are the same.
+		 * @throws ITHit.WebDAV.Client.Exceptions.ConflictException A resource cannot be created at the destination until one or more intermediate collections have been created.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PreconditionFailedException The destination resource exists and overwrite was false.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException The destination folder or items to be overwritten were locked or source items were locked.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error for specific resource.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		MoveTo: function(oDestinationFolder, sDestinationName, bOverwrite, oLockTokens) {
+			bOverwrite  = bOverwrite || false;
+			oLockTokens = oLockTokens || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.MoveTo()');
+
+			// Check destination type.
+			if (!(oDestinationFolder instanceof ITHit.WebDAV.Client.Folder)) {
+				oRequest.MarkFinish();
+				throw new ITHit.Exception(ITHit.Phrases.Exceptions.FolderWasExpectedAsDestinationForMoving);
+			}
+
+			// Move item.
+			var oResult = ITHit.WebDAV.Client.Methods.CopyMove.Go(
+				oRequest,
+				ITHit.WebDAV.Client.Methods.CopyMove.Mode.Move,
+				this.Href,
+				ITHit.WebDAV.Client.HierarchyItem.AppendToUri(oDestinationFolder.Href, sDestinationName),
+				this.ResourceType,
+				true,
+				bOverwrite,
+				oLockTokens,
+				this.Host
+			);
+
+			var oError = this._GetErrorFromMoveResponse(oResult.Response);
+			if (oError !== null) {
+				oRequest.MarkFinish();
+				throw oError;
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when item is moved on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~MoveToAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Moves this item to another location.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CopyMove.Move
+		 * @param {ITHit.WebDAV.Client.Folder} oDestinationFolder Folder to move to.
+		 * @param {string} sDestinationName Name to assign to moved item.
+		 * @param {boolean} bOverwrite Whether existing destination item shall be overwritten.
+		 * @param {(string|ITHit.WebDAV.Client.LockUriTokenPair[])} oLockTokens Lock tokens for item to be moved, for destination folder or file to be overwritten that are locked.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~MoveToAsyncCallback} fCallback Function to call when operation is completed.
+		 * @return {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		MoveToAsync: function(oDestinationFolder, sDestinationName, bOverwrite, oLockTokens, fCallback) {
+			bOverwrite  = bOverwrite || false;
+			oLockTokens = oLockTokens || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.MoveToAsync()');
+
+			// Check destination type.
+			if (!(oDestinationFolder instanceof ITHit.WebDAV.Client.Folder)) {
+				oRequest.MarkFinish();
+				throw new ITHit.Exception(ITHit.Phrases.Exceptions.FolderWasExpectedAsDestinationForMoving);
+			}
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.CopyMove.GoAsync(
+				oRequest,
+				ITHit.WebDAV.Client.Methods.CopyMove.Mode.Move,
+				this.Href,
+				ITHit.WebDAV.Client.HierarchyItem.AppendToUri(oDestinationFolder.Href, sDestinationName),
+				this.ResourceType,
+				true,
+				bOverwrite,
+				oLockTokens,
+				this.Host,
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Error = that._GetErrorFromMoveResponse(oAsyncResult.Result.Response);
+						if (oAsyncResult.Error !== null) {
+							oAsyncResult.IsSuccess = false;
+							oAsyncResult.Result = null;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Prolongs the lock.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {string} sLockToken Identifies lock to be prolonged.
+		 * @param {number} iTimeout New timeout to set.
+		 * @returns {ITHit.WebDAV.Client.LockInfo} Instance of LockInfo with information about refreshed lock.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PreconditionFailedException The included lock token was not enforceable on this resource or the server could not satisfy the request in the lockinfo XML element.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException The resource is locked, so the method has been rejected.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		RefreshLock: function(sLockToken, iTimeout) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.RefreshLock()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.LockRefresh.Go(
+				oRequest,
+				this.Href,
+				iTimeout,
+				sLockToken,
+				this.Host
+			);
+
+			// Return lock info object.
+			oRequest.MarkFinish();
+			return oResult.LockInfo;
+		},
+
+		/**
+		 * Callback function to be called when item lock is refreshed on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~RefreshLockAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.LockInfo} oResult.Result Instance of LockInfo with information about refreshed lock.
+		 */
+
+		/**
+		 * Prolongs the lock.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.Locks.RefreshLock.RefreshLock
+		 * @param {string} sLockToken Identifies lock to be prolonged.
+		 * @param {number} iTimeout New timeout to set.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~RefreshLockAsyncCallback} fCallback Function to call when operation is completed.
+		 * @return {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		RefreshLockAsync: function(sLockToken, iTimeout, fCallback) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.RefreshLockAsync()');
+
+			ITHit.WebDAV.Client.Methods.LockRefresh.GoAsync(
+				oRequest,
+				this.Href,
+				iTimeout,
+				sLockToken,
+				this.Host,
+				function (oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Result = oAsyncResult.Result.LockInfo;
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Gets features supported by this item, such as WebDAV class support.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @returns {ITHit.WebDAV.Client.OptionsInfo} OptionsInfo object containing information about features supported by server.
+		 */
+		SupportedFeatures: function() {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.SupportedFeatures()');
+			var oOptions = ITHit.WebDAV.Client.Methods.Options.Go(oRequest, this.Href, this.Host).ItemOptions;
+
+			oRequest.MarkFinish();
+			return oOptions;
+		},
+
+		/**
+		 * Callback function to be called when options info loaded from server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~SupportedFeaturesAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.OptionsInfo} oResult.Result OptionsInfo object containing information about features supported by server.
+		 */
+
+		/**
+		 * Gets features supported by this item, such as WebDAV class support.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.SupportedFeatures.SupportedFeatures
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~SupportedFeaturesAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		SupportedFeaturesAsync: function (fCallback) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.SupportedFeaturesAsync()');
+
+			ITHit.WebDAV.Client.Methods.Options.GoAsync(oRequest, this.Href, this.Host, function(oAsyncResult) {
+				if (oAsyncResult.IsSuccess) {
+					oAsyncResult.Result = oAsyncResult.Result.ItemOptions;
+				}
+
+				oRequest.MarkFinish();
+				fCallback(oAsyncResult);
+			});
+
+			return oRequest;
+		},
+
+		/**
+		 * Removes the lock.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {string} [sLockToken] Identifies lock to be prolonged.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PreconditionFailedException The item is not locked.
+		 * @throws ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException The item does not support locking.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		Unlock: function(sLockToken) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.Unlock()');
+
+			// Unlock item.
+			var oResult = ITHit.WebDAV.Client.Methods.Unlock.Go(
+				oRequest,
+				this.Href,
+				sLockToken,
+				this.Host
+			);
+
+			var oError = this._GetErrorFromUnlockResponse(oResult.Response);
+			if (oError) {
+				oRequest.MarkFinish();
+				throw oError;
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when item unlocked on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~UnlockAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Removes the lock.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.Locks.Lock.SetUnLock
+		 * @param {string} sLockToken Identifies lock to be prolonged.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~UnlockAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		UnlockAsync: function(sLockToken, fCallback) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.UnlockAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Unlock.GoAsync(
+				oRequest,
+				this.Href,
+				sLockToken,
+				this.Host,
+				function (oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Error = that._GetErrorFromUnlockResponse(oAsyncResult.Result.Response);
+						if (oAsyncResult.Error !== null) {
+							oAsyncResult.IsSuccess = false;
+							oAsyncResult.Result = null;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Updates values of properties exposed by this item.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {ITHit.WebDAV.Client.Property[]} oPropertiesToAddOrUpdate Properties to be updated.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} oPropertiesToDelete Names of properties to be removed from this item.
+		 * @param {string} [sLockToken] Lock token.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException The item is locked and no or invalid lock token was provided.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyForbiddenException Cannot alter one of the properties.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyConflictException The client has provided a value whose semantics are not appropriate for the property. This includes trying to set read-only properties.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.PropertyException Server returned unknown error for specific property.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		UpdateProperties: function(oPropertiesToAddOrUpdate, oPropertiesToDelete, sLockToken) {
+			sLockToken = sLockToken || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.UpdateProperties()');
+
+			// Properties
+			var aPropsToAddOrUpdate = this._GetPropertiesForUpdate(oPropertiesToAddOrUpdate);
+			var aPropsToDelete      = this._GetPropertiesForDelete(oPropertiesToDelete);
+
+			// Check whether there is something to change.
+			if (aPropsToAddOrUpdate.length + aPropsToDelete.length === 0) {
+				ITHit.Logger.WriteMessage(ITHit.Phrases.Exceptions.NoPropertiesToManipulateWith);
+				oRequest.MarkFinish();
+				return;
+			}
+
+			var oResult = ITHit.WebDAV.Client.Methods.Proppatch.Go(
+				oRequest,
+				this.Href,
+				aPropsToAddOrUpdate,
+				aPropsToDelete,
+				sLockToken,
+				this.Host
+			);
+
+			var oError = this._GetErrorFromUpdatePropertiesResponse(oResult.Response);
+			if (oError) {
+				oRequest.MarkFinish();
+				throw oError;
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when item properties is updated on server.
+		 * @callback ITHit.WebDAV.Client.HierarchyItem~UpdatePropertiesAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Updates values of properties exposed by this item.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyProperties.UpdateProperties.Update
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyProperties.UpdateProperties.Delete
+		 * @param {ITHit.WebDAV.Client.Property[]} oPropertiesToAddOrUpdate Properties to be updated.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} oPropertiesToDelete Names of properties to be removed from this item.
+		 * @param {string} [sLockToken] Lock token.
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~UpdatePropertiesAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.WebDavRequest|null} WebDAV request
+		 */
+		UpdatePropertiesAsync: function(oPropertiesToAddOrUpdate, oPropertiesToDelete, sLockToken, fCallback) {
+			sLockToken = sLockToken || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.UpdatePropertiesAsync()');
+
+			// Properties
+			var aPropsToAddOrUpdate = this._GetPropertiesForUpdate(oPropertiesToAddOrUpdate);
+			var aPropsToDelete      = this._GetPropertiesForDelete(oPropertiesToDelete);
+
+			// Check whether there is something to change.
+			if (aPropsToAddOrUpdate.length + aPropsToDelete.length === 0) {
+				oRequest.MarkFinish();
+				fCallback(new ITHit.WebDAV.Client.AsyncResult(true, true, null));
+				return null;
+			}
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Proppatch.GoAsync(
+				oRequest,
+				this.Href,
+				aPropsToAddOrUpdate,
+				aPropsToDelete,
+				sLockToken,
+				this.Host,
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Error = that._GetErrorFromUpdatePropertiesResponse(oAsyncResult.Result.Response);
+						if (oAsyncResult.Error !== null) {
+							oAsyncResult.IsSuccess = false;
+							oAsyncResult.Result = null;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		_GetPropertiesForUpdate: function(oPropertiesToAddOrUpdate) {
+			// Define variables for properties.
+			var aPropsToAddOrUpdate = [];
+
+			// Add or update properties.
+			if (oPropertiesToAddOrUpdate) {
+				for (var i = 0; i < oPropertiesToAddOrUpdate.length; i++) {
+					if ( (oPropertiesToAddOrUpdate[i] instanceof ITHit.WebDAV.Client.Property) && oPropertiesToAddOrUpdate[i]) {
+						if (oPropertiesToAddOrUpdate[i].Name.NamespaceUri != ITHit.WebDAV.Client.DavConstants.NamespaceUri) {
+							aPropsToAddOrUpdate.push(oPropertiesToAddOrUpdate[i]);
+						} else  {
+							throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.AddOrUpdatePropertyDavProhibition.Paste(oPropertiesToAddOrUpdate[i]), this.Href, oPropertiesToAddOrUpdate[i]);
+						}
+					} else {
+						throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.PropertyUpdateTypeException);
+					}
+				}
+			}
+
+			return aPropsToAddOrUpdate;
+		},
+
+		_GetPropertiesForDelete: function(oPropertiesToDelete) {
+			// Define variables for properties.
+			var aPropsToDelete      = [];
+
+			// Delete properties.
+			if (oPropertiesToDelete) {
+				for (var i = 0; i < oPropertiesToDelete.length; i++) {
+					if ( (oPropertiesToDelete[i] instanceof ITHit.WebDAV.Client.PropertyName) && oPropertiesToDelete[i]) {
+						if (oPropertiesToDelete[i].NamespaceUri != ITHit.WebDAV.Client.DavConstants.NamespaceUri) {
+							aPropsToDelete.push(oPropertiesToDelete[i]);
+						} else {
+							throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.DeletePropertyDavProhibition.Paste(oPropertiesToDelete[i]), this.Href, oPropertiesToDelete[i]);
+						}
+					} else {
+						throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.Exceptions.PropertyDeleteTypeException);
+					}
+				}
+			}
+
+			return aPropsToDelete;
+		},
+
+		_GetErrorFromDeleteResponse: function(oResponse) {
+			// Whether response is instance of MultiResponse class.
+			if (oResponse instanceof ITHit.WebDAV.Client.Methods.MultiResponse) {
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+					ITHit.Phrases.FailedToDelete,
+					this.Href,
+					new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(oResponse),
+					ITHit.WebDAV.Client.HttpStatus.MultiStatus,
+					null
+				);
+			}
+
+			// Whether response is instance of SingleResponse class.
+			if (oResponse instanceof ITHit.WebDAV.Client.Methods.SingleResponse && !oResponse.Status.IsSuccess()) {
+				var sMessage = ITHit.Phrases.DeleteFailedWithStatus.Paste(oResponse.Status.Code, oResponse.Status.Description);
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(sMessage, this.Href, null, oResponse.Status, null);
+			}
+
+			return null;
+		},
+
+		_GetErrorFromCopyResponse: function(oResponse) {
+			if (oResponse instanceof ITHit.WebDAV.Client.Methods.MultiResponse) {
+				for (var i = 0, l = oResponse.Responses.length; i < l; i++) {
+					if (oResponse.Responses[i].Status.IsCopyMoveOk()) {
+						continue;
+					}
+
+					return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+						ITHit.Phrases.FailedToCopy,
+						this.Href,
+						new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(oResponse),
+						ITHit.WebDAV.Client.HttpStatus.MultiStatus,
+						null
+					);
+				}
+			}
+
+			if (oResponse instanceof ITHit.WebDAV.Client.Methods.SingleResponse && !oResponse.Status.IsCopyMoveOk()) {
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+					ITHit.Phrases.FailedToCopyWithStatus.Paste(oResponse.Status.Code, oResponse.Status.Description),
+					this.Href,
+					null,
+					oResponse.Status,
+					null
+				);
+			}
+
+			return null;
+		},
+
+		_GetErrorFromMoveResponse: function(oResponse) {
+			if (oResponse instanceof ITHit.WebDAV.Client.Methods.MultiResponse) {
+				for (var i = 0, l = oResponse.Responses.length; i < l; i++) {
+					if (oResponse.Responses[i].Status.IsCopyMoveOk()) {
+						continue;
+					}
+
+					return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+						ITHit.Phrases.FailedToMove,
+						this.Href,
+						new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(oResponse),
+						ITHit.WebDAV.Client.HttpStatus.MultiStatus,
+						null
+					);
+				}
+			}
+
+			if (oResponse instanceof ITHit.WebDAV.Client.Methods.SingleResponse && !oResponse.Status.IsCopyMoveOk()) {
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+					ITHit.Phrases.MoveFailedWithStatus.Paste(oResponse.Status.Code, oResponse.Status.Description),
+					this.Href,
+					null,
+					oResponse.Status,
+					null
+				);
+			}
+
+			return null;
+		},
+
+		_GetErrorFromUnlockResponse: function(oResponse) {
+
+			// Check status.
+			if (!oResponse.Status.IsUnlockOk()) {
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+					ITHit.Phrases.UnlockFailedWithStatus.Paste(oResponse.Status.Code, oResponse.Status.Description),
+					this.Href,
+					null,
+					oResponse.Status,
+					null
+				);
+			}
+
+			return null;
+		},
+
+		_GetErrorFromUpdatePropertiesResponse: function(oResponse) {
+			var oMultistatus = new ITHit.WebDAV.Client.Exceptions.Info.PropertyMultistatus(oResponse);
+
+			for (var i = 0; i < oMultistatus.Responses.length; i++) {
+				var oPropResp = oMultistatus.Responses[i];
+				if (oPropResp.Status.IsSuccess()) {
+					continue;
+				}
+
+				return new ITHit.WebDAV.Client.Exceptions.PropertyException(
+					ITHit.Phrases.FailedToUpdateProp,
+					this.Href,
+					oPropResp.PropertyName,
+					oMultistatus,
+					ITHit.WebDAV.Client.HttpStatus.MultiStatus,
+					null
+				);
+			}
+
+			return null;
+		}
+
+	});
+
+})();
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Put
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Put', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Put.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Put */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param sContentType
+		 * @param sContent
+		 * @param sLockToken
+		 * @param sHost
+		 * @returns {*}
+		 */
+		Go: function (oRequest, sHref, sContentType, sContent, sLockToken, sHost) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param sContentType
+		 * @param sContent
+		 * @param sLockToken
+		 * @param sHost
+		 * @param fCallback
+		 * @returns {*}
+		 */
+		GoAsync: function (oRequest, sHref, sContentType, sContent, sLockToken, sHost, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		_CreateRequest: function (oRequest, sHref, sContentType, sContent, sLockToken, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, sLockToken);
+
+			// Set method.
+			oWebDavRequest.Method('PUT');
+
+			// Add headers.
+			if (sContentType) {
+				// MSXML does not allow empty Content-Type header. Tested with MSXML 3.0 SP5
+				oWebDavRequest.Headers.Add('Content-Type', sContentType);
+			}
+
+			// Assign content body.
+			oWebDavRequest.Body(sContent);
+
+			// Return request.
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Get
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Get', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Get.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Get */{
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param iBytesFrom
+		 * @param iBytesTo
+		 * @param sHost
+		 * @returns {*}
+		 */
+		Go: function (oRequest, sHref, iBytesFrom, iBytesTo, sHost) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 *
+		 * @param oRequest
+		 * @param sHref
+		 * @param iBytesFrom
+		 * @param iBytesTo
+		 * @param sHost
+		 * @returns {*}
+		 * @constructor
+		 */
+		GoAsync: function (oRequest, sHref, iBytesFrom, iBytesTo, sHost) {
+			return this._super.apply(this, arguments);
+		},
+
+		_CreateRequest: function (oRequest, sHref, iBytesFrom, iBytesTo, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+
+			// Set method.
+			oWebDavRequest.Method('GET');
+
+			// Add headers.
+			oWebDavRequest.Headers.Add('Translate', 'f');
+
+			// Check whether byte-range is specified.
+			if (iBytesFrom !== null) {
+
+				var sByteRange = iBytesFrom;
+
+				if (iBytesFrom >= 0) {
+					if (iBytesTo !== null) {
+						sByteRange += '-' + parseInt(iBytesTo);
+					} else {
+						sByteRange += '-';
+					}
+				} else {
+					sByteRange = String(sByteRange);
+				}
+
+				// Set byte-range header.
+				oWebDavRequest.Headers.Add('Range', 'bytes=' + sByteRange);
+			}
+
+			// Return request.
+			return oWebDavRequest;
+		}
+
+	},
+
+	GetContent: function () {
+		return this.Response._Response.BodyText;
+	}
+});
+
+
+;
+(function() {
+
+	/**
+	 * This class provides methods for opening documents for editing directly from server and saving back to server
+	 * without download and upload steps. This includes editing Microsoft Office documents as well as any other file
+	 * types and works on Windows, Mac OS X and Linux.
+	 * @api
+	 * @class ITHit.WebDAV.Client.DocManager
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.DocManager', null, {
+		__static: /** @lends ITHit.WebDAV.Client.DocManager */{
+
+			/**
+			 * Opens document for editting using Java Applet or mounts folder in file system and opens it in default file manager.
+			 * @param sUrl folder from which Java applet will be loaded
+			 * @param sMountUrl path to file or folder
+			 * @param sJavaAppletUrl the local WebDAV folder will be mounted on this url. Same as Settings.Url
+			 * @param bOpenFolder indicates if open file or folder
+			 * @param oContainer HTML DOM element in which 'object' or 'embeded' tag will be created
+			 */
+			JavaOpen: function (sUrl, sMountUrl, sJavaAppletUrl, bOpenFolder, oContainer) {
+
+				if (sMountUrl == null) {
+					if (!bOpenFolder) {
+						var s = sUrl.lastIndexOf("/");
+						sMountUrl = (s != -1) ? sUrl.substr(0, s + 1) : "/";
+					}
+					else {
+						sMountUrl = sUrl;
+					}
+				}
+
+				if (sJavaAppletUrl == null)
+					sJavaAppletUrl = '/plugins/ITHitMountOpenDocument.jar';
+
+				if (oContainer == null)
+					oContainer = window.document.body;
+
+				var pramNameUrl = bOpenFolder ? 'folder' : 'file';
+
+                if(document.mountAppletOpenDocs !== undefined && document.mountAppletOpenDocs.open){
+                    try {
+                        if (bOpenFolder) {
+                            document.mountAppletOpenDocs.open(sMountUrl, null, sUrl);
+                        } else {
+                            document.mountAppletOpenDocs.open(sMountUrl, sUrl, null);
+                        }
+                        return;
+                    }
+                    catch (ex) {
+                        // continue with applet embedding
+                    }
+                }
+
+                if (document.mountAppletOpenDocs != null)
+					document.mountAppletOpenDocs.parentElement.outerHTML = "";
+
+				// create applet container
+				var appletContainer = {
+					nodeName: 'div',
+					style: {
+						width: '0px',
+						height: '0px',
+						position: 'absolute',
+						overflow: 'hidden',
+						top: '-1000px',
+						left: '-1000px'
+					}
+				};
+
+				var oAppletContainer = ITHit.Utils.CreateDOMElement(appletContainer);
+				oContainer.appendChild(oAppletContainer);
+
+				// http://download.oracle.com/javase/1,5.0/docs/guide/plugin/developer_guide/using_tags.html
+
+				// crete Java applet
+				// CreateDOMElement failes to create the object tag for some reason
+				// 'applet' tag does not allow java installation if not present
+				var applet;
+				if (ITHit.DetectBrowser.IE) {
+					applet = '<object id="mountAppletOpenDocs" name="mountAppletOpenDocs"'
+					+ ' classid="clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"'
+					+ ' codebase="http://java.sun.com/update/1.6.0/jinstall-6u26-windows-i586.cab#Version=1,6,0,0"'
+					+ ' width="0" height="0"'
+					+ '>'
+					+ '  <param name="archive" value="' + sJavaAppletUrl + '">'
+					+ '  <param name="code" value="MODApplet.class">'
+					+ '  <param name="' + pramNameUrl + '" value="' + sUrl + '">'
+					+ '  <param name="mountUrl" value="' + sMountUrl + '">'
+					+ '</object>';
+				}
+				else {
+					applet = '<embed id="mountAppletOpenDocs" name="mountAppletOpenDocs"'
+					+ ' type="application/x-java-applet;version=1.6"'
+					+ ' pluginspage = "http://www.java.com/en/download/"'
+					+ ' width="0" height="0"'
+					+ ' archive="' + sJavaAppletUrl + '"'
+					+ ' code="MODApplet.class"'
+					+ ' ' + pramNameUrl + '="' + sUrl + '"'
+					+ ' mountUrl="' + sMountUrl + '"'
+					+ '>';
+				}
+
+				oAppletContainer.innerHTML = applet;
+			},
+
+			/**
+			 * Opens document for editting using Java Applet.
+			 * @api
+			 * @param {string} sDocumentUrl Url of the document to edit.
+			 * @param {string} [sMountUrl] Url to mount file system to before opening. Usually this is your WebDAV server root folder. If this perameter is not specified file system will be mounted to the folder in which document is located.
+			 * @param {string} [sJavaAppletUrl] Url to Java Applet to use for opening.
+			 */
+			JavaEditDocument: function (sDocumentUrl, sMountUrl, sJavaAppletUrl, oContainer) {
+				this.JavaOpen(sDocumentUrl, sMountUrl, sJavaAppletUrl, false, oContainer);
+			},
+
+			/**
+			 * Mounts folder in file system using Java applet and opens it in default OS file manger.
+			 * @api
+			 * @param {string} sFolderUrl Url of the folder to open in OS file manager.
+			 * @param {string} [sMountUrl] Url to mount file system to before opening. Usually this is your WebDAV server root folder. If this perameter is not specified file system will be mounted to the folder in which document is located.
+			 * @param {string} [sJavaAppletUrl] Url to Java Applet to use for opening.
+			 */
+			JavaOpenFolderInOsFileManager: function (sFolderUrl, sMountUrl, sJavaAppletUrl, oContainer) {
+				this.JavaOpen(sFolderUrl, sMountUrl, sJavaAppletUrl, true, oContainer);
+			},
+
+
+			/**
+			 * Mounts folder in file system and opens it in default OS file manger. It uses Java applet or IE behaviour depending on the web browser.
+			 * @api
+			 * @param {string} sFolderUrl Url of the folder to open in OS file manager.
+			 * @param {string} [sMountUrl] Url to mount file system to before opening if Java Applet is used. Usually this is your WebDAV server root folder. If this perameter is not specified file system will be mounted to the folder in which document is located.
+			 * @param {string} [sJavaAppletUrl] Url to Java Applet to use for opening.
+			 */
+			OpenFolderInOsFileManager: function (sFolderUrl, sMountUrl, sJavaAppletUrl, oContainer) {
+
+				if (oContainer == null)
+					oContainer = window.document.body;
+
+				// Open using HttpBehavior component.
+				if (ITHit.DetectBrowser.IE && (ITHit.DetectBrowser.IE < 11)) {
+
+					if (oContainer._httpFolder == null) {
+						var span = {
+							nodeName: 'span',
+							style: {display: 'none', behavior: 'url(#default#httpFolder)'}
+						};
+						oContainer._httpFolder = ITHit.Utils.CreateDOMElement(span);
+						oContainer.appendChild(oContainer._httpFolder);
+					}
+
+					var res = oContainer._httpFolder.navigate(sFolderUrl);
+					//return res == "OK";
+
+
+				} else {
+					// Edit with java applet.
+					this.JavaOpenFolderInOsFileManager(sFolderUrl, sMountUrl, sJavaAppletUrl, oContainer);
+				}
+			},
+
+			/**
+			 * Detects if Microsoft Office is installed on a client machine.
+			 * @example
+			 * var sDocumentUrl = "http://localhost:87654/folder/file.docx"; // this must be full path
+			 * if (ITHit.WebDAV.Client.DocManager.IsMicrosoftOfficeAvailable() && ITHit.WebDAV.Client.DocManager.IsMicrosoftOfficeDocument(sDocumentUrl)) {
+			 *     ITHit.WebDAV.Client.DocManager.MicrosoftOfficeEditDocument(sDocumentUrl);
+			 * } else {
+			 *     ITHit.WebDAV.Client.DocManager.JavaEditDocument(sDocumentUrl, null, "/plugins/ITHitMountOpenDocument.jar");
+			 * }
+			 * @api
+			 * @return {boolean} True if Microsoft Office is installed on a client computer, otherwise - false.
+			 */
+			IsMicrosoftOfficeAvailable: function () {
+				if (ITHit.DetectBrowser.IE) {
+					try {
+						new ActiveXObject("SharePoint.OpenDocuments");
+						return true;
+					} catch (e) {
+					}
+				} else {
+					// detect FFWinPlugin Plug-in
+					var plugins = navigator.plugins;
+					var pluginName = ITHit.DetectBrowser.Mac ? 'SharePoint Browser Plug-in' : 'Microsoft Office'; // MS Office plugin has different name on Mac and Windows
+					for (var i = 0; i < plugins.length; i++) {
+						if (plugins[i].name.indexOf(pluginName) == 0) {
+							return true;
+						}
+					}
+				}
+				if (ITHit.DetectBrowser.Chrome){
+				    // Google Chrome does not support Microsoft Office and Java (NPAPI plugins) since v42 on Windows and OS X released Apri 14, 2015 and on Linux since v35.
+				    // We still can open MS Office documents, but can not detect MS Office presence, version and can not run Java
+				    return true;
+				}
+				return false;
+			},
+
+			GetExtension: function (sDocumentUrl) {
+			    var queryIndex = sDocumentUrl.indexOf("?");
+			    if (queryIndex > -1) {
+			        sDocumentUrl = sDocumentUrl.substr(0, queryIndex);
+			    }
+
+			    var aExt = sDocumentUrl.split(".");
+			    if (aExt.length === 1) {
+			        return "";
+			    }
+			    return aExt.pop();
+			},
+
+			/**
+			 * Extracts extension and returns true if URL points to Microsoft Office Document.
+			 * @api
+			 * @param {string} sDocumentUrl URL of the document.
+			 * @return {boolean} True if URL points to Microsoft Office Document.
+			 */
+			IsMicrosoftOfficeDocument: function (sDocumentUrl) {
+			    var ext = self.GetExtension(ITHit.Trim(sDocumentUrl));
+				if (ext === "") {
+					return false;
+				}
+
+				return self.FileFormats.MsOfficeEditExtensions.join('|').indexOf(ext) !== -1;
+			},
+
+			/**
+			 *
+			 * @returns {number} MS Office version as a number
+			 */
+			GetMsOfficeVersion: function () {
+				if (ITHit.DetectBrowser.IE) {
+					try {
+						new ActiveXObject("SharePoint.OpenDocuments.5");
+						return 2013;
+					} catch (e) {
+					}
+				} else {
+					var officeVer = -1;
+					var plugins = navigator.plugins;
+					for (var i = 0; i < plugins.length; i++) {
+						if (plugins[i].name.indexOf('Microsoft Office') == 0) {
+							var strVer = plugins[i].name.substr('Microsoft Office '.length, 4);
+							var newVer = parseInt(strVer);
+							if (newVer > officeVer)
+								officeVer = newVer;
+						}
+					}
+					if (ITHit.DetectBrowser.Chrome) {
+					    // Google Chrome does not support Microsoft Office and Java (NPAPI plugins) since v42 on Windows and OS X released Apri 14, 2015 and on Linux since v35.
+					    // We still can open MS Office documents, but can not detect MS Office presence, version and can not run Java
+					    return 2013;
+					}
+
+					return officeVer;
+				}
+				return null;
+			},
+
+			/**
+			 *
+			 * @param [container]
+			 * @returns {*} SharePoint.OpenDocuments in IE or FFWinPlugin in FF/Chrome/Safari
+			 */
+			GetSharePointOpenDocumentsCtrl: function (container) {
+				container = container || window.document.body;
+
+				if (container._sharePointOpenDocuments == null) {
+					if (ITHit.DetectBrowser.IE) {
+						try {
+							container._sharePointOpenDocuments = new ActiveXObject("SharePoint.OpenDocuments");
+						}
+						catch (e) {
+						}
+					} else {
+						var objectPlugin = {
+							nodeName: 'object',
+							type: 'application/x-sharepoint',
+							style: {visibility: 'hidden'},
+							width: '0',
+							height: '0'
+						};
+						container._sharePointOpenDocuments = ITHit.Utils.CreateDOMElement(objectPlugin);
+						container.appendChild(container._sharePointOpenDocuments);
+					}
+				}
+				return container._sharePointOpenDocuments;
+			},
+
+			/**
+			 *
+			 * @param sExt
+			 * @returns {string}
+			 */
+			GetMsOfficeSchemaByExtension: function (sExt) {
+				sExt = sExt.toLowerCase();
+				switch (sExt) {
+					case "docx":
+					case "doc":
+					case "docm":
+					case "dot":
+					case "dotm":
+					case "dotx":
+					case "odt":
+						return "ms-word";
+
+					case "xltx":
+					case "xltm":
+					case "xlt":
+					case "xlsx":
+					case "xlsm":
+					case "xlsb":
+					case "xls":
+					case "xll":
+					case "xlam":
+					case "xla":
+					case "ods":
+						return "ms-excel";
+
+					case "pptx":
+					case "pptm":
+					case "ppt":
+					case "ppsx":
+					case "ppsm":
+					case "pps":
+					case "ppam":
+					case "ppa":
+					case "potx":
+					case "potm":
+					case "pot":
+					case "odp":
+						return "ms-powerpoint";
+
+					case "accdb":
+					case "mdb":
+						return "ms-access";
+
+					case "xsn":
+					case "xsf":
+						return "ms-infopath";
+
+					case "pub":
+						return "ms-publisher";
+
+					case "vstx":
+					case "vstm":
+					case "vst":
+					case "vssx":
+					case "vssm":
+					case "vss":
+					case "vsl":
+					case "vsdx":
+					case "vsdm":
+					case "vsd":
+					case "vdw":
+						return "ms-visio";
+
+					case "mpp":
+					case "mpt" :
+						return "ms-project";
+
+					default:
+						return '';
+				}
+			},
+
+			/**
+			 * Displays Microsoft Office warning 'Microsoft Office needs your permission to run' in case Microsoft Office 2010
+			 * or earlier is installed. User must confirm request to run Microsoft Office documents,
+			 * otherwise first attempt to open the Microsoft Office document will not be completed.
+			 * @api
+			 */
+			ShowMicrosoftOfficeWarning: function () {
+				if (self.GetMsOfficeVersion() < 2013) {
+					self.GetSharePointOpenDocumentsCtrl();
+				}
+			},
+
+			/**
+			 * Opens Microsoft Office document for editting using web browser plugin or ActiveX. Microsoft Office must be
+			 * installed on a client machine.
+			 * @api
+			 * @param {string} sDocumentUrl Url of the document to edit. This must be a Microsoft Office document.
+			 * @return {boolean} True if document opened successfully, otherwise - false.
+			 */
+			MicrosoftOfficeEditDocument: function (sDocumentUrl) {
+			    try {
+			        sDocumentUrl = ITHit.Trim(sDocumentUrl);
+					// MS Office 2013 frovides protocols instead of ActiveX/plug-ins
+					// however Google Chrome blocks protocols, it supports plug-in only
+					if (self.GetMsOfficeVersion() >= 2013) {
+					    var ext = self.GetExtension(sDocumentUrl);
+					    if (ext === "") {
+					        return false;
+					    }
+						// Example for MS Office 2013 and later: ms-word:ofe|u|http://server/folder/file.docx
+						window.location.href = self.GetMsOfficeSchemaByExtension(ext) + ':ofe|u|' + sDocumentUrl;
+					}
+					else {
+						var sho = self.GetSharePointOpenDocumentsCtrl();
+						if (sho) {
+							if (!sho.EditDocument(sDocumentUrl)) {
+								return false;
+							}
+						}
+					}
+				} catch (e) {
+					return false;
+				}
+				return true;
+			},
+
+			FileFormats: {
+
+				ProtectedExtentions: [/*'ace', 'ade', 'adp', 'adt', 'app', 'asp', 'arj', 'asd', 'bas', 'bat', 'bin', 'btm', 'cbt', 'ceo', 'chm', 'cmd', 'cla', 'com', 'cpl', 'crt', 'csc', 'css', 'dll', 'drv', 'exe', 'email', 'fon', 'hlp', 'hta', 'htm', 'inf', 'ins', 'isp', 'je', 'js', 'lib', 'lnk', 'mdb', 'mde', 'mht', 'msc', 'msi', 'mso', 'msp', 'mst', 'obj', 'ocx', 'ov', 'pcd', 'pgm', 'pif', 'prc', 'rar', 'reg', 'scr', 'sct', 'shb', 'shs', 'smm', 'swf', 'sys', 'tar', 'url', 'vb', 'vxd', 'wsc', 'wsf', 'wsh', '{'*/],
+
+				MsOfficeEditExtensions: [
+					"docx", "doc", "docm", "dot", "dotm", "dotx", "odt",
+					"xltx", "xltm", "xlt", "xlsx", "xlsm", "xlsb", "xls", "xll", "xlam", "xla", "ods",
+					"pptx", "pptm", "ppt", "ppsx", "ppsm", "pps", "ppam", "ppa", "potx", "potm", "pot", "odp",
+					"accdb", "mdb",
+					"xsn", "xsf",
+					"pub",
+					"vstx", "vstm", "vst", "vssx", "vssm", "vssm", "vss", "vsl", "vsdx", "vsdm", "vsd", "vdw",
+					"mpp", "mpt"
+				]
+			},
+
+			/**
+			 * This is a static method that opens document for editing. In case of Microsoft Office documents, on Windows
+			 * and Mac OS X, this method will use web browser plugins if Microsoft Office is installed on a client machine.
+			 * If web browser plugin is not found it will use Java Applet provided with the
+			 * library (ITHitMountOpenDocument.jar). You must provide a second parameter with applet url in this case.
+			 * @example
+			 * &lt;!DOCTYPE html&gt;
+			 * &lt;html&gt;
+			 * &lt;head&gt;
+			 *     &lt;meta charset="utf-8" /&gt;
+			 *     &lt;script type="text/javascript" src="ITHitWebDAVClient.js" &gt;&lt;/script&gt;
+			 * &lt;/head&gt;
+			 * &lt;!--
+			 *     ShowMicrosoftOfficeWarning will display MS Office warning if required when page is loaded.
+			 *     Otherwise MS Office documents do not open first time in case of MS Office 2010 and earlier.
+			 * --&gt;
+			 * &lt;body onload="ITHit.WebDAV.Client.DocManager.ShowMicrosoftOfficeWarning();"&gt;
+			 * &lt;script type="text/javascript"&gt;
+			 *     function edit() {
+			 *         ITHit.WebDAV.Client.DocManager.EditDocument("http://localhost:87654/folder/file.docx", "/ITHitMountOpenDocument.jar");
+			 *     }
+			 * &lt;/script&gt;
+			 * &lt;input type="button" value="Edit Document" onclick="edit()" /&gt;
+			 * &lt;/body&gt;
+			 * &lt;/html&gt;
+			 * @api
+			 * @param {string} sDocumentUrl Url of the document to open for editing fom server.
+			 * @param {string} [sJavaAppletUrl] Url to Java Applet to use for opening the documents in case web browser plugin is not found.
+			 * @returns {boolean} True if document opened successfully, otherwise - false.
+			 */
+			EditDocument: function (sDocumentUrl, sJavaAppletUrl) {
+				// Edit MS Office document with Microsoft Office
+				if (self.IsMicrosoftOfficeAvailable() && self.IsMicrosoftOfficeDocument(sDocumentUrl)) {
+					return self.MicrosoftOfficeEditDocument(sDocumentUrl);
+				}
+
+				// If non-MS office document or MS Office is not installed edit with java applet
+				self.JavaEditDocument(sDocumentUrl, null, sJavaAppletUrl);
+				return true;
+			}
+
+		}
+	});
+
+})();
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.CancelUpload
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.CancelUpload', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.CancelUpload.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.CancelUpload */{
+
+		Go: function (oRequest, sHref, sLockToken, sHost) {
+			return this.GoAsync(oRequest, sHref, sLockToken, sHost);
+		},
+
+		GoAsync: function (oRequest, sHref, sLockToken, sHost, fCallback) {
+
+			// Create request.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.CancelUpload.createRequest(oRequest, sHref, sLockToken, sHost);
+
+			var self = this;
+			var fOnResponse = typeof fCallback === 'function'
+				? function (oResult) {
+				self._GoCallback(sHref, oResult, fCallback)
+			}
+				: null;
+
+			// Get response.
+			var oResponse = oWebDavRequest.GetResponse(fOnResponse);
+
+			if (typeof fCallback !== 'function') {
+				var oResult = new ITHit.WebDAV.Client.AsyncResult(oResponse, oResponse != null, null);
+				return this._GoCallback(sHref, oResult, fCallback);
+			} else {
+				return oWebDavRequest;
+			}
+		},
+
+		_GoCallback: function (sHref, oResult, fCallback) {
+
+			var oResponse = oResult;
+			var bSuccess = true;
+			var oError = null;
+
+			if (oResult instanceof ITHit.WebDAV.Client.AsyncResult) {
+				oResponse = oResult.Result;
+				bSuccess = oResult.IsSuccess;
+				oError = oResult.Error;
+			}
+
+			// Parse response response.
+			var oUnlock = null;
+			if (bSuccess) {
+				oUnlock = new ITHit.WebDAV.Client.Methods.CancelUpload(new ITHit.WebDAV.Client.Methods.SingleResponse(oResponse));
+			}
+
+			// Return response.
+			if (typeof fCallback === 'function') {
+				var oUnlockResult = new ITHit.WebDAV.Client.AsyncResult(oUnlock, bSuccess, oError);
+				fCallback.call(this, oUnlockResult);
+			} else {
+				// Return response object.
+				return oUnlock;
+			}
+		},
+
+		createRequest: function (oRequest, sHref, sLockToken, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, sLockToken);
+			oWebDavRequest.Method('CANCELUPLOAD');
+
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+
+
+/**
+ * Provides support partial uploads and resuming broken uploads.
+ * @api
+ * @class ITHit.WebDAV.Client.ResumableUpload
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.ResumableUpload', null, /** @lends ITHit.WebDAV.Client.ResumableUpload.prototype */{
+
+	/**
+	 * Current WebDAV session.
+	 * @type {ITHit.WebDAV.Client.WebDavSession}
+	 */
+	Session: null,
+
+	/**
+	 * This item path on the server.
+	 * @type {string}
+	 */
+	Href: null,
+
+	/**
+	 * Server host.
+	 * @type {string}
+	 */
+	Host: null,
+
+	/**
+	 * @param {ITHit.WebDAV.Client.WebDavSession} oSession Current WebDAV session
+	 * @param {string} sHref Item's path.
+	 * @param {string} sHost
+	 */
+	constructor: function(oSession, sHref, sHost) {
+		this.Session = oSession;
+		this.Href = sHref;
+		this.Host = sHost;
+	},
+
+	/**
+	 * Amount of bytes successfully uploaded to server.
+	 * @api
+	 * @deprecated Use asynchronous method instead
+	 * @returns {number} Number of bytes uploaded to server or -1 if server did not provide info about how much bytes uploaded.
+	 * @throws ITHit.WebDAV.Client.Exceptions.NotImplementedException Is thrown if server doesn't support resumable upload.
+	 * @throws ITHit.WebDAV.Client.Exceptions.LockedException This folder is locked and no or invalid lock token was specified.
+	 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+	 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+	 */
+	GetBytesUploaded: function() {
+		var oRequest = this.Session.CreateRequest(this.__className + '.GetBytesUploaded()');
+		var aUploadInfo = ITHit.WebDAV.Client.Methods.Report.Go(oRequest, this.Href, this.Host);
+		var iBytes = aUploadInfo.length > 0 ? aUploadInfo[0].BytesUploaded : null;
+
+		oRequest.MarkFinish();
+		return iBytes;
+	},
+
+	/**
+	 * Callback function to be called when result of bytes uploaded loaded from server.
+	 * @callback ITHit.WebDAV.Client.ResumableUpload~GetBytesUploadedAsyncCallback
+	 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+	 * @param {number} oResult.Result Number of bytes uploaded to server or -1 if server did not provide info about how much bytes uploaded.
+	 */
+
+	/**
+	 * Get amount of bytes successfully uploaded to server.
+	 * @api
+	 * @param {ITHit.WebDAV.Client.ResumableUpload~GetBytesUploadedAsyncCallback} fCallback Function to call when operation is completed.
+	 * @returns {ITHit.WebDAV.Client.Request} Request object.
+	 */
+	GetBytesUploadedAsync: function (fCallback) {
+		var oRequest = this.Session.CreateRequest(this.__className + '.GetBytesUploadedAsync()');
+		ITHit.WebDAV.Client.Methods.Report.GoAsync(oRequest, this.Href, this.Host, null, null, function(oAsyncResult) {
+			oAsyncResult.Result = oAsyncResult.IsSuccess && oAsyncResult.Result.length > 0 ?
+				oAsyncResult.Result[0].BytesUploaded :
+				null;
+
+			oRequest.MarkFinish();
+			fCallback(oAsyncResult);
+		});
+
+		return oRequest;
+	},
+
+	/**
+	 * Cancels upload of the file.
+	 * @api
+	 * @deprecated Use asynchronous method instead
+	 * @param {string} mLockTokens Lock token for this file.
+	 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This folder doesn't exist on the server.
+	 * @throws ITHit.WebDAV.Client.Exceptions.LockedException This folder is locked and no or invalid lock token was specified.
+	 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+	 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+	 */
+	CancelUpload: function(mLockTokens) {
+		var oRequest = this.Session.CreateRequest(this.__className + '.CancelUpload()');
+		ITHit.WebDAV.Client.Methods.CancelUpload.Go(oRequest, this.Href, mLockTokens, this.Host);
+		oRequest.MarkFinish();
+	},
+
+	/**
+	 * Callback function to be called when folder loaded from server.
+	 * @callback ITHit.WebDAV.Client.ResumableUpload~CancelUploadAsyncCallback
+	 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+	 */
+
+	/**
+	 * Cancels upload of the file.
+	 * @api
+	 * @param {string} mLockTokens Lock token for this file.
+	 * @param {ITHit.WebDAV.Client.ResumableUpload~CancelUploadAsyncCallback} fCallback Function to call when operation is completed.
+	 * @returns {ITHit.WebDAV.Client.Request} Request object.
+	 */
+	CancelUploadAsync: function (mLockTokens, fCallback) {
+		var oRequest = this.Session.CreateRequest(this.__className + '.CancelUploadAsync()');
+		return ITHit.WebDAV.Client.Methods.CancelUpload.GoAsync(oRequest, this.Href, this.Host, mLockTokens, function(oAsyncResult) {
+
+			oRequest.MarkFinish();
+			fCallback(oAsyncResult);
+		});
+	}
+
+});
+
+
+;
+(function() {
+
+	/**
+	 * Represents a file on a WebDAV server.
+	 * @api
+	 * @class ITHit.WebDAV.Client.File
+	 * @extends ITHit.WebDAV.Client.HierarchyItem
+	 */
+	var self = ITHit.WebDAV.Client.Resource = ITHit.DefineClass('ITHit.WebDAV.Client.File', ITHit.WebDAV.Client.HierarchyItem, /** @lends ITHit.WebDAV.Client.File.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.File */{
+
+			GetRequestProperties: function() {
+				return [
+					ITHit.WebDAV.Client.DavConstants.ResourceType,
+					ITHit.WebDAV.Client.DavConstants.DisplayName,
+					ITHit.WebDAV.Client.DavConstants.CreationDate,
+					ITHit.WebDAV.Client.DavConstants.GetLastModified,
+					ITHit.WebDAV.Client.DavConstants.GetContentType,
+					ITHit.WebDAV.Client.DavConstants.GetContentLength,
+					ITHit.WebDAV.Client.DavConstants.SupportedLock,
+					ITHit.WebDAV.Client.DavConstants.LockDiscovery,
+					ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes,
+					ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes,
+					ITHit.WebDAV.Client.DavConstants.CheckedIn,
+					ITHit.WebDAV.Client.DavConstants.CheckedOut
+				];
+			},
+
+			ParseHref: function(sHref, isFolder) {
+				// Normalize href
+				var aHrefParts  = sHref.split('?');
+				aHrefParts[0]   = aHrefParts[0].replace(/\/?$/, '');
+				sHref           = ITHit.WebDAV.Client.Encoder.EncodeURI(aHrefParts.join('?'));
+
+				return this._super(sHref);
+			},
+
+			/**
+			 * Load resource from server
+			 * @deprecated Use asynchronous method instead
+			 * @param {ITHit.WebDAV.Client.Request} oRequest Current WebDAV session.
+			 * @param {string} sHref This item path on the server.
+			 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+			 * @returns {ITHit.WebDAV.Client.File} Opened folder object.
+			 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException A Resource was expected or the response doesn't have required item.
+			 */
+			OpenItem: function(oRequest, sHref, aProperties) {
+				aProperties = aProperties || [];
+
+				var oFolder = this._super(oRequest, sHref, aProperties);
+
+				// Throw exception if there is not a folder type.
+				if (!(oFolder instanceof self)) {
+					throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFileWrongType.Paste(sHref));
+				}
+
+				return oFolder;
+			},
+
+			/**
+			 * Callback function to be called when resource loaded from server.
+			 * @callback ITHit.WebDAV.Client.File~OpenAsyncCallback
+			 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+			 * @param {ITHit.WebDAV.Client.File} oResult.Result Loaded resource object.
+			 */
+
+			/**
+			 * Load resource from server
+			 * @param {ITHit.WebDAV.Client.Request} oRequest Current WebDAV session.
+			 * @param {string} sHref This item path on the server.
+			 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+			 * @param {ITHit.WebDAV.Client.File~OpenAsyncCallback} fCallback Function to call when operation is completed.
+			 * @returns {ITHit.WebDAV.Client.Request} Request object.
+			 */
+			OpenItemAsync: function(oRequest, sHref, aProperties, fCallback) {
+				aProperties = aProperties || [];
+
+				this._super(oRequest, sHref, aProperties, function(oAsyncResult) {
+					// Throw exception if there is not a folder type.
+					if (oAsyncResult.IsSuccess && !(oAsyncResult.Result instanceof self)) {
+						oAsyncResult.Error = new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFileWrongType.Paste(sHref));
+						oAsyncResult.IsSuccess = false;
+					}
+
+					fCallback(oAsyncResult);
+				});
+
+				return oRequest;
+			}
+
+		},
+
+		/**
+		 * Length of the file.
+		 * @type {number}
+		 */
+		ContentLength: null,
+
+		/**
+		 * Content type of the file.
+		 * @type {string}
+		 */
+		ContentType: null,
+
+		/**
+		 * ResumableUpload instance to manage partially failed uploads.
+		 * @api
+		 * @type {ITHit.WebDAV.Client.ResumableUpload}
+		 */
+		ResumableUpload: null,
+
+		/**
+		 * Create new instance of File class which represents a file on a WebDAV server.
+		 * @param {ITHit.WebDAV.Client.WebDavSession} oSession Current WebDAV session.
+		 * @param {string} sHref This item path on the server.
+		 * @param {object} oGetLastModified Most recent modification date.
+		 * @param {string} sDisplayName User friendly item name.
+		 * @param {object} oCreationDate The date item was created.
+		 * @param {string} sContentType Content type.
+		 * @param {number} iContentLength Content length.
+		 * @param aSupportedLocks
+		 * @param aActiveLocks
+		 * @param sHost
+		 * @param iAvailableBytes
+		 * @param iUsedBytes
+		 * @param aCheckedIn
+		 * @param aCheckedOut
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties
+		 */
+		constructor: function(oSession, sHref, oGetLastModified, sDisplayName, oCreationDate, sContentType, iContentLength, aSupportedLocks, aActiveLocks, sHost, iAvailableBytes, iUsedBytes, aCheckedIn, aCheckedOut, aProperties) {
+
+			// Inheritance definition.
+			this._super(oSession, sHref, oGetLastModified, sDisplayName, oCreationDate, ITHit.WebDAV.Client.ResourceType.File, aSupportedLocks, aActiveLocks, sHost, iAvailableBytes, iUsedBytes, aCheckedIn, aCheckedOut, aProperties);
+
+			// Declare class properties.
+			this.ContentLength = iContentLength;
+			this.ContentType   = sContentType;
+
+			this.ResumableUpload = new ITHit.WebDAV.Client.ResumableUpload(this.Session, this.Href);
+		},
+
+		/**
+		 * Reads file content.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {number} [iBytesFrom] Start position to retrieve lBytesCount number of bytes from.
+		 * @param {number} [iBytesCount] Number of bytes to retrieve.
+		 * @returns {string} Requested file content.
+		 */
+		ReadContent: function(iBytesFrom, iBytesCount) {
+			iBytesFrom = iBytesFrom || null;
+			iBytesCount = iBytesCount || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.ReadContent()');
+
+			var iBytesTo = iBytesFrom && iBytesCount ? iBytesFrom + iBytesCount - 1 : 0;
+
+			// Create response.
+			var oResult = ITHit.WebDAV.Client.Methods.Get.Go(
+				oRequest,
+				this.Href,
+				iBytesFrom,
+				iBytesTo,
+				this.Host
+			);
+
+			// Return requested content.
+			oRequest.MarkFinish();
+			return oResult.GetContent();
+		},
+
+		/**
+		 * Callback function to be called when file content loaded from server.
+		 * @callback ITHit.WebDAV.Client.File~ReadContentAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {string} oResult.Result Requested file content.
+		 */
+
+		/**
+		 * Reads file content. To download only a part of a file you can specify 2 parameters in ReadContent call.
+		 * First parameter is the starting byte (zero-based) at witch to start content download, the second – amount
+		 * of bytes to be downloaded. The library will add Range header to the request in this case.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CreateFile.ReadContent
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CreateFile.ReadContentRange
+		 * @param {number} iBytesFrom Start position to retrieve lBytesCount number of bytes from.
+		 * @param {number} iBytesCount Number of bytes to retrieve.
+		 * @param {ITHit.WebDAV.Client.File~ReadContentAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		ReadContentAsync: function(iBytesFrom, iBytesCount, fCallback) {
+			iBytesFrom = iBytesFrom || null;
+			iBytesCount = iBytesCount || null;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.ReadContentAsync()');
+
+			var iBytesTo = iBytesFrom && iBytesCount ? iBytesFrom + iBytesCount - 1 : null;
+
+			// Create response.
+			ITHit.WebDAV.Client.Methods.Get.GoAsync(
+				oRequest,
+				this.Href,
+				iBytesFrom,
+				iBytesTo,
+				this.Host,
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Result = oAsyncResult.Result.GetContent();
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Writes file content.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {string} sContent File content.
+		 * @param {string} [sLockToken] Lock token.
+		 * @param {string} [sMimeType] File mime-type.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Content is not writtened to file.
+		 */
+		WriteContent: function(sContent, sLockToken, sMimeType) {
+			sLockToken = sLockToken || null;
+			sMimeType = sMimeType || '';
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.WriteContent()');
+
+			// Create response.
+			var oResult = ITHit.WebDAV.Client.Methods.Put.Go(
+				oRequest,
+				this.Href,
+				sMimeType,
+				sContent,
+				sLockToken,
+				this.Host
+			);
+
+			var oError = this._GetErrorFromWriteContentResponse(oResult.Response, this.Href);
+			if (oError) {
+				oRequest.MarkFinish();
+				throw oError;
+			}
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when content saved in file on server.
+		 * @callback ITHit.WebDAV.Client.File~WriteContentAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Writes file content.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CreateFile.OnlyWriteContent
+		 * @param {string} sContent File content.
+		 * @param {string} sLockToken Lock token.
+		 * @param {string} sMimeType File mime-type.
+		 * @param {ITHit.WebDAV.Client.File~WriteContentAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		WriteContentAsync: function(sContent, sLockToken, sMimeType, fCallback) {
+			sLockToken = sLockToken || null;
+			sMimeType = sMimeType || '';
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.WriteContentAsync()');
+
+			// Create response.
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Put.GoAsync(
+				oRequest,
+				this.Href,
+				sMimeType,
+				sContent,
+				sLockToken,
+				this.Host,
+				function (oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Error = that._GetErrorFromWriteContentResponse(oAsyncResult.Result.Response, that.Href);
+						if (oAsyncResult.Error !== null) {
+							oAsyncResult.IsSuccess = false;
+							oAsyncResult.Result = null;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Opens document for editting.
+		 * @api
+		 * @param {string} [sJavaAppletUrl] Url to Java Applet to use for opening the documents in case web browser plugin is not found.
+		 */
+		EditDocument: function (sJavaAppletUrl) {
+			ITHit.WebDAV.Client.DocManager.EditDocument(this.Href, sJavaAppletUrl);
+		},
+
+		/**
+		 * Retrieves item versions.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @returns {ITHit.WebDAV.Client.Version[]} List of Versions.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This item doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+		 */
+		GetVersions: function() {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetVersions()');
+
+			var oResult = ITHit.WebDAV.Client.Methods.Report.Go(
+				oRequest,
+				this.Href,
+				this.Host,
+				ITHit.WebDAV.Client.Methods.Report.ReportType.VersionsTree,
+				ITHit.WebDAV.Client.Version.GetRequestProperties()
+			);
+
+			var aVersions = ITHit.WebDAV.Client.Version.GetVersionsFromMultiResponse(oResult.Response.Responses, this);
+
+			oRequest.MarkFinish();
+			return aVersions;
+		},
+
+		/**
+		 * Callback function to be called when versions list loaded from server.
+		 * @callback ITHit.WebDAV.Client.File~GetVersionsAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 * @param {ITHit.WebDAV.Client.Version[]} oResult.Result List of Versions.
+		 */
+
+		/**
+		 * Retrieves item versions.
+		 * @examplecode ITHit.WebDAV.Client.Tests.Versions.GetVersions.GetVersions
+		 * @api
+		 * @param {ITHit.WebDAV.Client.File~GetVersionsAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		GetVersionsAsync: function(fCallback) {
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.GetVersionsAsync()');
+
+			var that = this;
+			ITHit.WebDAV.Client.Methods.Report.GoAsync(
+				oRequest,
+				this.Href,
+				this.Host,
+				ITHit.WebDAV.Client.Methods.Report.ReportType.VersionsTree,
+				ITHit.WebDAV.Client.Version.GetRequestProperties(),
+				function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Result = ITHit.WebDAV.Client.Version.GetVersionsFromMultiResponse(oAsyncResult.Result.Response.Responses, that);
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				}
+			);
+
+			return oRequest;
+		},
+
+		/**
+		 * Update to version.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {string|ITHit.WebDAV.Client.Version} mVersion Href to file with version attribute or {@link ITHit.WebDAV.Client.Version} instance.
+		 * @returns {boolean}
+		 */
+		UpdateToVersion: function(mVersion) {
+			var sToHrefUpdate = mVersion instanceof ITHit.WebDAV.Client.Version ?
+				mVersion.Href :
+				mVersion;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.UpdateToVersion()');
+
+			// Make request.
+			var oResult = ITHit.WebDAV.Client.Methods.UpdateToVersion.Go(oRequest, this.Href, this.Host, sToHrefUpdate);
+
+			// Get response.
+			var oResponse = oResult.Response;
+
+			// Check status
+			var bIsSuccess = oResponse.Responses[0].Status.IsSuccess();
+
+			oRequest.MarkFinish();
+			return bIsSuccess;
+		},
+
+		/**
+		 * Callback function to be called when version is updated on server.
+		 * @callback ITHit.WebDAV.Client.File~UpdateToVersionAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Update to version.
+		 * @examplecode ITHit.WebDAV.Client.Tests.Versions.ManageVersions.UpdateToVersion
+		 * @api
+		 * @param {string|ITHit.WebDAV.Client.Version} mVersion Href to file with version attribute or {@link ITHit.WebDAV.Client.Version} instance.
+		 * @param {ITHit.WebDAV.Client.File~UpdateToVersionAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		UpdateToVersionAsync: function(mVersion, fCallback) {
+			var sToHrefUpdate = mVersion instanceof ITHit.WebDAV.Client.Version ?
+				mVersion.Href :
+				mVersion;
+
+			var oRequest = this.Session.CreateRequest(this.__className + '.UpdateToVersionAsync()');
+
+			// Make request.
+			ITHit.WebDAV.Client.Methods.UpdateToVersion.GoAsync(oRequest, this.Href, this.Host, sToHrefUpdate, function(oAsyncResult) {
+				oAsyncResult.Result = oAsyncResult.IsSuccess && oAsyncResult.Result.Response.Responses[0].Status.IsSuccess();
+
+				oRequest.MarkFinish();
+				fCallback(oAsyncResult);
+			});
+
+			return oRequest;
+		},
+
+		/**
+		 * Callback function to be called when versioning is enabled or disabled.
+		 * @callback ITHit.WebDAV.Client.File~PutUnderVersionControlAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Enables / disables version control for this file.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @param {boolean} bEnable True to enable version-control, false - to disable.
+		 * @param {string} [mLockToken] Lock token for this item.
+		 * @throws ITHit.WebDAV.Client.Exceptions.LockedException This item is locked and invalid lock token was provided.
+		 * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Request is not authorized.
+		 * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This file doesn't exist on the server.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+		 * @throws ITHit.WebDAV.Client.Exceptions.WebDavException In case of any unexpected error.
+		 */
+		PutUnderVersionControl: function(bEnable, mLockToken) {
+			mLockToken = mLockToken || null;
+
+			var oRequest = null;
+			var oResult = null;
+
+			if (bEnable) {
+				oRequest = this.Session.CreateRequest(this.__className + '.PutUnderVersionControl()');
+
+				oResult = ITHit.WebDAV.Client.Methods.VersionControl.Go(oRequest, this.Href, mLockToken, this.Host);
+
+				var oError = this._GetErrorFromPutUnderVersionControlResponse(oResult.Response);
+				if (oError) {
+					oRequest.MarkFinish();
+					throw oError;
+				}
+
+				oRequest.MarkFinish();
+			} else {
+				oRequest = this.Session.CreateRequest(this.__className + '.PutUnderVersionControl()', 2);
+
+				oResult = ITHit.WebDAV.Client.Methods.Propfind.Go(
+					oRequest,
+					this.Href,
+					ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+					[ITHit.WebDAV.Client.DavConstants.VersionHistory],
+					ITHit.WebDAV.Client.Depth.Zero,
+					this.Host
+				);
+
+				var oProperty = self.GetPropertyValuesFromMultiResponse(oResult.Response, this.Href);
+
+				var aUrls = ITHit.WebDAV.Client.Version.ParseSetOfHrefs(oProperty);
+				if (aUrls.length !== 1) {
+					throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.ExceptionWhileParsingProperties, this.Href,
+						ITHit.WebDAV.Client.DavConstants.VersionHistory, null, ITHit.WebDAV.Client.HttpStatus.None, null);
+				}
+
+				oResult = ITHit.WebDAV.Client.Methods.Delete.Go(oRequest, aUrls[0], mLockToken, this.Host);
+
+				var oError = this._GetErrorFromDeleteResponse(oResult.Response);
+				if (oError) {
+					oRequest.MarkFinish();
+					throw oError;
+				}
+
+				oRequest.MarkFinish();
+			}
+		},
+
+		/**
+		 * Enables / disables version control for this file.
+		 * @api
+		 * @examplecode ITHit.WebDAV.Client.Tests.Versions.PutUnderVersion.EnableVersion
+		 * @param {boolean} bEnable True to enable version-control, false - to disable.
+		 * @param {string} mLockToken Lock token for this item.
+		 * @param {ITHit.WebDAV.Client.File~PutUnderVersionControlAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		PutUnderVersionControlAsync: function(bEnable, mLockToken, fCallback) {
+			mLockToken = mLockToken || null;
+
+			var that = this;
+			var oRequest = null;
+
+			if (bEnable) {
+				oRequest = this.Session.CreateRequest(this.__className + '.PutUnderVersionControlAsync()');
+
+				ITHit.WebDAV.Client.Methods.VersionControl.GoAsync(oRequest, this.Href, mLockToken, this.Host, function(oAsyncResult) {
+					if (oAsyncResult.IsSuccess) {
+						oAsyncResult.Error = that._GetErrorFromPutUnderVersionControlResponse(oAsyncResult.Result.Response);
+						if (oAsyncResult.Error !== null) {
+							oAsyncResult.IsSuccess = false;
+							oAsyncResult.Result = null;
+						}
+					}
+
+					oRequest.MarkFinish();
+					fCallback(oAsyncResult);
+				});
+
+				return oRequest;
+			} else {
+				oRequest = this.Session.CreateRequest(this.__className + '.PutUnderVersionControlAsync()', 2);
+
+				ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+					oRequest,
+					this.Href,
+					ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+					[ITHit.WebDAV.Client.DavConstants.VersionHistory],
+					ITHit.WebDAV.Client.Depth.Zero,
+					this.Host,
+					function(oAsyncResult) {
+						if (oAsyncResult.IsSuccess) {
+							try {
+								oAsyncResult.Result = self.GetPropertyValuesFromMultiResponse(oAsyncResult.Result.Response, that.Href);
+							} catch(oError) {
+								oAsyncResult.Error = oError;
+								oAsyncResult.IsSuccess = false;
+							}
+						}
+
+						if (oAsyncResult.IsSuccess) {
+							var aUrls = ITHit.WebDAV.Client.Version.ParseSetOfHrefs(oAsyncResult.Result);
+							if (aUrls.length !== 1) {
+								throw new ITHit.WebDAV.Client.Exceptions.PropertyException(ITHit.Phrases.ExceptionWhileParsingProperties, that.Href,
+									ITHit.WebDAV.Client.DavConstants.VersionHistory, null, ITHit.WebDAV.Client.HttpStatus.None, null);
+							}
+
+							ITHit.WebDAV.Client.Methods.Delete.GoAsync(oRequest, aUrls[0], mLockToken, that.Host, function(oAsyncResult) {
+								if (oAsyncResult.IsSuccess) {
+									oAsyncResult.Error = that._GetErrorFromDeleteResponse(oAsyncResult.Result.Response);
+									if (oAsyncResult.Error !== null) {
+										oAsyncResult.IsSuccess = false;
+										oAsyncResult.Result = null;
+									}
+								}
+
+								oRequest.MarkFinish();
+								fCallback(oAsyncResult);
+							});
+
+						} else if (oAsyncResult.Error instanceof ITHit.WebDAV.Client.Exceptions.PropertyNotFoundException) {
+							oAsyncResult.IsSuccess = true;
+							oAsyncResult.Error = null;
+							oAsyncResult.Result = null;
+
+							oRequest.MarkFinish();
+							fCallback(oAsyncResult);
+						} else {
+
+							oRequest.MarkFinish();
+							fCallback(oAsyncResult);
+						}
+					}
+				);
+			}
+		},
+
+		_GetErrorFromPutUnderVersionControlResponse: function(oResponse) {
+			if (!oResponse.Status.IsSuccess()) {
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.PutUnderVersionControlFailed, this.Href, null, oResponse.Status, null);
+			}
+
+			return null;
+		},
+
+		_GetErrorFromWriteContentResponse: function(oResponse, sHref) {
+
+			// Whether content is not saved.
+			if ( !oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.OK) && !oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.NoContent) ) {
+				return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedToWriteContentToFile, sHref, null, oResponse.Status, null);
+			}
+
+			return null;
+		}
+
+	});
+
+})();
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Mkcol
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Mkcol', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Mkcol.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Mkcol */{
+
+		Go: function (oRequest, sHref, sLockToken, sHost) {
+			// Create request.
+			var oWebDavRequest = this.createRequest(oRequest, sHref, sLockToken, sHost);
+
+			var oResponse = oWebDavRequest.GetResponse();
+			var oSingleResponse = new ITHit.WebDAV.Client.Methods.SingleResponse(oResponse);
+			return new ITHit.WebDAV.Client.Methods.Mkcol(oSingleResponse);
+		},
+
+		GoAsync: function (oRequest, sHref, sLockToken, sHost, fCallback) {
+			// Create request.
+			var oWebDavRequest = this.createRequest(oRequest, sHref, sLockToken, sHost);
+
+			oWebDavRequest.GetResponse(function (oAsyncResult) {
+				if (!oAsyncResult.IsSuccess) {
+					fCallback(new ITHit.WebDAV.Client.AsyncResult(null, false, oAsyncResult.Error));
+					return;
+				}
+
+				var oSingleResponse = new ITHit.WebDAV.Client.Methods.SingleResponse(oAsyncResult.Result);
+				var oMkcol = new ITHit.WebDAV.Client.Methods.Mkcol(oSingleResponse);
+				fCallback(new ITHit.WebDAV.Client.AsyncResult(oMkcol, true, null));
+			});
+
+			return oWebDavRequest;
+		},
+
+		createRequest: function (oRequest, sHref, sLockToken, sHost) {
+
+			// Creare request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref, sLockToken);
+			oWebDavRequest.Method('MKCOL');
+
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+;
+(function () {
+
+	/**
+	 * @class ITHit.WebDAV.Client.Methods.Head
+	 * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Head', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Head.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.Methods.Head */{
+
+			Go: function (oRequest, sHref, sHost) {
+				try {
+					return this._super.apply(this, arguments);
+				} catch (oException) {
+
+					// Check whether exception is an instance of NotFoundException class.
+					if (oException instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException) {
+						var oResult = new self(null, sHref);
+						oResult.IsOK = false;
+						return oResult;
+					}
+
+					// Rethrow exception for all other cases.
+					throw oException;
+				}
+			},
+
+			GoAsync: function (oRequest, sHref, sHost, fCallback) {
+				return this._super(oRequest, sHref, sHost, function (oAsyncResult) {
+					if (oAsyncResult.Error instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException) {
+						oAsyncResult.Result = new self(null, sHref);
+						oAsyncResult.Result.IsOK = false;
+						oAsyncResult.IsSuccess = true;
+						oAsyncResult.Error = null;
+					}
+
+					fCallback(oAsyncResult);
+				});
+			},
+
+			_ProcessResponse: function (oResponse, sHref) {
+				var oResult = this._super(oResponse, sHref);
+				oResult.IsOK = oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.OK);
+				return oResult;
+			},
+
+			_CreateRequest: function (oRequest, sHref, sHost) {
+				// Create request.
+				var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+				oWebDavRequest.Method('HEAD');
+
+				return oWebDavRequest;
+			}
+
+		},
+
+		/**
+		 * @type {boolean}
+		 */
+		IsOK: null
+	});
+
+})();
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.SearchQuery', null, /** @lends ITHit.WebDAV.Client.SearchQuery.prototype */{
+
+	/**
+	 * Searching phrase
+	 * @api
+	 * @type {string}
+	 */
+	Phrase: null,
+
+	/**
+	 * Selected properties. Set empty array for select default list properties
+	 * @api
+	 * @type {ITHit.WebDAV.Client.PropertyName[]}
+	 */
+	SelectProperties: null,
+
+	/**
+	 * Set true for search by like condition in properties. @see `LikeProperties` param
+	 * @api
+	 * @type {boolean}
+	 */
+	EnableLike: null,
+
+	/**
+	 * Properties for like conditions
+	 * @api
+	 * @type {ITHit.WebDAV.Client.PropertyName[]}
+	 */
+	LikeProperties: null,
+
+	/**
+	 * Set true for search by file contents
+	 * @api
+	 * @type {boolean}
+	 */
+	EnableContains: null,
+
+	/**
+	 * Query class for search request
+	 * Create new instance of SearchQuery class.
+	 * @constructs
+	 * @api
+	 * @param {string} sSearchPhrase Searching phrase
+	 */
+	constructor: function(sSearchPhrase) {
+		this.Phrase = sSearchPhrase;
+		this.SelectProperties = [];
+		this.EnableLike = true;
+		this.LikeProperties = [
+			ITHit.WebDAV.Client.DavConstants.DisplayName
+		];
+		this.EnableContains = true;
+	}
+
+});
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Search
+ * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Search', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.Search.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Search */{
+
+		Go: function (oRequest, sHref, sHost, oSearchQuery) {
+			// Create request.
+			var oWebDavRequest = this._createRequest(oRequest, sHref, sHost, oSearchQuery);
+			var oResponse = oWebDavRequest.GetResponse();
+
+			return this._ProcessResponse(oResponse)
+		},
+
+		GoAsync: function (oRequest, sHref, sHost, oSearchQuery, fCallback) {
+			// Create request.
+			var oWebDavRequest = this._createRequest(oRequest, sHref, sHost, oSearchQuery);
+
+			var that = this;
+			oWebDavRequest.GetResponse(function (oAsyncResult) {
+				if (!oAsyncResult.IsSuccess) {
+					fCallback(new ITHit.WebDAV.Client.AsyncResult(null, false, oAsyncResult.Error));
+					return;
+				}
+
+				var oResult = that._ProcessResponse(oAsyncResult.Result, sHref);
+				fCallback(new ITHit.WebDAV.Client.AsyncResult(oResult, true, null));
+			});
+
+			return oWebDavRequest;
+		},
+
+		_ProcessResponse: function (oResponse, sUri) {
+			// Receive data.
+			var oResponseData = oResponse.GetResponseStream();
+
+			var oMultiResponse = new ITHit.WebDAV.Client.Methods.MultiResponse(oResponseData, sUri);
+
+			// Return result object.
+			return new ITHit.WebDAV.Client.Methods.Search(oMultiResponse);
+		},
+
+		_createRequest: function (oRequest, sHref, sHost, oSearchQuery) {
+
+			/*
+			 Search example request:
+			 <d:searchrequest xmlns:d="DAV:" >
+			 <d:basicsearch>
+			 <d:select>
+			 <d:prop><d:allprop/></d:prop>
+			 </d:select>
+			 <d:where>
+			 <d:or>
+			 <d:like>
+			 <d:prop><d:displayname/></d:prop>
+			 <d:literal>search phrase</d:literal>
+			 </d:like>
+			 <d:contains>search phrase</d:contains>
+			 </d:or>
+			 </d:where>
+			 </d:basicsearch>
+			 </d:searchrequest>
+			 */
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+			oWebDavRequest.Method('SEARCH');
+
+			// Create XML document.
+			var oWriter = new ITHit.XMLDoc();
+			var nsDavConstants = ITHit.WebDAV.Client.DavConstants;
+			var sNamespaceUri = nsDavConstants.NamespaceUri;
+
+			// Select block
+			var eSelectProp = oWriter.createElementNS(sNamespaceUri, 'prop');
+			if (oSearchQuery.SelectProperties && oSearchQuery.SelectProperties.length > 0) {
+				// Selected properties.
+				for (var i = 0; i < oSearchQuery.SelectProperties.length; i++) {
+					eSelectProp.appendChild(oWriter.createElementNS(oSearchQuery.SelectProperties[i].NamespaceUri, oSearchQuery.SelectProperties[i].Name));
+				}
+			} else {
+				// All properties.
+				eSelectProp.appendChild(sNamespaceUri, 'allprop');
+			}
+			var eSelect = oWriter.createElementNS(sNamespaceUri, 'select');
+			eSelect.appendChild(eSelectProp);
+
+			// Where like
+			var eLike = null;
+			if (oSearchQuery.EnableLike) {
+				var eWhereProp = oWriter.createElementNS(sNamespaceUri, 'prop');
+				if (oSearchQuery.LikeProperties && oSearchQuery.LikeProperties.length > 0) {
+					for (var i = 0; i < oSearchQuery.LikeProperties.length; i++) {
+						eWhereProp.appendChild(oWriter.createElementNS(oSearchQuery.LikeProperties[i].NamespaceUri, oSearchQuery.LikeProperties[i].Name));
+					}
+				}
+				var eLiteral = oWriter.createElementNS(sNamespaceUri, 'literal');
+				eLiteral.appendChild(
+					oWriter.createTextNode(oSearchQuery.Phrase)
+				);
+				eLike = oWriter.createElementNS(sNamespaceUri, 'like');
+				eLike.appendChild(eWhereProp);
+				eLike.appendChild(eLiteral);
+			}
+
+			// Where contains
+			var eContains = null;
+			if (oSearchQuery.EnableContains) {
+				eContains = oWriter.createElementNS(sNamespaceUri, 'contains');
+				eContains.appendChild(
+					oWriter.createTextNode(oSearchQuery.Phrase)
+				);
+			}
+
+			// Where block
+			var eWhere = oWriter.createElementNS(sNamespaceUri, 'where');
+			if (eLike && eContains) {
+				var eOr = oWriter.createElementNS(sNamespaceUri, 'or');
+				eOr.appendChild(eLike);
+				eOr.appendChild(eContains);
+				eWhere.appendChild(eOr);
+			} else if (eLike) {
+				eWhere.appendChild(eLike);
+			} else if (eContains) {
+				eWhere.appendChild(eContains);
+			}
+
+			var basicSearch = oWriter.createElementNS(sNamespaceUri, 'basicsearch');
+			basicSearch.appendChild(eSelect);
+			basicSearch.appendChild(eWhere);
+
+			// Root block
+			var eSearchRequest = oWriter.createElementNS(sNamespaceUri, 'searchrequest');
+			eSearchRequest.appendChild(basicSearch);
+			oWriter.appendChild(eSearchRequest);
+
+			// Assign created document as body for request.
+			oWebDavRequest.Body(oWriter);
+
+			// Return request object.
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+;
+(function() {
+
+    /**
+     * Represents a folder in a WebDAV repository.
+     * @api
+     * @class ITHit.WebDAV.Client.Folder
+     * @extends ITHit.WebDAV.Client.HierarchyItem
+     */
+    var self = ITHit.DefineClass('ITHit.WebDAV.Client.Folder', ITHit.WebDAV.Client.HierarchyItem, /** @lends ITHit.WebDAV.Client.Folder.prototype */{
+
+        __static: /** @lends ITHit.WebDAV.Client.Folder */{
+
+            GetRequestProperties: function() {
+                return [
+                    ITHit.WebDAV.Client.DavConstants.ResourceType,
+                    ITHit.WebDAV.Client.DavConstants.DisplayName,
+                    ITHit.WebDAV.Client.DavConstants.CreationDate,
+                    ITHit.WebDAV.Client.DavConstants.GetLastModified,
+                    ITHit.WebDAV.Client.DavConstants.SupportedLock,
+                    ITHit.WebDAV.Client.DavConstants.LockDiscovery,
+                    ITHit.WebDAV.Client.DavConstants.QuotaAvailableBytes,
+                    ITHit.WebDAV.Client.DavConstants.QuotaUsedBytes,
+                    ITHit.WebDAV.Client.DavConstants.CheckedIn,
+                    ITHit.WebDAV.Client.DavConstants.CheckedOut
+                ];
+            },
+
+            ParseHref: function(sHref) {
+                // Normalize href
+                var aHrefParts = sHref.split('?');
+                aHrefParts[0] = aHrefParts[0].replace(/\/?$/, '/');
+                sHref = ITHit.WebDAV.Client.Encoder.EncodeURI(aHrefParts.join('?'));
+
+                return this._super(sHref);
+            },
+
+            /**
+             * Open folder.
+             * @deprecated Use asynchronous method instead
+             * @param {ITHit.WebDAV.Client.Request} oRequest Current WebDAV session.
+             * @param {string} sHref This item path on the server.
+			 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+             * @returns {ITHit.WebDAV.Client.Folder} Loaded folder object.
+             * @throws ITHit.WebDAV.Client.Exceptions.WebDavException A Folder was expected or the response doesn't have required item.
+             */
+            OpenItem: function(oRequest, sHref, aProperties) {
+				aProperties = aProperties || [];
+
+                var oFolder = this._super(oRequest, sHref, aProperties);
+
+                // Throw exception if there is not a folder type.
+                if (!(oFolder instanceof self)) {
+                    throw new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFolderWrongType.Paste(sHref));
+                }
+
+                return oFolder;
+            },
+
+            /**
+             * Callback function to be called when folder loaded from server.
+             * @callback ITHit.WebDAV.Client.Folder~OpenItemAsyncCallback
+             * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+             * @param {ITHit.WebDAV.Client.Folder} oResult.Result Loaded folder object.
+             */
+
+            /**
+             * Open folder.
+             * @param {ITHit.WebDAV.Client.Request} oRequest Current WebDAV session.
+             * @param {string} sHref This item path on the server.
+			 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+             * @param {ITHit.WebDAV.Client.Folder~OpenItemAsyncCallback} fCallback Function to call when operation is completed.
+             * @returns {ITHit.WebDAV.Client.Request} Request object.
+             */
+            OpenItemAsync: function(oRequest, sHref, aProperties, fCallback) {
+				aProperties = aProperties || [];
+
+                return this._super(oRequest, sHref, aProperties, function(oAsyncResult) {
+                    // Throw exception if there is not a resource type.
+                    if (oAsyncResult.IsSuccess && !(oAsyncResult.Result instanceof self)) {
+                        oAsyncResult.Error = new ITHit.WebDAV.Client.Exceptions.WebDavException(ITHit.Phrases.ResponseFolderWrongType.Paste(sHref));
+                        oAsyncResult.IsSuccess = false;
+                    }
+
+                    fCallback(oAsyncResult);
+                });
+            }
+
+        },
+
+        /**
+         * Create new instance of Folder class which represents a folder in a WebDAV repository.
+         * @param {ITHit.WebDAV.Client.WebDavSession} oSession Current WebDAV session.
+         * @param {string} sHref This item path on the server.
+         * @param {object} oGetLastModified Most recent modification date.
+         * @param {string} sDisplayName User friendly item name.
+         * @param {object} oCreationDate The date item was created.
+         * @param {Array} aSupportedLocks
+         * @param {Array} aActiveLocks
+         * @param {string} sHost
+         * @param {number} iAvailableBytes
+         * @param {number} iUsedBytes
+         * @param {Array} aCheckedIn
+         * @param {Array} aCheckedOut
+         * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties
+         */
+        constructor: function(oSession, sHref, oGetLastModified, sDisplayName, oCreationDate, aSupportedLocks, aActiveLocks, sHost, iAvailableBytes, iUsedBytes, aCheckedIn, aCheckedOut, aProperties) {
+            sHref = sHref.replace(/\/?$/, '/');
+
+            this._super(oSession, sHref, oGetLastModified, sDisplayName, oCreationDate, ITHit.WebDAV.Client.ResourceType.Folder, aSupportedLocks, aActiveLocks, sHost, iAvailableBytes, iUsedBytes, aCheckedIn, aCheckedOut, aProperties);
+
+            // Normalize folder shortcuts, force set end slash
+            this._Url = this._Url.replace(/\/?$/, '/');
+            this._AbsoluteUrl = this._AbsoluteUrl.replace(/\/?$/, '/');
+        },
+
+        /**
+         *
+         * @returns {boolean}
+         */
+        IsFolder: function() {
+            return true;
+        },
+
+        /**
+         * Creates a new folder with a specified name as child of this folder.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sName Name of the new folder.
+         * @param {string} [sLockTokens] Lock token for ITHit.WebDAV.Client.Folder folder.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.Folder} Created folder object.
+         * @throws ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException Item with specified name already exists.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException Creation of child items not allowed.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.LockedException This folder is locked and no or invalid lock token was specified.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknow error.
+         */
+        CreateFolder: function(sName, sLockTokens, aProperties) {
+			aProperties = aProperties || [];
+
+            // Start logging.
+            var oRequest = this.Session.CreateRequest(this.__className + '.CreateFolder()', 2);
+
+            // Set default value if needed.
+            sLockTokens = sLockTokens || null;
+
+            // Get URI for new folder.
+            var sNewUri = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+
+            // Create folder.
+            var oResponse = ITHit.WebDAV.Client.Methods.Mkcol.Go(oRequest, sNewUri, sLockTokens, this.Host).Response;
+
+            // Whether folder is not created.
+            if (!oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Created)) {
+                oRequest.MarkFinish();
+                throw new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedCreateFolder, sNewUri, null, oResponse.Status, null);
+            }
+
+            // Return created folder object.
+            var oFolder = ITHit.WebDAV.Client.Folder.OpenItem(oRequest, ITHit.WebDAV.Client.Encoder.DecodeURI(sNewUri), aProperties);
+
+            oRequest.MarkFinish();
+            return oFolder;
+        },
+
+        /**
+         * Callback function to be called when folder is created on server.
+         * @callback ITHit.WebDAV.Client.Folder~CreateFolderAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.Folder} oResult.Result Created folder object.
+         */
+
+        /**
+         * Creates a new folder with a specified name as child of this folder.
+         * @api
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CreateFolder.CreateFolder
+         * @param {string} sName Name of the new folder.
+         * @param {string} [sLockTokens] Lock token for ITHit.WebDAV.Client.Folder folder.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.Folder~CreateFolderAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        CreateFolderAsync: function (sName, sLockTokens, aProperties, fCallback) {
+			aProperties = aProperties || [];
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.CreateFolderAsync()', 2);
+
+            var sNewUri = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            ITHit.WebDAV.Client.Methods.Mkcol.GoAsync(oRequest, sNewUri, sLockTokens, this.Host, function(oAsyncResult) {
+
+                // Whether folder is not created.
+                if (oAsyncResult.IsSuccess && !oAsyncResult.Result.Response.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Created)) {
+                    oAsyncResult.IsSuccess = false;
+                    oAsyncResult.Error = new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+                        ITHit.Phrases.Exceptions.FailedCreateFolder,
+                        sNewUri,
+                        null,
+                        oAsyncResult.Result.Response.Status
+                    );
+                }
+
+                if (oAsyncResult.IsSuccess) {
+                    self.OpenItemAsync(oRequest, sNewUri, aProperties, function(oAsyncResult) {
+
+                        oRequest.MarkFinish();
+                        fCallback(oAsyncResult);
+                    });
+                } else {
+                    oAsyncResult.Result = null;
+
+                    oRequest.MarkFinish();
+                    fCallback(oAsyncResult);
+                }
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Creates a new file with a specified name as a child of this folder.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sName Name of the new folder.
+         * @param {string} [sLockTokens] Lock token for current folder.
+         * @param {string} [sContent] File content.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.File} Created file object.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException Creation of child items not allowed.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.LockedException This folder is locked and no or invalid lock token was specified.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        CreateFile: function(sName, sLockTokens, sContent, aProperties) {
+            sLockTokens = sLockTokens || null;
+            sContent = sContent || '';
+			aProperties = aProperties || [];
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.CreateFile()', 2);
+
+            // Get URI for new folder.
+            var sNewUri = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+
+            // Create file.
+            var oResult = ITHit.WebDAV.Client.Methods.Put.Go(
+                oRequest,
+                sNewUri,
+                '',
+                sContent,
+                sLockTokens,
+                this.Host
+            );
+
+            var oError = this._GetErrorFromCreateFileResponse(oResult.Response, sNewUri);
+            if (oError) {
+                oRequest.MarkFinish();
+                throw oError;
+            }
+
+            // Return created file object.
+            var oFile = ITHit.WebDAV.Client.File.OpenItem(oRequest, sNewUri, aProperties);
+
+            oRequest.MarkFinish();
+            return oFile;
+        },
+
+        /**
+         * Callback function to be called when file is created on server.
+         * @callback ITHit.WebDAV.Client.Folder~CreateFileAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.File} oResult.Result Created file object.
+         */
+
+        /**
+         * Creates a new file with a specified name as a child of this folder.
+         * @api
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.CreateFile.CreateAndWriteContent
+         * @param {string} sName Name of the new folder.
+         * @param {string} sLockTokens Lock token for current folder.
+         * @param {string} sContent File content.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.Folder~CreateFileAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        CreateFileAsync: function(sName, sLockTokens, sContent, aProperties, fCallback) {
+            sLockTokens = sLockTokens || null;
+            sContent = sContent || '';
+			aProperties = aProperties || [];
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.CreateFileAsync()', 2);
+
+            // Get URI for new folder.
+            var sNewUri = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+
+            var that = this;
+            ITHit.WebDAV.Client.Methods.Put.GoAsync(
+                oRequest,
+                sNewUri,
+                '',
+                sContent,
+                sLockTokens,
+                this.Host,
+                function(oAsyncResult) {
+                    if (oAsyncResult.IsSuccess) {
+                        oAsyncResult.Error = that._GetErrorFromCreateFileResponse(oAsyncResult.Result.Response);
+                        if (oAsyncResult.Error !== null) {
+                            oAsyncResult.IsSuccess = false;
+                            oAsyncResult.Result = null;
+                        }
+                    }
+
+                    if (oAsyncResult.IsSuccess) {
+                        ITHit.WebDAV.Client.File.OpenItemAsync(oRequest, sNewUri, aProperties, function(oAsyncResult) {
+
+                            oRequest.MarkFinish();
+                            fCallback(oAsyncResult);
+                        });
+                    } else {
+
+                        oRequest.MarkFinish();
+                        fCallback(oAsyncResult);
+                    }
+                }
+            );
+
+            return oRequest;
+        },
+
+        /**
+         * Legacy proxy to CreateFile() method
+         * @deprecated
+         * @param sName
+         * @param sLockTokens
+         * @param sContent
+         */
+        CreateResource: function(sName, sLockTokens,  sContent, aProperties) {
+            return this.CreateFile(sName, sLockTokens, sContent, aProperties);
+        },
+
+        /**
+         * Legacy proxy to CreateFileAsync() method
+         * @deprecated
+         * @param sName
+         * @param sLockTokens
+         * @param sContent
+         * @param fCallback
+         */
+        CreateResourceAsync: function(sName, sLockTokens, sContent, aProperties, fCallback) {
+            return this.CreateFileAsync(sName, sLockTokens, sContent, aProperties, fCallback);
+        },
+
+        /**
+         * Locks name for later use.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sNewItemName Name of new item.
+         * @param {string} sLockScope Scope of the lock.
+         * @param {boolean} bDeep Whether to lock entire subtree.
+         * @param {string} sOwner Owner of the lock.
+         * @param {number} iTimeout TimeOut after which lock expires.
+         * @returns {ITHit.WebDAV.Client.LockInfo} Instance of LockInfo object with information about created lock.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This folder doesn't exist on the server.(Server in fact returns Conflict)
+         * @throws ITHit.WebDAV.Client.Exceptions.LockedException This folder is locked and no or invalid lock token was specified.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The client, for reasons the server chooses not to specify, cannot apply the lock.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        CreateLockNull: function(sNewItemName, sLockScope, bDeep, sOwner, iTimeout) {
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.CreateLockNull()');
+
+            // Get new URI.
+            var sNewUri = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sNewItemName);
+
+            // Make request.
+            var oResult = ITHit.WebDAV.Client.Methods.Lock.Go(
+                oRequest,
+                sNewUri,
+                iTimeout,
+                sLockScope,
+                this.Host,
+                bDeep,
+                sOwner
+            );
+
+            oRequest.MarkFinish();
+
+            // Return lock info.
+            return oResult.LockInfo;
+        },
+
+        /**
+         * Returns children of ITHit.WebDAV.Client.Folder folder.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {boolean} [bRecursively] Indicates if all subtree of children should be return. Default is false.
+         * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.HierarchyItem[]} Array of file and folder objects.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException This folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavHttpException Server returned unknown error.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        GetChildren: function(bRecursively, aProperties) {
+            bRecursively = bRecursively || false;
+            aProperties = aProperties || [];
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetChildren()');
+
+            var aCustomProperties = ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(aProperties);
+            var aAllProperties = aCustomProperties.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());
+
+            // Make response.
+            var oResult = ITHit.WebDAV.Client.Methods.Propfind.Go(
+                oRequest,
+                this.Href,
+                ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+                aAllProperties,
+                bRecursively ? ITHit.WebDAV.Client.Depth.Infinity : ITHit.WebDAV.Client.Depth.One,
+                this.Host
+            );
+
+            var aItems = ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(oResult.Response, oRequest, this.Href, aCustomProperties);
+
+            oRequest.MarkFinish();
+            return aItems;
+        },
+
+        /**
+         * Callback function to be called when children items loaded from server.
+         * @callback ITHit.WebDAV.Client.Folder~GetChildrenAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.HierarchyItem[]} oResult.Result Array of file and folder objects.
+         */
+
+        /**
+         * Get children of ITHit.WebDAV.Client.Folder folder. If boolean parameter is set to false only children of this folder are requested.
+         * Otherwise the entire subtree is requested.
+         * @api
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.GetFolderItems.GetChildren
+         * @param {boolean} bRecursively Indicates if all subtree of children should be return. Default is false.
+         * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.Folder~GetChildrenAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        GetChildrenAsync: function(bRecursively, aProperties, fCallback) {
+            bRecursively = bRecursively || false;
+            if (typeof aProperties === 'function') {
+                fCallback = aProperties;
+                aProperties = [];
+            } else {
+                aProperties = aProperties || [];
+                fCallback = fCallback || function() {};
+            }
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetChildrenAsync()');
+
+            var aCustomProperties = ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(aProperties);
+            var aAllProperties = aCustomProperties.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());
+
+            // Make response.
+            var that = this;
+            ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+                oRequest,
+                this.Href,
+                ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+                aAllProperties,
+                bRecursively ? ITHit.WebDAV.Client.Depth.Infinity : ITHit.WebDAV.Client.Depth.One,
+                this.Host,
+                function(oAsyncResult) {
+                    if (oAsyncResult.IsSuccess) {
+                        oAsyncResult.Result = ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(oAsyncResult.Result.Response, oRequest, that.Href, aCustomProperties);
+                    }
+
+                    oRequest.MarkFinish();
+                    fCallback(oAsyncResult);
+                }
+            );
+
+            return oRequest;
+        },
+
+        /**
+         * Gets the specified folder from server.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sName Name of the folder.
+         * @returns {ITHit.WebDAV.Client.Folder} Folder object corresponding to requested path.
+         * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        GetFolder: function(sName) {
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetFolder()');
+            var sHref = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            var oFolder = self.OpenItem(oRequest, sHref);
+
+            oRequest.MarkFinish();
+            return oFolder;
+        },
+
+        /**
+         * Callback function to be called when folder loaded from server.
+         * @callback ITHit.WebDAV.Client.Folder~GetFolderAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.Folder} oResult.Result Folder object corresponding to requested path.
+         */
+
+        /**
+         * Gets the specified folder from server.
+         * @api
+         * @param {string} sName Name of the folder.
+         * @param {ITHit.WebDAV.Client.Folder~GetFolderAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        GetFolderAsync: function(sName, fCallback) {
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetFolderAsync()');
+            var sHref = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            self.OpenItemAsync(oRequest, sHref, null, function(oAsyncResult) {
+
+                oRequest.MarkFinish();
+                fCallback(oAsyncResult);
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Gets the specified file from server.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sName Name of the file.
+         * @returns {ITHit.WebDAV.Client.File} File corresponding to requested path.
+         * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested file doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        GetFile: function(sName) {
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetFile()');
+            var sHref = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            var oFile = ITHit.WebDAV.Client.File.OpenItem(oRequest, sHref);
+
+            oRequest.MarkFinish();
+            return oFile;
+        },
+
+        /**
+         * Callback function to be called when file loaded from server.
+         * @callback ITHit.WebDAV.Client.Folder~GetFileAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.File} oResult.Result File corresponding to requested path.
+         */
+
+        /**
+         * Gets the specified file from server.
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.GetItemByFolder.GetFile
+         * @api
+         * @param {string} sName Name of the folder.
+         * @param {ITHit.WebDAV.Client.Folder~GetFileAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        GetFileAsync: function(sName, fCallback) {
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetFileAsync()');
+            var sHref = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            ITHit.WebDAV.Client.File.OpenItemAsync(oRequest, sHref, null, function(oAsyncResult) {
+
+                oRequest.MarkFinish();
+                fCallback(oAsyncResult);
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Legacy proxy to GetFile() method
+         * @deprecated
+         * @param sName
+         */
+        GetResource: function(sName) {
+            return this.GetFile(sName);
+        },
+
+        /**
+         * Legacy proxy to GetFileAsync() method
+         * @deprecated
+         * @param sName
+         * @param fCallback
+         */
+        GetResourceAsync: function(sName, fCallback) {
+            return this.GetFileAsync(sName, fCallback);
+        },
+
+        /**
+         * Gets the specified item from server.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sName Name of folder or file.
+         * @returns {ITHit.WebDAV.Client.HierarchyItem} Item object corresponding to requested path.
+         * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        GetItem: function(sName) {
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetItem()');
+            var sHref = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            var oItem = ITHit.WebDAV.Client.HierarchyItem.OpenItem(oRequest, sHref);
+
+            oRequest.MarkFinish();
+            return oItem;
+        },
+
+        /**
+         * Callback function to be called when item loaded from server.
+         * @callback ITHit.WebDAV.Client.Folder~GetItemAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.HierarchyItem} oResult.Result Item object corresponding to requested path.
+         */
+
+        /**
+         * Gets the specified item from server.
+         * @api
+         * @param {string} sName Name of the folder.
+         * @param {ITHit.WebDAV.Client.Folder~GetItemAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        GetItemAsync: function(sName, fCallback) {
+            var oRequest = this.Session.CreateRequest(this.__className + '.GetItemAsync()');
+            var sHref = ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName);
+            ITHit.WebDAV.Client.HierarchyItem.OpenItemAsync(oRequest, sHref, null, function(oAsyncResult) {
+
+                oRequest.MarkFinish();
+                fCallback(oAsyncResult);
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Checks whether specified item exists in the folder.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sName Name of the folder.
+         * @returns {boolean} Returns true, if specified item exists; false, otherwise.
+         */
+        ItemExists: function(sName) {
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.ItemExists()', 2);
+
+            try {
+                // Try to make HEAD request.
+                var oResult = ITHit.WebDAV.Client.Methods.Head.Go(
+                    oRequest,
+                    ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName),
+                    this.Host
+                );
+            } catch (oError) {
+
+                // If method is not allowed exception is raised.
+                if (oError instanceof ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException) {
+
+                    try {
+                        // Try to make PROPFIND request.
+                        ITHit.WebDAV.Client.Methods.Propfind.Go(
+                            oRequest,
+                            ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName),
+                            ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+                            [
+                                ITHit.WebDAV.Client.DavConstants.DisplayName
+                            ],
+                            ITHit.WebDAV.Client.Depth.Zero,
+                            this.Host
+                        );
+                    } catch (oSubError) {
+                        // Whether file not found.
+                        if (oSubError instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException) {
+                            oRequest.MarkFinish();
+                            return false;
+                        }
+
+                        // Rethrow exception for all other cases.
+                        throw oSubError;
+                    }
+
+                    // Item is found.
+                    oRequest.MarkFinish();
+                    return true;
+                }
+
+                // Rethrow exception.
+                throw oError;
+            }
+
+            oRequest.MarkFinish();
+            return oResult.IsOK;
+        },
+
+        /**
+         * Callback function to be called when check request is complete.
+         * @callback ITHit.WebDAV.Client.Folder~ItemExistsAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {boolean} oResult.Result Returns true, if specified item exists; false, otherwise.
+         */
+
+        /**
+         * Checks whether specified item exists in the folder.
+         * @api
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.ItemExists.ItemExists
+         * @param {string} sName Name of the folder.
+         * @param {ITHit.WebDAV.Client.Folder~ItemExistsAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        ItemExistsAsync: function(sName, fCallback) {
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.ItemExistsAsync()', 2);
+
+            // Try to make HEAD request.
+            var that = this;
+            ITHit.WebDAV.Client.Methods.Head.GoAsync(
+                oRequest,
+                ITHit.WebDAV.Client.HierarchyItem.AppendToUri(this.Href, sName),
+                this.Host,
+                function(oAsyncResult) {
+                    if (oAsyncResult.Error instanceof ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException) {
+
+                        // Try to make PROPFIND request.
+                        ITHit.WebDAV.Client.Methods.Propfind.GoAsync(
+                            oRequest,
+                            ITHit.WebDAV.Client.HierarchyItem.AppendToUri(that.Href, sName),
+                            ITHit.WebDAV.Client.Methods.Propfind.PropfindMode.SelectedProperties,
+                            [
+                                ITHit.WebDAV.Client.DavConstants.DisplayName
+                            ],
+                            ITHit.WebDAV.Client.Depth.Zero,
+                            that.Host,
+                            function(oSubAsyncResult) {
+                                oSubAsyncResult.Result = oSubAsyncResult.IsSuccess;
+
+                                if (oSubAsyncResult.Error instanceof ITHit.WebDAV.Client.Exceptions.NotFoundException) {
+                                    oSubAsyncResult.IsSuccess = true;
+                                    oSubAsyncResult.Result = false;
+                                }
+
+                                oRequest.MarkFinish();
+                                fCallback(oSubAsyncResult);
+                            }
+                        );
+                        return;
+                    }
+
+                    oAsyncResult.Result = oAsyncResult.Result.IsOK;
+
+                    oRequest.MarkFinish();
+                    fCallback(oAsyncResult);
+                }
+            );
+
+            return oRequest;
+        },
+
+        /**
+         * Search folder items by query object.
+         * @deprecated Use asynchronous method instead
+         * @param {ITHit.WebDAV.Client.SearchQuery} oSearchQuery Object with search query conditions
+         * @returns {ITHit.WebDAV.Client.HierarchyItem[]}
+         */
+        SearchByQuery: function(oSearchQuery) {
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.SearchByQuery()');
+
+            var aCustomProperties = ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(oSearchQuery.SelectProperties);
+            oSearchQuery.SelectProperties = aCustomProperties.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());
+
+            var oResult = ITHit.WebDAV.Client.Methods.Search.Go(
+                oRequest,
+                this.Href,
+                this.Host,
+                oSearchQuery
+            );
+
+            var aItems = ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(oResult.Response, oRequest, this.Href, aCustomProperties);
+
+            oRequest.MarkFinish();
+            return aItems;
+        },
+
+        /**
+         * Callback function to be called when search is complete and children items loaded from server.
+         * @callback ITHit.WebDAV.Client.Folder~SearchByQueryAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.HierarchyItem[]} oResult.Result Array of file objects.
+         */
+
+        /**
+         * Search folder items by query object.
+         * @api
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.Search.SearchByQuery
+         * @param {ITHit.WebDAV.Client.SearchQuery} oSearchQuery Object with search query conditions
+         * @param {ITHit.WebDAV.Client.Folder~SearchByQueryAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        SearchByQueryAsync: function(oSearchQuery, fCallback) {
+
+            var oRequest = this.Session.CreateRequest(this.__className + '.SearchByQueryAsync()');
+
+            var aCustomProperties = ITHit.WebDAV.Client.HierarchyItem.GetCustomRequestProperties(oSearchQuery.SelectProperties);
+            oSearchQuery.SelectProperties = aCustomProperties.concat(ITHit.WebDAV.Client.HierarchyItem.GetRequestProperties());
+
+            var that = this;
+            ITHit.WebDAV.Client.Methods.Search.GoAsync(
+                oRequest,
+                this.Href,
+                this.Host,
+                oSearchQuery,
+                function(oAsyncResult) {
+                    if (oAsyncResult.IsSuccess) {
+                        oAsyncResult.Result = ITHit.WebDAV.Client.HierarchyItem.GetItemsFromMultiResponse(oAsyncResult.Result.Response, oRequest, that.Href, aCustomProperties);
+                    }
+
+                    oRequest.MarkFinish();
+                    fCallback(oAsyncResult);
+                }
+            );
+
+            return oRequest;
+        },
+
+        /**
+         * Search folder items by string.
+         * @deprecated Use asynchronous method instead
+         * @param {string} sSearchQuery String of search query
+         * @param {ITHit.WebDAV.Client.PropertyName[]} aAdditionalProperties Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.HierarchyItem[]}
+         */
+        Search: function(sSearchQuery, aAdditionalProperties) {
+            var oSearchQuery = new ITHit.WebDAV.Client.SearchQuery(sSearchQuery);
+            oSearchQuery.SelectProperties = aAdditionalProperties || [];
+
+            return this.SearchByQuery(oSearchQuery);
+        },
+
+        /**
+         * Callback function to be called when search is complete and children items loaded from server.
+         * @callback ITHit.WebDAV.Client.Folder~SearchAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.HierarchyItem[]} oResult.Result Array of file objects.
+         */
+
+        /**
+         * Search folder items by string.
+         * @api
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.Search.SearchByString
+         * @param {string} sSearchQuery String of search query
+         * @param {ITHit.WebDAV.Client.PropertyName[]} aAdditionalProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.Folder~SearchAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        SearchAsync: function(sSearchQuery, aAdditionalProperties, fCallback) {
+            var oSearchQuery = new ITHit.WebDAV.Client.SearchQuery(sSearchQuery);
+            oSearchQuery.SelectProperties = aAdditionalProperties || [];
+
+            return this.SearchByQueryAsync(oSearchQuery, fCallback);
+        },
+
+        _GetErrorFromCreateFileResponse: function(oResponse, sNewUri) {
+            // Whether folder is not created.
+            if (!oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.Created) && !oResponse.Status.Equals(ITHit.WebDAV.Client.HttpStatus.OK)) {
+                return new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(ITHit.Phrases.Exceptions.FailedCreateFile, sNewUri, null, oResponse.Status, null);
+            }
+
+            return null;
+        }
+
+    });
+
+})();
+
+;
+(function () {
+
+	/**
+	 * @class ITHit.WebDAV.Client.Methods.UpdateToVersion
+	 * @extends ITHit.WebDAV.Client.Methods.HttpMethod
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.Methods.UpdateToVersion', ITHit.WebDAV.Client.Methods.HttpMethod, /** @lends ITHit.WebDAV.Client.Methods.UpdateToVersion.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.Methods.UpdateToVersion */{
+
+			Go: function (oRequest, sHref, sHost, sToVersionHref) {
+
+				// Create request.
+				var oWebDavRequest = this.createRequest(oRequest, sHref, sHost, sToVersionHref);
+
+				// Make request.
+				var oResponse = oWebDavRequest.GetResponse();
+
+				return this._ProcessResponse(oResponse, sHref);
+			},
+
+			GoAsync: function (oRequest, sHref, sHost, sToVersionHref, fCallback) {
+
+				// Create request.
+				var oWebDavRequest = this.createRequest(oRequest, sHref, sHost, sToVersionHref);
+
+				// Make request.
+				var that = this;
+				oWebDavRequest.GetResponse(function (oAsyncResult) {
+					if (!oAsyncResult.IsSuccess) {
+						fCallback(new ITHit.WebDAV.Client.AsyncResult(null, false, oAsyncResult.Error));
+						return;
+					}
+
+					var oResult = that._ProcessResponse(oAsyncResult.Result, sHref);
+					fCallback(new ITHit.WebDAV.Client.AsyncResult(oResult, true, null));
+				});
+
+				return oWebDavRequest;
+			},
+
+			_ProcessResponse: function (oResponse, sHref) {
+
+				// Receive data.
+				var oResponseData = oResponse.GetResponseStream();
+				return new self(new ITHit.WebDAV.Client.Methods.MultiResponse(oResponseData, sHref));
+			},
+
+			createRequest: function (oRequest, sHref, sHost, sToVersionHref) {
+
+				var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+
+				oWebDavRequest.Method('UPDATE');
+				oWebDavRequest.Headers.Add('Content-Type', 'text/xml; charset="utf-8"');
+
+				// Create XML DOM document.
+				var oWriter = new ITHit.XMLDoc();
+
+				// Get namespace for XML elements.
+				var sNamespaceUri = ITHit.WebDAV.Client.DavConstants.NamespaceUri;
+
+				// Create elements.
+				var oUpdateElement = oWriter.createElementNS(sNamespaceUri, 'update');
+				var oVersionElement = oWriter.createElementNS(sNamespaceUri, 'version');
+				var oHrefElement = oWriter.createElementNS(sNamespaceUri, 'href');
+
+				// Set value
+				oHrefElement.appendChild(oWriter.createTextNode(sToVersionHref));
+
+				// Append created child nodes.
+				oVersionElement.appendChild(oHrefElement);
+				oUpdateElement.appendChild(oVersionElement);
+				oWriter.appendChild(oUpdateElement);
+
+				oWebDavRequest.Body(oWriter);
+
+				// Return request object.
+				return oWebDavRequest;
+			}
+
+		}
+	});
+
+})();
+
+;
+(function() {
+
+	/**
+	 * Represents a version on a WebDAV server.
+	 * @api
+	 * @class ITHit.WebDAV.Client.Version
+	 * @extends ITHit.WebDAV.Client.File
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.Version', ITHit.WebDAV.Client.File, /** @lends ITHit.WebDAV.Client.Version.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.Version */{
+
+			GetRequestProperties: function() {
+				return [
+					ITHit.WebDAV.Client.DavConstants.DisplayName,
+					ITHit.WebDAV.Client.DavConstants.CreationDate,
+					ITHit.WebDAV.Client.DavConstants.GetContentType,
+					ITHit.WebDAV.Client.DavConstants.GetContentLength,
+					ITHit.WebDAV.Client.DavConstants.VersionName,
+					ITHit.WebDAV.Client.DavConstants.CreatorDisplayName,
+					ITHit.WebDAV.Client.DavConstants.Comment
+				];
+			},
+
+			/**
+			 * Get version name from response.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {string} Version name.
+			 */
+			GetVersionName: function(oResponse) {
+				var oValue = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.VersionName).Value;
+				if (oValue.hasChildNodes()) {
+					return oValue.firstChild().nodeValue();
+				}
+				return null;
+			},
+
+			/**
+			 * Get creator user name from response.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {string} Creator name.
+			 */
+			GetCreatorDisplayName: function(oResponse) {
+				var oValue = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.CreatorDisplayName).Value;
+				if (oValue.hasChildNodes()) {
+					return oValue.firstChild().nodeValue();
+				}
+				return null;
+			},
+
+			/**
+			 * Get comment string from response.
+			 * @param {ITHit.WebDAV.Client.WebDavResponse} oResponse Response object.
+			 * @returns {string} Comment string.
+			 */
+			GetComment: function(oResponse) {
+				var oValue = ITHit.WebDAV.Client.HierarchyItem.GetProperty(oResponse, ITHit.WebDAV.Client.DavConstants.Comment).Value;
+				if (oValue.hasChildNodes()) {
+					return oValue.firstChild().nodeValue();
+				}
+				return null;
+			},
+
+			GetVersionsFromMultiResponse: function(oResponses, oFile) {
+				var aVersionList = [];
+
+				for (var i = 0; i < oResponses.length; i++) {
+					var oResponse = oResponses[i];
+
+					aVersionList.push(new self(
+						oFile.Session,
+						oResponse.Href,
+						oFile,
+						this.GetDisplayName(oResponse),
+						this.GetVersionName(oResponse),
+						this.GetCreatorDisplayName(oResponse),
+						this.GetComment(oResponse),
+						this.GetCreationDate(oResponse),
+						this.GetContentType(oResponse),
+						this.GetContentLength(oResponse),
+						oFile.Host,
+						this.GetPropertiesFromResponse(oResponse)
+					));
+				}
+
+				// Sort versions by version number (other symbols is skipped)
+				aVersionList.sort(function(a, b) {
+					var aVersionNumber = parseInt(a.VersionName.replace(/[^0-9]/g, ''));
+					var bVersionNumber = parseInt(b.VersionName.replace(/[^0-9]/g, ''));
+
+					if (aVersionNumber === bVersionNumber) {
+						return 0;
+					}
+					return aVersionNumber > bVersionNumber ? 1 : -1;
+				});
+
+				return aVersionList;
+			},
+
+			ParseSetOfHrefs: function(aProperties) {
+				var aUrls = [];
+
+				for (var i = 0, l = aProperties.length; i < l; i++) {
+					var xml = aProperties[i].Value;
+					var aXmlHrefs = xml.getElementsByTagNameNS(ITHit.WebDAV.Client.DavConstants.NamespaceUri, 'href');
+
+					for (var i2 = 0, l2 = aXmlHrefs.length; i2 < l2; i2++) {
+						aUrls.push(aXmlHrefs[i2].firstChild().nodeValue());
+					}
+				}
+
+				return aUrls;
+			}
+
+		},
+
+		/**
+		 * This property contains a server-defined string that is different for each version.
+		 * This string is intended for display for a user.
+		 * @api
+		 * @type {string}
+		 */
+		VersionName: null,
+
+		/**
+		 *
+		 * @type {string}
+		 */
+		CreatorDisplayName: null,
+
+		/**
+		 *
+		 * @type {string}
+		 */
+		Comment: null,
+
+		/**
+		 *
+		 * @type {ITHit.WebDAV.Client.File}
+		 */
+		_File: null,
+
+		/**
+		 * @type {null}
+		 */
+		ResumableUpload: null,
+
+		/**
+		 * @type {null}
+		 */
+		LastModified: null,
+
+		/**
+		 * @type {null}
+		 */
+		ActiveLocks: null,
+
+		/**
+		 * @type {null}
+		 */
+		AvailableBytes: null,
+
+		/**
+		 * @type {null}
+		 */
+		UsedBytes: null,
+
+		/**
+		 * @type {null}
+		 */
+		VersionControlled: null,
+
+		/**
+		 * @type {null}
+		 */
+		ResourceType: null,
+
+		/**
+		 * @type {null}
+		 */
+		SupportedLocks: null,
+
+		/**
+		 * Create new instance of Version class which represents a version on a WebDAV server.
+		 * @param {ITHit.WebDAV.Client.WebDavSession} oSession Current WebDAV session.
+		 * @param {string} sHref This item path on the server.
+		 * @param {ITHit.WebDAV.Client.File} oFile File instance.
+		 * @param {string} sDisplayName User friendly item name.
+		 * @param {string} sVersionName User friendly version name.
+		 * @param {string} sCreatorDisplayName Creator user name.
+		 * @param {string} sComment Comment string.
+		 * @param {object} oCreationDate The date item was created.
+		 * @param {string} sContentType Content type.
+		 * @param {number} iContentLength Content length.
+		 * @param {string} sHost
+		 * @param {object} oProperties
+		 */
+		constructor: function(oSession, sHref, oFile, sDisplayName, sVersionName, sCreatorDisplayName, sComment, oCreationDate, sContentType, iContentLength, sHost, oProperties) {
+			this._File = oFile;
+			this.VersionName = sVersionName;
+			this.CreatorDisplayName = sCreatorDisplayName || '';
+			this.Comment = sComment || '';
+
+			// Inheritance definition.
+			this._super(oSession, sHref, oCreationDate, sVersionName, oCreationDate, sContentType, iContentLength, null, null, sHost, null, null, null, null, oProperties);
+		},
+
+		/**
+		 * Update file to current version.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 * @returns {boolean}
+		 */
+		UpdateToThis: function() {
+			return this._File.UpdateToVersion(this);
+		},
+
+		/**
+		 * Callback function to be called when version is updated on server.
+		 * @callback ITHit.WebDAV.Client.Version~UpdateToThisVersionAsync
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Update file to current version.
+		 * @examplecode ITHit.WebDAV.Client.Tests.Versions.ManageVersions.UpdateToThis
+		 * @api
+		 * @param {ITHit.WebDAV.Client.Version~UpdateToThisVersionAsync} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		UpdateToThisAsync: function(fCallback) {
+			return this._File.UpdateToVersionAsync(this, fCallback);
+		},
+
+		/**
+		 * Delete version by self href.
+		 * @api
+		 * @deprecated Use asynchronous method instead
+		 */
+		Delete: function() {
+			var oRequest = this.Session.CreateRequest(this.__className + '.Delete()');
+
+			// Make request.
+			ITHit.WebDAV.Client.Methods.Delete.Go(oRequest, this.Href, null, this.Host);
+
+			oRequest.MarkFinish();
+		},
+
+		/**
+		 * Callback function to be called when version is deleted on server.
+		 * @callback ITHit.WebDAV.Client.Version~DeleteAsyncCallback
+		 * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+		 */
+
+		/**
+		 * Delete version by self href.
+		 * @api
+		 * @param {ITHit.WebDAV.Client.Version~DeleteAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		DeleteAsync: function(fCallback) {
+			var oRequest = this.Session.CreateRequest(this.__className + '.DeleteAsync()');
+			ITHit.WebDAV.Client.Methods.Delete.GoAsync(oRequest, this.Href, null, this.Host, function(oAsyncResult) {
+
+				oRequest.MarkFinish();
+				fCallback(oAsyncResult);
+			});
+
+			return oRequest;
+		},
+
+		/**
+		 * Read file content. To download only a part of a file you can specify 2 parameters in ReadContent call.
+		 * First parameter is the starting byte (zero-based) at witch to start content download, the second – amount
+		 * of bytes to be downloaded. The library will add Range header to the request in this case.
+		 * @examplecode ITHit.WebDAV.Client.Tests.Versions.ReadContent.ReadContent
+		 * @api
+		 * @param {number} iBytesFrom Start position to retrieve lBytesCount number of bytes from.
+		 * @param {number} iBytesCount Number of bytes to retrieve.
+		 * @param {ITHit.WebDAV.Client.File~ReadContentAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		ReadContentAsync: function(iBytesFrom, iBytesCount, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 * Writes file content.
+		 * @api
+		 * @param {string} sContent File content.
+		 * @param {string} sLockToken Lock token.
+		 * @param {string} sMimeType File mime-type.
+		 * @param {ITHit.WebDAV.Client.File~WriteContentAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		WriteContentAsync: function(sContent, sLockToken, sMimeType, fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 * Refreshes item loading data from server.
+		 * @api
+		 * @param {ITHit.WebDAV.Client.HierarchyItem~RefreshAsyncCallback} fCallback Function to call when operation is completed.
+		 * @returns {ITHit.WebDAV.Client.Request} Request object.
+		 */
+		RefreshAsync: function(fCallback) {
+			return this._super.apply(this, arguments);
+		},
+
+		/**
+		 * @private
+		 */
+		GetSource: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetSourceAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetSupportedLock: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetSupportedLockAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetParent: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetParentAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		UpdateProperties: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		UpdatePropertiesAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		CopyTo: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		CopyToAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		MoveTo: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		MoveToAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		Lock: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		LockAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		RefreshLock: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		RefreshLockAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		Unlock: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		UnlockAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		SupportedFeatures: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		SupportedFeaturesAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetAllProperties: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetAllPropertiesAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetPropertyNames: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetPropertyNamesAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetPropertyValues: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetPropertyValuesAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetVersions: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		GetVersionsAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		PutUnderVersionControl: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		PutUnderVersionControlAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		UpdateToVersion: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		},
+
+		/**
+		 * @private
+		 */
+		UpdateToVersionAsync: function() {
+			throw new ITHit.Exception('The method or operation is not implemented.');
+		}
+
+	});
+
+})();
+
+
+/**
+ * @class ITHit.WebDAV.Client.Methods.Undelete
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Undelete', null, /** @lends ITHit.WebDAV.Client.Methods.Undelete.prototype */{
+
+	__static: /** @lends ITHit.WebDAV.Client.Methods.Undelete */{
+
+		Go: function (oRequest, sHref, sHost) {
+
+			// Create request.
+			var oWebDavRequest = ITHit.WebDAV.Client.Methods.Undelete.createRequest(oRequest, sHref, sHost);
+
+			// Make request.
+			var oResponse = oWebDavRequest.GetResponse();
+
+			return new ITHit.WebDAV.Client.Methods.Report(oResponse);
+		},
+
+		createRequest: function (oRequest, sHref, sHost) {
+
+			// Create request.
+			var oWebDavRequest = oRequest.CreateWebDavRequest(sHost, sHref);
+			oWebDavRequest.Method('UNDELETE');
+
+			// Return request object.
+			return oWebDavRequest;
+		}
+
+	}
+});
+
+
+/**
+ * WebDavResponse class.
+ * @class ITHit.WebDAV.Client.WebDavResponse
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.WebDavResponse', null, /** @lends ITHit.WebDAV.Client.WebDavResponse.prototype */{
+
+	__static: /** @lends {ITHit.WebDAV.Client.WebDavResponse} */{
+
+		ignoreXmlByMethodAndStatus: {
+			'DELETE': {
+				200: true
+			},
+			'COPY': {
+				201: true,
+				204: true
+			},
+			'MOVE': {
+				201: true,
+				204: true
+			}
+		}
+
+	},
+
+	/**
+	 * @type {object}
+	 */
+	_Response: null,
+
+	/**
+	 * @type {string}
+	 */
+	RequestMethod: null,
+
+	/**
+	 * @type {ITHit.WebDAV.Client.HttpStatus}
+	 */
+	Status: null,
+
+	/**
+	 * Create new instance of WebDavResponse class.
+	 * @param {object} oResponseData Response object.
+	 * @param {string} sRequestMethod Request method.
+	 */
+	constructor: function(oResponseData, sRequestMethod) {
+		this._Response     = oResponseData;
+		this.RequestMethod = sRequestMethod;
+		this.Status        = new ITHit.WebDAV.Client.HttpStatus(oResponseData.Status, oResponseData.StatusDescription);
+	},
+
+	/**
+	 * Get response headers.
+	 * @returns {object} Response headers.
+	 */
+	Headers: function() {
+		return this._Response.Headers;
+	},
+
+	/**
+	 * Get response content.
+	 * @returns {string} Response XML document.
+	 */
+	GetResponseStream: function() {
+
+		var oOut = null;
+		if (this._Response.BodyXml
+			&& !(ITHit.WebDAV.Client.WebDavResponse.ignoreXmlByMethodAndStatus[this.RequestMethod]
+			&& ITHit.WebDAV.Client.WebDavResponse.ignoreXmlByMethodAndStatus[this.RequestMethod][this._Response.Status]
+			)
+		) {
+			oOut = new ITHit.XMLDoc(this._Response.BodyXml);
+		}
+
+		return oOut;
+	}
+
+});
+
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Methods.ErrorResponse', null, /** @lends ITHit.WebDAV.Client.Methods.ErrorResponse.prototype */{
+
+	ResponseDescription: '',
+	Properties: null,
+
+	/**
+	 *
+	 * @param oXmlDoc
+	 * @param sOriginalUri
+	 * @constructs
+	 */
+	constructor: function(oXmlDoc, sOriginalUri) {
+
+		// Declare properties.
+		this.Properties          = [];
+
+		var oDescription = new ITHit.WebDAV.Client.PropertyName("responsedescription", ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+		// Create namespace resolver.
+		var oResolver = new ITHit.XPath.resolver();
+		oResolver.add('d', ITHit.WebDAV.Client.DavConstants.NamespaceUri);
+
+		// Select nodes.
+		var oRes = ITHit.XPath.evaluate('/d:error/*', oXmlDoc, oResolver);
+
+		// Loop through selected nodes.
+		var oNode;
+		while (oNode = oRes.iterateNext()) {
+
+			var oProp = new ITHit.WebDAV.Client.Property(oNode.cloneNode());
+
+			if (oDescription.Equals(oProp.Name)) {
+				this.ResponseDescription = oProp.StringValue();
+				continue;
+			}
+
+			this.Properties.push(oProp);
+		}
+	}
+
+});
+
+
+/**
+ * Incorrect credentials provided or insufficient permissions to access the requested item. Initializes a new instance
+ * of the UnauthorizedException class with a specified error message, a reference to the inner exception that is the
+ * cause of this exception, href of the item and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.UnauthorizedException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.UnauthorizedException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.UnauthorizedException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'UnauthorizedException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oInnerException) {
+		this._super(sMessage, sHref, null, ITHit.WebDAV.Client.HttpStatus.Unauthorized, oInnerException);
+	}
+
+});
+
+
+/**
+ * The request could not be understood by the server due to malformed syntax.
+ * Initializes a new instance of the BadRequestException class with a specified error message, a reference to the
+ * inner exception that is the cause of this exception, href of the item and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.BadRequestException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.BadRequestException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.BadRequestException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'BadRequestException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.BadRequest, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The request could not be carried because of conflict on server.
+ * Initializes a new instance of the ConflictException class with a specified error message, a reference
+ * to the inner exception that is the cause of this exception, href of the item and multistatus response
+ * caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.ConflictException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.ConflictException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.ConflictException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'ConflictException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.Conflict, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The item is locked. Initializes a new instance of the LockedException class with a specified error message,
+ * a reference to the inner exception that is the cause of this exception, href of the item and multistatus
+ * response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.LockedException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.LockedException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.LockedException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'LockedException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.Locked, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The server refused to fulfill the request. Initializes a new instance of the ForbiddenException class with
+ * a specified error message, a reference to the inner exception that is the cause of this exception, href of
+ * the item and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.ForbiddenException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.ForbiddenException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.ForbiddenException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'ForbiddenException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.Forbidden, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The method is not allowed. Initializes a new instance of the MethodNotAllowedException class with a specified
+ * error message, a reference to the inner exception that is the cause of this exception, href of the item and
+ * multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'MethodNotAllowedException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.MethodNotAllowed, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The method is not implemented. Initializes a new instance of the NotImplementedException class with a specified
+ * error message, a reference to the inner exception that is the cause of this exception, href of the item and
+ * multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.NotImplementedException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.NotImplementedException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.NotImplementedException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'NotImplementedException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.NotImplemented, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The item doesn't exist on the server. Initializes a new instance of the NotFoundException class with a specified
+ * error message, a reference to the inner exception that is the cause of this exception, href of the item and
+ * multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.NotFoundException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.NotFoundException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.NotFoundException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'NotFoundException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oInnerException) {
+		this._super(sMessage, sHref, null, ITHit.WebDAV.Client.HttpStatus.NotFound, oInnerException);
+	}
+
+});
+
+
+/**
+ * Precondition failed. Initializes a new instance of the PreconditionFailedException class with a specified error
+ * message, a reference to the inner exception that is the cause of this exception, href of the item and multistatus
+ * response with error details.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.PreconditionFailedException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.PreconditionFailedException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.PreconditionFailedException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'PreconditionFailedException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.PreconditionFailed, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * The method could not be performed on the resource because the requested action depended on another action
+ * and that action failed. Initializes a new instance of the DependencyFailedException class with a specified
+ * error message, a reference to the inner exception that is the cause of this exception, href of the item
+ * and multistatus response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.DependencyFailedException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.DependencyFailedException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.DependencyFailedException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'DependencyFailedException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.DependencyFailed, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * Insufficient storage exception. Initializes a new instance of the InsufficientStorageException class with
+ * a specified error message, a reference to the inner exception that is the cause of this exception, href of
+ * the item and error response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.InsufficientStorageException
+ * @extends ITHit.WebDAV.Client.Exceptions.WebDavHttpException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.InsufficientStorageException', ITHit.WebDAV.Client.Exceptions.WebDavHttpException, /** @lends ITHit.WebDAV.Client.Exceptions.InsufficientStorageException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'InsufficientStorageException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.IError} [oErrorInfo] Error response containing additional error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oErrorInfo, oInnerException) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.InsufficientStorage, oInnerException, oErrorInfo);
+	}
+
+});
+
+
+/**
+ * Quota not exceeded exception. Initializes a new instance of the QuotaNotExceededException class with a
+ * specified error message, a reference to the inner exception that is the cause of this exception, href of
+ * the item and error response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.QuotaNotExceededException
+ * @extends ITHit.WebDAV.Client.Exceptions.InsufficientStorageException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.QuotaNotExceededException', ITHit.WebDAV.Client.Exceptions.InsufficientStorageException, /** @lends ITHit.WebDAV.Client.Exceptions.QuotaNotExceededException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'QuotaNotExceededException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 * @param {ITHit.IError} [oError] Error response containing additional error information.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oInnerException, oError) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.InsufficientStorage, oInnerException, oError);
+	}
+
+});
+
+
+/**
+ * Sufficient disk space exception. Initializes a new instance of the SufficientDiskSpaceException class with
+ * a specified error message, a reference to the inner exception that is the cause of this exception, href of
+ * the item and error response caused the error.
+ * @api
+ * @class ITHit.WebDAV.Client.Exceptions.SufficientDiskSpaceException
+ * @extends ITHit.WebDAV.Client.Exceptions.InsufficientStorageException
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.SufficientDiskSpaceException', ITHit.WebDAV.Client.Exceptions.InsufficientStorageException, /** @lends ITHit.WebDAV.Client.Exceptions.SufficientDiskSpaceException.prototype */{
+
+	/**
+	 * Exception name
+	 * @type {string}
+	 */
+	Name: 'SufficientDiskSpaceException',
+
+	/**
+	 * @param {string} sMessage The error message string.
+	 * @param {string} sHref The href of an item caused the current exception.
+	 * @param {ITHit.WebDAV.Client.Multistatus} oMultistatus Multistatus response containing error information.
+	 * @param {ITHit.Exception} [oInnerException] The ITHit.Exception instance that caused the current exception.
+	 * @param {ITHit.IError} [oError] Error response containing additional error information.
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oInnerException, oError) {
+		this._super(sMessage, sHref, oMultistatus, ITHit.WebDAV.Client.HttpStatus.InsufficientStorage, oInnerException, oError);
+	}
+
+});
+
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.Parsers.InsufficientStorage', null, /** @lends ITHit.WebDAV.Client.Exceptions.Parsers.InsufficientStorage.prototype */{
+
+	/**
+	 * @constructs
+	 * @param sMessage
+	 * @param sHref
+	 * @param oMultistatus
+	 * @param oError
+	 * @param oInnerException
+	 */
+	constructor: function(sMessage, sHref, oMultistatus, oError, oInnerException) {
+
+		var sExceptionClass = 'InsufficientStorageException';
+
+		if (1 == oError.Properties.length) {
+			var oPropName = oError.Properties[0].Name;
+
+			if (oPropName.Equals(ITHit.WebDAV.Client.DavConstants.QuotaNotExceeded)) {
+				sExceptionClass = 'QuotaNotExceededException';
+			} else if (oPropName.Equals(ITHit.WebDAV.Client.DavConstants.SufficientDiskSpace)) {
+				sExceptionClass = 'SufficientDiskSpaceException';
+			}
+		}
+
+		return new ITHit.WebDAV.Client.Exceptions[sExceptionClass]((oError.Description || sMessage), sHref, oMultistatus, oInnerException, oError);
+	}
+
+});
+
+
+/**
+ * Represents information about errors occurred in different elements.
+ * @api
+ * @class ITHit.WebDAV.Client.Error
+ */
+ITHit.DefineClass('ITHit.WebDAV.Client.Error', null, /** @lends ITHit.WebDAV.Client.Error.prototype */{
+
+    /**
+     * Gets the generic description, if available.
+     * @api
+     * @type {string}
+     */
+    Description: null,
+
+    /**
+     * Array of the errors returned by server.
+     * @api
+     * @type {ITHit.WebDAV.Client.MultistatusResponse[]}
+     */
+    Responses: null
+
+});
+
+ITHit.DefineClass('ITHit.WebDAV.Client.Exceptions.Info.Error', ITHit.WebDAV.Client.Error, /** @lends ITHit.WebDAV.Client.Exceptions.Info.Error.prototype */{
+
+	/**
+	 * Gets the generic description, if available.
+	 * @type {string}
+	 */
+	Description: '',
+
+	/**
+	 * Array of elements returned by server.
+	 * @type {ITHit.WebDAV.Client.Property[]}
+	 */
+	Properties: null,
+
+	/**
+	 * Inline text, returned by server
+	 * @type {string}
+	 */
+	BodyText: '',
+
+	/**
+	 * Represents information about errors occurred in different elements.
+	 * @constructs
+	 * @extends ITHit.WebDAV.Client.Error
+	 */
+	constructor: function(oErrorResponse) {
+		this.Properties = [];
+
+		this._super();
+
+		// Whether error response object passed.
+		if (oErrorResponse) {
+			this.Description = oErrorResponse.ResponseDescription;
+			this.Properties  = oErrorResponse.Properties;
+		}
+	}
+
+});
+
+
+ITHit.Phrases.LoadJSON(ITHit.Temp.WebDAV_Phrases);
+
+;
+(function() {
+
+	/*
+	 * Request header collection.
+	 */
+	var Headers = function(oHeaders) {
+		this.Headers = oHeaders;
+	};
+
+	/*
+	 * Save header for request.
+	 * @function ITHit.WebDAV.Client.WebDavRequest.Add
+	 *
+	 * @param {string} sHeader Header's name.
+	 * @param {string} sValue Header's value.
+	 */
+	Headers.prototype.Add = function(sHeader, sValue) {
+		this.Headers[sHeader] = sValue;
+	};
+
+	/*
+	 * Get headers dictionary as reference.
+	 * @function {object} ITHit.WebDAV.Client.WebDavRequest.GetAll
+	 *
+	 * @returns Headers list.
+	 */
+	Headers.prototype.GetAll = function() {
+		return this.Headers;
+	};
+
+	/**
+	 * This class represents asynchronous request to WebDAV server. The instance of this class is returned from most
+	 * asynchronous methods of the library. You can use it to cancel the request calling Abort() method of this class
+	 * as well as to show progress attaching to Progress event.
+	 * @class ITHit.WebDAV.Client.WebDavRequest
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.WebDavRequest', null, /** @lends ITHit.WebDAV.Client.WebDavRequest.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.WebDavRequest */{
+
+			_IdCounter: 0,
+
+			/**
+			 * Create request.
+			 * @param {string} sUri Page URI.
+			 * @param {(string|Array)} mLockTokens Lock tokens for item.
+			 * @param mLockTokens
+			 * @param {string} [sUser]
+			 * @param {string} [sPass]
+			 * @param {string} [sHost]
+			 * @returns {ITHit.WebDAV.Client.WebDavRequest} Request object.
+			 */
+			Create: function(sUri, mLockTokens, sUser, sPass, sHost) {
+
+				// Whether host is not set than add it.
+				if (/^\//.test(sUri)) {
+					sUri = sHost + sUri.substr(1);
+				}
+
+				// Create WebDavRequest object for specified URI.
+				var oWebDavRequest = new self(sUri, sUser, sPass);
+
+				// If mLockTokens is string.
+				if ('string' == typeof mLockTokens) {
+					if (mLockTokens) {
+
+						// Add If header.
+						oWebDavRequest.Headers.Add('If', '(<'+ ITHit.WebDAV.Client.DavConstants.OpaqueLockToken + mLockTokens +'>)');
+					}
+
+					// Else if mLockTokens is an array type.
+				} else if ( (mLockTokens instanceof Array) && mLockTokens.length) {
+
+					var sLockTokensHeader = '';
+					var bFirst = true;
+
+					for (var i = 0; i < mLockTokens.length; i++) {
+
+						// Check whether LockToken element is not null.
+						ITHit.WebDAV.Client.WebDavUtil.VerifyArgumentNotNull(mLockTokens[i], "lockToken");
+
+						// Append LockToken to header collection.
+						sLockTokensHeader += (bFirst ? '' : ' ') + '(<'+ ITHit.WebDAV.Client.DavConstants.OpaqueLockToken + mLockTokens[i].LockToken +'>)';
+
+						bFirst = false;
+					}
+
+					// Add If header.
+					oWebDavRequest.Headers.Add("If", sLockTokensHeader);
+				}
+
+				return oWebDavRequest;
+			},
+
+			ProcessWebException: function(oResponseData) {
+
+				// Get references for namespaces.
+				var oResponse     = null;
+				var sResponseData = '';
+
+				if (oResponseData.BodyXml && oResponseData.BodyXml.childNodes.length) {
+					oResponse     = new ITHit.XMLDoc(oResponseData.BodyXml);
+					sResponseData = String(oResponse);
+				}
+
+				// Try parse multistatus response.
+				var oInfo         = null,
+					oErrorInfo    = null;
+
+				if (oResponse) {
+					var oErrorResponse = new ITHit.WebDAV.Client.Methods.ErrorResponse(oResponse, oResponseData.Href);
+					oErrorInfo         = new ITHit.WebDAV.Client.Exceptions.Info.Error(oErrorResponse);
+
+					var oMultiResponse = new ITHit.WebDAV.Client.Methods.MultiResponse(oResponse, oResponseData.Href);
+					oInfo              = new ITHit.WebDAV.Client.Exceptions.Info.Multistatus(oMultiResponse);
+				} else {
+					oErrorInfo         = new ITHit.WebDAV.Client.Exceptions.Info.Error();
+					oErrorInfo.BodyText = oResponseData.BodyText;
+				}
+
+				// Throw apropriate exception
+				var oException = null,
+					oExceptionToThrow;
+
+				switch (oResponseData.Status) {
+
+					case ITHit.WebDAV.Client.HttpStatus.Unauthorized.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.UnauthorizedException(ITHit.Phrases.Exceptions.Unauthorized, oResponseData.Href, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.Conflict.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.ConflictException(ITHit.Phrases.Exceptions.Conflict, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.Locked.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.LockedException(ITHit.Phrases.Exceptions.Locked, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.BadRequest.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.BadRequestException(ITHit.Phrases.Exceptions.BadRequest, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.Forbidden.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.ForbiddenException(ITHit.Phrases.Exceptions.Forbidden, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.MethodNotAllowed.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.MethodNotAllowedException(ITHit.Phrases.Exceptions.MethodNotAllowed, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.NotImplemented.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.NotImplementedException(ITHit.Phrases.Exceptions.MethodNotAllowed, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.NotFound.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.NotFoundException(ITHit.Phrases.Exceptions.NotFound, oResponseData.Href, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.PreconditionFailed.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.PreconditionFailedException(ITHit.Phrases.Exceptions.PreconditionFailed, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.DependencyFailed.Code:
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.DependencyFailedException(ITHit.Phrases.Exceptions.DependencyFailed, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					case ITHit.WebDAV.Client.HttpStatus.InsufficientStorage.Code:
+						oExceptionToThrow = ITHit.WebDAV.Client.Exceptions.Parsers.InsufficientStorage(ITHit.Phrases.Exceptions.InsufficientStorage, oResponseData.Href, oInfo, oErrorInfo, oException);
+						break;
+
+					default:
+						if (sResponseData) {
+							sResponseData = '\n'+ ITHit.Phrases.ServerReturned +'\n----\n'+ sResponseData +'\n----\n';
+						}
+
+						oExceptionToThrow = new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(
+							ITHit.Phrases.Exceptions.Http + sResponseData,
+							oResponseData.Href,
+							oInfo,
+							new ITHit.WebDAV.Client.HttpStatus(oResponseData.Status, oResponseData.StatusDescription),
+							oException,
+							oErrorInfo
+						);
+						break;
+				}
+
+				return oExceptionToThrow;
+			}
+
+		},
+
+		_Href: null,
+		_Method: 'GET',
+		_Headers: null,
+		_Body: '',
+		_User: null,
+		_Password: null,
+
+		Id: null,
+		Headers: null,
+		PreventCaching: null,
+		ProgressInfo: null,
+
+		/**
+		 * Custom handler for get progress event
+		 */
+		OnProgress: null,
+		_XMLRequest: null,
+
+		/**
+		 * Create instance of WebDavRequest class.
+		 * @param {string} sUri URI
+		 * @param {string} [sUser]
+		 * @param {string} [sPass]
+		 */
+		constructor: function(sUri, sUser, sPass) {
+			this._Href     = sUri;
+			this._Headers  = {};
+			this._User     = sUser || null;
+			this._Password = sPass || null;
+
+			this.Id = self._IdCounter++;
+			this.Headers   = new Headers(this._Headers);
+		},
+
+		/**
+		 * Get or set method for request
+		 * @param {string} sValue Method's value.
+		 * @returns {string} Method's value.
+		 */
+		Method: function(sValue) {
+			if (undefined !== sValue) {
+				this._Method = sValue;
+			}
+
+			return this._Method;
+		},
+
+		Body: function(mBody) {
+			if (undefined !== mBody) {
+				this._Body = mBody;
+			}
+
+			return this._Body;
+		},
+
+		/**
+		 * Abort request. Method called native XMLRequest.Abort method.
+		 */
+		Abort: function() {
+			if (this._XMLRequest !== null) {
+				this._XMLRequest.Abort();
+			}
+		},
+
+		/**
+		 * Make XMLHttpRequest and get response.
+		 * @returns {ITHit.WebDAV.Client.WebDavResponse|null} Response object.
+		 */
+		GetResponse: function(fCallback) {
+
+			// Send async request
+			var bAsync = typeof fCallback === 'function';
+
+			var sHref = this._Href;
+
+			// Add nocache attribute for force disabled cache
+			if ((ITHit.Config.PreventCaching && this.PreventCaching === null) || this.PreventCaching === true ) {
+				var sAndSymbol = sHref.indexOf('?') !== -1 ? '&' : '?';
+				var sNoCacheParam = sAndSymbol + 'nocache=' + new Date().getTime();
+
+				if (sHref.indexOf('#') !== -1) {
+					sHref.replace(/#/g, sNoCacheParam + '#');
+				} else {
+					sHref += sNoCacheParam;
+				}
+			}
+
+			// Fix for XMLHttpRequest.
+			// TODO: Remove fix when encoding special characters on server will be fixed.
+			sHref = sHref.replace(/#/g, '%23');
+
+			var oRequestData = new ITHit.HttpRequest(
+				sHref,
+				this._Method,
+				this._Headers,
+				String(this._Body)
+			);
+
+			var oResponseData = ITHit.Events.DispatchEvent(this, 'OnBeforeRequestSend', oRequestData);
+
+			if (!oResponseData || !(oResponseData instanceof ITHit.HttpResponse)) {
+
+				// Set default user and password if specified.
+				oRequestData.User     = (null === oRequestData.User) ? this._User : oRequestData.User;
+				oRequestData.Password = (null === oRequestData.Password) ? this._Password : oRequestData.Password;
+				oRequestData.Body = String(oRequestData.Body) || '';
+
+				// Send request.
+				this._XMLRequest = new ITHit.XMLRequest(oRequestData, bAsync);
+			}
+
+			if (bAsync) {
+				if (this._XMLRequest !== null) {
+					// Call callback after receiving the response
+					var that = this;
+					this._XMLRequest.OnData = function (oResponseData) {
+						var oWebDavResponse = null;
+						var bSuccess = true;
+						var oError = null;
+						try {
+							oWebDavResponse = that._onGetResponse(oRequestData, oResponseData);
+							bSuccess = true;
+						}
+						catch (e) {
+							oError = e;
+							bSuccess = false;
+						}
+
+						var oAsyncResult = new ITHit.WebDAV.Client.AsyncResult(oWebDavResponse, bSuccess, oError);
+						ITHit.Events.DispatchEvent(that, 'OnFinish', [oAsyncResult, that.Id]);
+						fCallback.call(this, oAsyncResult);
+					};
+					this._XMLRequest.OnError = function (oException) {
+						var oWebDavHttpException = new ITHit.WebDAV.Client.Exceptions.WebDavHttpException(oException.message, sHref, null, null, oException);
+						var oAsyncResult = new ITHit.WebDAV.Client.AsyncResult(null, false, oWebDavHttpException);
+						ITHit.Events.DispatchEvent(that, 'OnFinish', [oAsyncResult, that.Id]);
+						fCallback.call(this, oAsyncResult);
+					};
+					this._XMLRequest.OnProgress = function (oEvent) {
+						// IE8 has not arguments in onprogress event
+						if (!oEvent) {
+							return;
+						}
+
+						that.ProgressInfo = oEvent;
+						ITHit.Events.DispatchEvent(that, 'OnProgress', [oEvent, that.Id]);
+
+						if (typeof that.OnProgress === 'function') {
+							that.OnProgress(oEvent);
+						}
+					};
+
+					this._XMLRequest.Send();
+				} else {
+					// Only call callback
+					var oWebDavResponse = this._onGetResponse(oRequestData, oResponseData);
+					fCallback.call(this, oWebDavResponse);
+				}
+			} else {
+				if (this._XMLRequest !== null) {
+					this._XMLRequest.Send();
+					oResponseData = this._XMLRequest.GetResponse();
+				}
+
+				// Send response synchronous
+				return this._onGetResponse(oRequestData, oResponseData);
+			}
+		},
+
+		_onGetResponse: function(oRequestData, oResponseData) {
+
+			oResponseData.RequestMethod = this._Method;
+			ITHit.Events.DispatchEvent(this, 'OnResponse', oResponseData);
+
+			var oStatus = new ITHit.WebDAV.Client.HttpStatus(oResponseData.Status, oResponseData.StatusDescription);
+
+			// If status is 278 treat this as a redirect, 302 redirect is processed automatically, no way to display login page
+			// http://stackoverflow.com/questions/199099/how-to-manage-a-redirect-request-after-a-jquery-ajax-call
+			if (oResponseData.Status == ITHit.WebDAV.Client.HttpStatus.Redirect.Code) {
+				window.location.replace(oResponseData.Headers['Location']);
+			}
+
+			// If status is not success then raise exception.
+			if (!oStatus.IsSuccess()) {
+				throw self.ProcessWebException(oResponseData);
+			}
+
+			// Return response.
+			return new ITHit.WebDAV.Client.WebDavResponse(oResponseData, oRequestData.Method);
+		}
+
+	});
+
+})();
+
+
+;
+(function() {
+
+	/**
+	 * Represents a context for one or many requests.
+	 * @api
+	 * @class ITHit.WebDAV.Client.RequestProgress
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.RequestProgress', null, /** @lends ITHit.WebDAV.Client.RequestProgress.prototype */{
+
+		/**
+		 * Progress in percents
+		 * @api
+		 * @type {number}
+		 */
+		Percent: 0,
+
+		/**
+		 * Count of complete operations
+		 * @api
+		 * @type {number}
+		 */
+		CountComplete: 0,
+
+		/**
+		 * Total operations count
+		 * @api
+		 * @type {number}
+		 */
+		CountTotal: 0,
+
+		/**
+		 * Count of loaded bytes
+		 * @api
+		 * @type {number}
+		 */
+		BytesLoaded: 0,
+
+		/**
+		 * Total bytes. This param can be changed in progress, if request has many operations (sub-requests).
+		 * @api
+		 * @type {number}
+		 */
+		BytesTotal: 0,
+
+		/**
+		 * Flag indicating if the resource concerned by the XMLHttpRequest ProgressEvent has a length that can be calculated.
+		 * @api
+		 * @type {boolean}
+		 */
+		LengthComputable: true,
+
+		/**
+		 * @type {object}
+		 */
+		_RequestsComplete: null,
+
+		/**
+		 * @type {object}
+		 */
+		_RequestsXhr: null,
+
+		/**
+		 *
+		 * @param {number} [iRequestsCount] Requests count
+		 */
+		constructor: function(iRequestsCount) {
+			this.CountTotal = iRequestsCount;
+			this._RequestsComplete = {};
+			this._RequestsXhr = {};
+		},
+
+		/**
+		 * @param {number} iRequestId
+		 */
+		SetComplete: function(iRequestId) {
+			if (this._RequestsComplete[iRequestId]) {
+				return;
+			}
+
+			this._RequestsComplete[iRequestId] = true;
+			this.CountComplete++;
+
+			if (this._RequestsXhr[iRequestId]) {
+				this._RequestsXhr[iRequestId].loaded = this._RequestsXhr[iRequestId].total;
+				this.SetXhrEvent(iRequestId, this._RequestsXhr[iRequestId]);
+			} else {
+				this._UpdatePercent();
+			}
+		},
+
+		/**
+		 * @param {number} iRequestId
+		 * @param {XMLHttpRequestProgressEvent} oXhrEvent
+		 */
+		SetXhrEvent: function(iRequestId, oXhrEvent) {
+			this._RequestsXhr[iRequestId] = oXhrEvent;
+
+			if (this.LengthComputable === false) {
+				return;
+			}
+
+			this._ResetBytes();
+
+			for (var iId in this._RequestsXhr) {
+				if (!this._RequestsXhr.hasOwnProperty(iId)) {
+					continue;
+				}
+
+				var oProgress = this._RequestsXhr[iId];
+				if (oProgress.lengthComputable === false || !oProgress.total) {
+					this.LengthComputable = false;
+					this._ResetBytes();
+					break;
+				}
+
+				this.BytesLoaded += oProgress.loaded;
+				this.BytesTotal += oProgress.total;
+			}
+
+			this._UpdatePercent();
+		},
+
+		_ResetBytes: function() {
+			this.BytesLoaded = 0;
+			this.BytesTotal = 0;
+		},
+
+		_UpdatePercent: function() {
+			if (this.LengthComputable) {
+				this.Percent = 0;
+				for (var iId in this._RequestsXhr) {
+					if (!this._RequestsXhr.hasOwnProperty(iId)) {
+						continue;
+					}
+
+					var oProgress = this._RequestsXhr[iId];
+					this.Percent += (oProgress.loaded * 100 / oProgress.total) / this.CountTotal;
+				}
+			} else {
+				this.Percent = this.CountComplete * 100 / this.CountTotal;
+			}
+
+			this.Percent = Math.round(this.Percent * 100) / 100;
+		}
+
+	});
+
+})();
+
+
+;
+(function() {
+
+	/**
+	 * Represents a context for one or many requests.
+	 * @api
+	 * @fires ITHit.WebDAV.Client.Request#OnProgress
+	 * @fires ITHit.WebDAV.Client.Request#OnError
+	 * @fires ITHit.WebDAV.Client.Request#OnFinish
+	 * @class ITHit.WebDAV.Client.Request
+	 */
+	var self = ITHit.DefineClass('ITHit.WebDAV.Client.Request', null, /** @lends ITHit.WebDAV.Client.Request.prototype */{
+
+		__static: /** @lends ITHit.WebDAV.Client.Request */{
+
+			/**
+			 * Progress event trigger on update information about request progress.
+			 * See {@link ITHit.WebDAV.Client.RequestProgress} for more information.
+			 * @api
+			 * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.Progress.Progress
+			 * @event ITHit.WebDAV.Client.Request#OnProgress
+			 * @property {ITHit.WebDAV.Client.RequestProgress} Progress Progress info instance
+			 * @property {ITHit.WebDAV.Client.Request} Request Current request
+			 */
+			EVENT_ON_PROGRESS: 'OnProgress',
+
+			/**
+			 * Error event trigger when one of request operations have error.
+			 * Notice: This event trigger before async method callback.
+			 * @api
+			 * @event ITHit.WebDAV.Client.Request#OnError
+			 * @property {Error|ITHit.WebDAV.Client.Exceptions.WebDavException} Error Error object
+			 * @property {ITHit.WebDAV.Client.Request} Request Current request
+			 */
+			EVENT_ON_ERROR: 'OnError',
+
+			/**
+			 * Finish event trigger once when all operations in requests is complete.
+			 * Notice: This event trigger before async method callback.
+			 * @api
+			 * @event ITHit.WebDAV.Client.Request#OnFinish
+			 * @property {ITHit.WebDAV.Client.Request} Request Current request
+			 */
+			EVENT_ON_FINISH: 'OnFinish',
+
+			IdCounter: 0
+
+		},
+
+		/**
+		 * Auto generated unique request id
+		 * @type {number}
+		 */
+		Id: null,
+
+		/**
+		 * Current WebDAV session.
+		 * @type {ITHit.WebDAV.Client.WebDavSession}
+		 */
+		Session: null,
+
+		/**
+		 * Context name
+		 * @type {string}
+		 */
+		Name: null,
+
+		/**
+		 * Progress info object, auto updated on `OnProgress` event.
+		 * @api
+		 * @type {ITHit.WebDAV.Client.RequestProgress}
+		 */
+		Progress: null,
+
+		/**
+		 * Count of requests
+		 * @type {number}
+		 */
+		_RequestsCount: null,
+
+		/**
+		 * @type {ITHit.WebDAV.Client.WebDavRequest[]}
+		 */
+		_WebDavRequests: null,
+
+		/**
+		 * @type {boolean}
+		 */
+		_IsFinish: false,
+
+		/**
+		 *
+		 * @param {ITHit.WebDAV.Client.WebDavSession} oSession Current WebDAV session.
+		 * @param {string} [sName] Context name
+		 * @param {number} [iRequestsCount] Requests count
+		 */
+		constructor: function(oSession, sName, iRequestsCount) {
+			sName = sName || this.__instanceName;
+			iRequestsCount = iRequestsCount || 1;
+
+			this.Session = oSession;
+			this.Name = sName;
+
+			this.Id = self.IdCounter++;
+			this._WebDavRequests = [];
+			this._RequestsCount = iRequestsCount;
+			this.Progress = new ITHit.WebDAV.Client.RequestProgress(iRequestsCount);
+		},
+
+		/**
+		 * @api
+		 * @param {string} sEventName
+		 * @param fCallback
+		 * @param {object} [oContext]
+		 */
+		AddListener: function(sEventName, fCallback, oContext) {
+			oContext = oContext || null;
+
+			switch (sEventName) {
+				case self.EVENT_ON_PROGRESS:
+				case self.EVENT_ON_ERROR:
+				case self.EVENT_ON_FINISH:
+					ITHit.Events.AddListener(this, sEventName, fCallback, oContext);
+					break;
+
+				default:
+					throw new ITHit.WebDAV.Client.Exceptions.WebDavException('Not found event name `' + sEventName + '`');
+			}
+		},
+
+		/**
+		 * @api
+		 * @param {string} sEventName
+		 * @param fCallback
+		 * @param {object} [oContext]
+		 */
+		RemoveListener: function(sEventName, fCallback, oContext) {
+			oContext = oContext || null;
+
+			switch (sEventName) {
+				case self.EVENT_ON_PROGRESS:
+				case self.EVENT_ON_ERROR:
+				case self.EVENT_ON_FINISH:
+					ITHit.Events.RemoveListener(this, sEventName, fCallback, oContext);
+					break;
+
+				default:
+					throw new ITHit.WebDAV.Client.Exceptions.WebDavException('Not found event name `' + sEventName + '`');
+			}
+		},
+
+		/**
+		 * Cancels asynchronous request. The Finish event and the callback function will be called immediately after this method call.
+		 * @api
+		 */
+		Abort: function() {
+			for (var i = 0, l = this._WebDavRequests.length; i < l; i++) {
+				this._WebDavRequests[i].Abort();
+			}
+
+			// @todo stop new requests, call finish?
+		},
+
+		MarkFinish: function() {
+			if (this._IsFinish === true) {
+				return;
+			}
+			this._IsFinish = true;
+
+			ITHit.Events.DispatchEvent(this, self.EVENT_ON_FINISH, [{Request: this}]);
+
+			var oDateNow = new Date();
+			ITHit.Logger.WriteMessage('[' + this.Id + '] ----------------- Finished: ' + oDateNow.toUTCString() + ' [' + oDateNow.getTime() + '] -----------------' + '\n', ITHit.LogLevel.Info);
+
+			// Remove listeners
+			/*ITHit.Events.RemoveAllListeners(this, self.EVENT_ON_PROGRESS);
+			ITHit.Events.RemoveAllListeners(this, self.EVENT_ON_ERROR);
+			ITHit.Events.RemoveAllListeners(this, self.EVENT_ON_FINISH);*/
+		},
+
+		/**
+		 * Create request.
+		 * @param {string} sHost
+		 * @param {string} sPath Item path.
+		 * @param {(string|ITHit.WebDAV.Client.LockUriTokenPair)} [mLockTokens] Lock token for item.
+		 * @returns {ITHit.WebDAV.Client.WebDavRequest} Request object.
+		 */
+		CreateWebDavRequest: function(sHost, sPath, mLockTokens) {
+			var sId = this.Id;
+			var oDateNow = new Date();
+
+			// Check count requests
+			if (this._WebDavRequests.length >= this._RequestsCount && typeof window.console !== 'undefined') {
+				console.error('Wrong count of requests in [' + this.Id + '] `' + this.Name + '`');
+			}
+
+			ITHit.Logger.WriteMessage('\n[' + sId + '] ----------------- Started: ' + oDateNow.toUTCString() + ' [' + oDateNow.getTime() + '] -----------------', ITHit.LogLevel.Info);
+			ITHit.Logger.WriteMessage('[' + sId + '] Context Name: ' + this.Name, ITHit.LogLevel.Info);
+
+			var oWebDavRequest = this.Session.CreateWebDavRequest(sHost, sPath, mLockTokens);
+
+			// Add listeners for write logs
+			ITHit.Events.AddListener(oWebDavRequest, 'OnBeforeRequestSend', '_OnBeforeRequestSend', this);
+			ITHit.Events.AddListener(oWebDavRequest, 'OnResponse', '_OnResponse', this);
+
+			// Only for async requests
+			ITHit.Events.AddListener(oWebDavRequest, 'OnProgress', '_OnProgress', this);
+			ITHit.Events.AddListener(oWebDavRequest, 'OnFinish', '_OnFinish', this);
+
+			this._WebDavRequests.push(oWebDavRequest);
+			return oWebDavRequest;
+		},
+
+		_OnBeforeRequestSend: function(oRequestData) {
+			this._WriteRequestLog(oRequestData);
+		},
+
+		_OnResponse: function(oResponseData) {
+			this._WriteResponseLog(oResponseData);
+		},
+
+		_OnProgress: function(oEvent, iRequestId) {
+			var iPreviousProgressPercent = this.Progress.Percent;
+			this.Progress.SetXhrEvent(iRequestId, oEvent);
+
+			if (this.Progress.Percent !== iPreviousProgressPercent) {
+				ITHit.Events.DispatchEvent(this, self.EVENT_ON_PROGRESS, [{Progress: this.Progress, Request: this}]);
+			}
+		},
+
+		_OnFinish: function(oAsyncResult, iRequestId) {
+			var iPreviousProgressPercent = this.Progress.Percent;
+
+			// Force set progress as 100%
+			this.Progress.SetComplete(iRequestId);
+			if (this.Progress.Percent !== iPreviousProgressPercent) {
+				ITHit.Events.DispatchEvent(this, self.EVENT_ON_PROGRESS, [{Progress: this.Progress, Request: this}]);
+			}
+
+			if (!oAsyncResult.IsSuccess) {
+				ITHit.Events.DispatchEvent(this, self.EVENT_ON_ERROR, [{Error: oAsyncResult.Error, AsyncResult: oAsyncResult, Request: this}]);
+			}
+		},
+
+		_WriteRequestLog: function(oRequestData) {
+			// Log request method and URI.
+			ITHit.Logger.WriteMessage('[' + this.Id + '] ' + oRequestData.Method + ' ' + oRequestData.Href, ITHit.LogLevel.Info);
+
+			// Log request headers.
+			var aHeaders = [];
+			for (var sHeader in oRequestData.Headers) {
+				if (oRequestData.Headers.hasOwnProperty(sHeader)) {
+					aHeaders.push(sHeader + ': ' + oRequestData.Headers[sHeader]);
+				}
+			}
+			ITHit.Logger.WriteMessage('[' + this.Id + '] ' + aHeaders.join('\n'), ITHit.LogLevel.Info);
+
+			var sBody = String(oRequestData.Body) || '';
+
+			// Log request body if method is not PUT and body is not empty.
+			if (oRequestData.Method.toUpperCase() !== 'PUT' && oRequestData.Body) {
+				ITHit.Logger.WriteMessage('[' + this.Id + '] ' + sBody, ITHit.LogLevel.Info);
+			}
+		},
+
+		_WriteResponseLog: function(oResponseData) {
+			// Log response status
+			ITHit.Logger.WriteMessage('\n[' + this.Id + '] '+ oResponseData.Status +' '+ oResponseData.StatusDescription, ITHit.LogLevel.Info);
+
+			// Log response headers.
+			var aHeaders = [];
+			for (var sHeader in oResponseData.Headers) {
+				if (oResponseData.Headers.hasOwnProperty(sHeader)) {
+					aHeaders.push(sHeader + ': ' + oResponseData.Headers[sHeader]);
+				}
+			}
+			ITHit.Logger.WriteMessage('[' + this.Id + '] ' + aHeaders.join('\n'), ITHit.LogLevel.Info);
+
+			// Log error message.
+			var bIsSuccess = (parseInt(oResponseData.Status / 100) == 2);
+			var sResponseData = oResponseData.BodyXml && oResponseData.BodyXml.childNodes.length ?
+				String(new ITHit.XMLDoc(oResponseData.BodyXml)) :
+				oResponseData.BodyText;
+
+			if (!bIsSuccess || oResponseData.RequestMethod.toUpperCase() !== "GET") {
+				ITHit.Logger.WriteMessage('[' + this.Id + '] ' + sResponseData, bIsSuccess ? ITHit.LogLevel.Info : ITHit.LogLevel.Debug);
+			}
+		}
+
+	});
+
+})();
+
+
+;
+(function() {
+
+    var self = ITHit.DefineClass('ITHit.WebDAV.Client.WebDavSession', null, /** @lends ITHit.WebDAV.Client.WebDavSession.prototype */{
+
+        __static: /** @lends ITHit.WebDAV.Client.WebDavSession */{
+
+            /**
+             * Version of AJAX Library
+             * @api
+             */
+            Version: '1.9.1.1408',
+
+            /**
+             * The OnBeforeRequestSend event is fired before request is being submitted to server and provides all
+             * information that is used when creating the request such as URL, HTTP verb, headers and request body.
+             * @api
+             * @examplecode ITHit.WebDAV.Client.Tests.WebDavSession.Events.BeforeRequestSend
+             * @event ITHit.WebDAV.Client.WebDavSession#OnBeforeRequestSend
+             * @property {string} Method Request method
+             * @property {string} Href Request absolute path
+             * @property {object} Headers Key-value object with headers
+             * @property {string} Body Request Body
+             */
+            EVENT_ON_BEFORE_REQUEST_SEND: 'OnBeforeRequestSend',
+
+            /**
+             * The OnResponse event fires when the data is received from server. In your event handler you can update
+             * any data received from server.
+             * @api
+             * @examplecode ITHit.WebDAV.Client.Tests.WebDavSession.Events.Response
+             * @event ITHit.WebDAV.Client.WebDavSession#OnResponse
+             * @property {number} Status Response status code
+             * @property {string} StatusDescription Response status description
+             * @property {object} Headers Key-value object with headers
+             * @property {string} Body Response Body
+             */
+            EVENT_ON_RESPONSE: 'OnResponse'
+
+        },
+
+        ServerEngine: null,
+        _IsIisDetected: null,
+        _User: '',
+        _Pass: '',
+
+        /**
+         * @classdesc Session for accessing WebDAV servers.
+         * @example
+         *  &lt;!DOCTYPE html&gt;
+         *  &lt;html lang="en"&gt;
+         *  &lt;head&gt;
+         *      &lt;title&gt;IT Hit WebDAV Ajax Library&lt;/title&gt;
+         *      &lt;script src="http://www.ajaxbrowser.com/ITHitService/WebDAVAJAXLibrary/ITHitWebDAVClient.js" type="text/javascript"&gt;&lt;/script&gt;
+         *      &lt;script type="text/javascript"&gt;
+         *          var sFolderUrl = 'http://localhost:35829/';
+         *          var oSession = new ITHit.WebDAV.Client.WebDavSession();
+         *
+         *          oSession.OpenFolderAsync(sFolderUrl, function (oFolderAsyncResult) {
+         *              if (!oFolderAsyncResult.IsSuccess) {
+         *                  console.error(oFolderAsyncResult.Error);
+         *                  return;
+         *               }
+         *
+         *              /&#42;&#42; &#64;typedef {ITHit.WebDAV.Client.Folder} oFolder &#42;/
+         *              var oFolder = oFolderAsyncResult.Result;
+         *
+         *              console.log(oFolder.Href);
+         *
+         *              oFolder.GetChildrenAsync(false, null, function (oAsyncResult) {
+         *                  if (!oAsyncResult.IsSuccess) {
+         *                      console.error(oFolderAsyncResult.Error);
+         *                      return;
+         *                  }
+         *
+         *                  /&#42;&#42; &#64;typedef {ITHit.WebDAV.Client.HierarchyItem[]} aHierarchyItems &#42;/
+         *                  var aHierarchyItems = oAsyncResult.Result;
+         *
+         *                  for (var i = 0, l = aHierarchyItems.length; i &lt; l; i++) {
+         *                      var sSize = aHierarchyItems[i].ResourceType !== ITHit.WebDAV.Client.ResourceType.Folder ?
+         *                          Math.round(aHierarchyItems[i].ContentLength / 1000) + ' Kb' :
+         *                          null;
+         *                      console.log(' [' + aHierarchyItems[i].ResourceType + '] ' + aHierarchyItems[i].DisplayName + (sSize ? ', ' + sSize : ''));
+         *                  }
+         *              });
+         *          });
+         *      &lt;/script&gt;
+         *  &lt;/head&gt;
+         *  &lt;body&gt;
+         *  &lt;/body&gt;
+         *  &lt;/html&gt;
+         * @api
+         * @fires ITHit.WebDAV.Client.WebDavSession#OnBeforeRequestSend
+         * @fires ITHit.WebDAV.Client.WebDavSession#OnResponse
+         * @constructs
+         */
+        constructor: function() {
+        },
+
+        /**
+         * @api
+         * @param {string} sEventName
+         * @param fCallback
+         * @param {object} [oContext]
+         */
+        AddListener: function(sEventName, fCallback, oContext) {
+            oContext = oContext || null;
+
+            switch (sEventName) {
+                case self.EVENT_ON_BEFORE_REQUEST_SEND:
+                case self.EVENT_ON_RESPONSE:
+                    ITHit.Events.AddListener(this, sEventName, fCallback, oContext);
+                    break;
+
+                default:
+                    throw new ITHit.WebDAV.Client.Exceptions.WebDavException('Not found event name `' + sEventName + '`');
+            }
+        },
+
+        /**
+         * @api
+         * @param {string} sEventName
+         * @param fCallback
+         * @param {object} [oContext]
+         */
+        RemoveListener: function(sEventName, fCallback, oContext) {
+            oContext = oContext || null;
+
+            switch (sEventName) {
+                case self.EVENT_ON_BEFORE_REQUEST_SEND:
+                case self.EVENT_ON_RESPONSE:
+                    ITHit.Events.RemoveListener(this, sEventName, fCallback, oContext);
+                    break;
+
+                default:
+                    throw new ITHit.WebDAV.Client.Exceptions.WebDavException('Not found event name `' + sEventName + '`');
+            }
+        },
+
+        /**
+         * Load File object corresponding to path.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sPath Path to the file.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.File} File corresponding to requested path.
+         * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested file doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        OpenFile: function(sPath, aProperties) {
+			aProperties = aProperties || [];
+
+            var oRequest = this.CreateRequest(this.__className + '.OpenFile()');
+            var oFile = ITHit.WebDAV.Client.File.OpenItem(oRequest, sPath, aProperties);
+
+            oRequest.MarkFinish();
+            return oFile;
+        },
+
+        /**
+         * Callback function to be called when file loaded from server.
+         * @callback ITHit.WebDAV.Client.WebDavSession~OpenFileAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.File} oResult.Result File corresponding to requested path.
+         */
+
+        /**
+         * Load File object corresponding to path.
+         * @api
+         * @param {string} sPath Path to the file.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.WebDavSession~OpenFileAsyncCallback} fCallback Function to call when operation is completed.
+         * @returns {ITHit.WebDAV.Client.Request} Request object.
+         */
+        OpenFileAsync: function(sPath, aProperties, fCallback) {
+			aProperties = aProperties || [];
+
+			var oRequest = this.CreateRequest(this.__className + '.OpenFileAsync()');
+            ITHit.WebDAV.Client.File.OpenItemAsync(oRequest, sPath, aProperties, function(oAsyncResult) {
+
+                oRequest.MarkFinish();
+                fCallback(oAsyncResult);
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Legacy proxy to OpenFile() method
+         * @deprecated
+         * @param sPath
+         * @param [aProperties]
+         */
+        OpenResource: function(sPath, aProperties) {
+			aProperties = aProperties || [];
+
+			return this.OpenFile(sPath, aProperties);
+        },
+
+        /**
+         * Legacy proxy to OpenFileAsync() method
+         * @deprecated
+         * @param sPath
+         * @param aProperties
+         * @param fCallback
+         */
+        OpenResourceAsync: function(sPath, aProperties, fCallback) {
+			aProperties = aProperties || [];
+
+			return this.OpenFileAsync(sPath, aProperties, fCallback);
+        },
+
+        /**
+         * Returns Folder object corresponding to path.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sPath Path to the folder.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.Folder} Folder corresponding to requested path.
+         * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        OpenFolder: function(sPath, aProperties) {
+			aProperties = aProperties || [];
+
+			var oRequest = this.CreateRequest(this.__className + '.OpenFolder()');
+            var oFolder = ITHit.WebDAV.Client.Folder.OpenItem(oRequest, sPath, aProperties);
+
+            oRequest.MarkFinish();
+            return oFolder;
+        },
+
+        /**
+         * Callback function to be called when folder loaded from server.
+         * @callback ITHit.WebDAV.Client.WebDavSession~OpenFolderAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.Folder} oResult.Result Folder corresponding to requested path.
+         */
+
+        /**
+         * Returns Folder object corresponding to path.
+         * @examplecode ITHit.WebDAV.Client.Tests.HierarchyItems.GetItemBySession.GetFolder
+         * @api
+         * @param {string} sPath Path to the folder.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.WebDavSession~OpenFolderAsyncCallback} fCallback Function to call when operation is completed.
+         */
+        OpenFolderAsync: function(sPath, aProperties, fCallback) {
+			aProperties = aProperties || [];
+
+			var oRequest = this.CreateRequest(this.__className + '.OpenFolderAsync()');
+            ITHit.WebDAV.Client.Folder.OpenItemAsync(oRequest, sPath, aProperties, function(oAsyncResult) {
+
+                oRequest.MarkFinish();
+                fCallback(oAsyncResult);
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Returns HierarchyItem object corresponding to path.
+         * @api
+         * @deprecated Use asynchronous method instead
+         * @param {string} sPath Path to the item.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} [aProperties] Additional properties requested from server. Default is empty array.
+         * @returns {ITHit.WebDAV.Client.HierarchyItem} Item corresponding to requested path.
+         * @throws ITHit.WebDAV.Client.Exceptions.UnauthorizedException Incorrect credentials provided or insufficient permissions to access the requested item.
+         * @throws ITHit.WebDAV.Client.Exceptions.NotFoundException The requested folder doesn't exist on the server.
+         * @throws ITHit.WebDAV.Client.Exceptions.ForbiddenException The server refused to fulfill the request.
+         * @throws ITHit.WebDAV.Client.Exceptions.WebDavException Unexpected error occurred.
+         */
+        OpenItem: function(sPath, aProperties) {
+			aProperties = aProperties || [];
+
+			var oRequest = this.CreateRequest(this.__className + '.OpenItem()');
+            var oItem = ITHit.WebDAV.Client.HierarchyItem.OpenItem(oRequest, sPath, aProperties);
+
+            oRequest.MarkFinish();
+            return oItem;
+        },
+
+        /**
+         * Callback function to be called when items loaded from server.
+         * @callback ITHit.WebDAV.Client.WebDavSession~OpenItemAsyncCallback
+         * @param {ITHit.WebDAV.Client.AsyncResult} oResult Result object
+         * @param {ITHit.WebDAV.Client.HierarchyItem} oResult.Result Item corresponding to requested path.
+         */
+
+        /**
+         * Returns HierarchyItem object corresponding to path.
+         * @api
+         * @param {string} sPath Path to the resource.
+		 * @param {ITHit.WebDAV.Client.PropertyName[]} aProperties Additional properties requested from server. Default is empty array.
+         * @param {ITHit.WebDAV.Client.WebDavSession~OpenItemAsyncCallback} fCallback Function to call when operation is completed.
+         */
+        OpenItemAsync: function(sPath, aProperties, fCallback) {
+			aProperties = aProperties || [];
+
+            var oRequest = this.CreateRequest(this.__className + '.OpenItemAsync()');
+            ITHit.WebDAV.Client.HierarchyItem.OpenItemAsync(oRequest, sPath, aProperties, function(oAsyncResult) {
+
+                oRequest.MarkFinish();
+                fCallback(oAsyncResult);
+            });
+
+            return oRequest;
+        },
+
+        /**
+         * Create request context.
+         * @param {string} [sName]
+         * @param {number} [iRequestsCount]
+         * @returns {ITHit.WebDAV.Client.Request} Request context.
+         */
+        CreateRequest: function(sName, iRequestsCount){
+            return new ITHit.WebDAV.Client.Request(this, sName, iRequestsCount);
+        },
+
+        /**
+         * Create request.
+         * @param {string} sHost
+         * @param {string} sPath Item path.
+         * @param {(string|ITHit.WebDAV.Client.LockUriTokenPair)} [mLockTokens] Lock token for item.
+         * @returns {ITHit.WebDAV.Client.WebDavRequest} Request object.
+         */
+        CreateWebDavRequest: function(sHost, sPath, mLockTokens){
+
+            if ('undefined' == typeof mLockTokens) {
+                mLockTokens = [];
+            }
+
+            // Return new WebDavRequest object.
+            var oWebDavRequest = ITHit.WebDAV.Client.WebDavRequest.Create(sPath, mLockTokens, this._User, this._Pass, sHost);
+
+            // Attach event listener.
+            ITHit.Events.AddListener(oWebDavRequest, 'OnBeforeRequestSend', 'OnBeforeRequestSendHandler', this);
+            ITHit.Events.AddListener(oWebDavRequest, 'OnResponse', 'OnResponseHandler', this);
+
+            return oWebDavRequest;
+        },
+
+        OnBeforeRequestSendHandler: function(oRequestData, oWebDavRequest) {
+
+            ITHit.Events.RemoveListener(oWebDavRequest, 'OnBeforeRequestSend', 'OnBeforeRequestSendHandler', this);
+            return ITHit.Events.DispatchEvent(this, 'OnBeforeRequestSend', oRequestData);
+        },
+
+        OnResponseHandler: function(oResponseData, oWebDavRequest) {
+
+            var oWebDavRequest = arguments[arguments.length-1];
+
+            // set version
+            if (this.ServerEngine === null) {
+                // Get webdav server version
+                this.ServerEngine = oResponseData.GetResponseHeader('x-engine', true);
+            }
+            if (this._IsIisDetected === null) {
+                // check Server header to match the IIS server
+                var sServerHeader = oResponseData.GetResponseHeader('server', true);
+                this._IsIisDetected = (/*/^Microsoft-HTTPAPI\//i.test(sServerHeader) ||*/ /^Microsoft-IIS\//i.test(sServerHeader));
+            }
+
+            ITHit.Events.RemoveListener(oWebDavRequest, 'OnResponse', 'OnResponseHandler', this);
+            return ITHit.Events.DispatchEvent(this, 'OnResponse', oResponseData);
+        },
+
+        /**
+         * Undo deleting file. Works only with ITHit WebDAV DeltaV ReumableUpload Server.
+         * @param {string} sPath Item path.
+         * @returns {object}
+         */
+        Undelete: function(sPath) {
+
+            var oRequest = this.CreateRequest(this.__className + '.Undelete()');
+
+            sPath   = ITHit.WebDAV.Client.Encoder.EncodeURI(sPath);
+            var oReport = ITHit.WebDAV.Client.Methods.Undelete.Go(oRequest, sPath, ITHit.WebDAV.Client.HierarchyItem.GetHost(sPath));
+
+            oRequest.MarkFinish();
+            return oReport;
+        },
+
+        SetCredentials: function(sUser, sPass) {
+            this._User    = sUser;
+            this._Pass    = sPass;
+        },
+
+        GetIisDetected: function() {
+            return this._IsIisDetected;
+        }
+
+    });
+
+})();
+
+// Clear temporary variable.
+ITHit.Temp = {};
 eXo.ecm.ECMWebDav = ITHit;
   return {
     ECMWebDav : eXo.ecm.ECMWebDav
