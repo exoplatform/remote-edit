@@ -827,7 +827,7 @@ ITHit.Add('Utils',
 	}
 );
 
-/*
+/**
  * Removes initial and final space characters.
  * @function {static String} ITHit.Trim
  * 
@@ -864,19 +864,19 @@ ITHit.Add('Trim',
 	}
 );
 
-/*
+/**
  * Trim only initial space chars.
  * @property {String} ITHit.Trim.Left
  */
 ITHit.Add('Trim.Left',  'Left');
 
-/*
+/**
  * Trim only final space chars.
  * @property {String} ITHit.Trim.Right
  */
 ITHit.Add('Trim.Right', 'Right');
 
-/*
+/**
  * Trim initial and final space chars.
  * @property {String} ITHit.Trim.Both
  */
@@ -989,7 +989,7 @@ ITHit.Add('Exception',
 	})()
 );
 
-/*
+/**
  * Method for emulating classical inharitance for javascript.
  * @function {static} ITHit.Extend
  * 
@@ -1571,7 +1571,7 @@ ITHit.Add('DecodeHost',
 
 })();
 
-/*
+/**
  * Base namespace for exceptions.
  * @namespace ITHit.Exceptions
  */
@@ -1665,12 +1665,10 @@ ITHit.Temp.WebDAV_Phrases={
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Exception for Logger class.
  * @class ITHit.Exceptions.LoggerException
  * @extends ITHit.Exception
- */
-/*
  * Initializes a new instance of the LoggerException class with a specified error message and a reference to the inner exception that is the cause of this exception. 
  * @constructor LoggerException
  * 
@@ -2065,12 +2063,10 @@ ITHit.DefineClass('ITHit.LogLevel', null, {}, /** @lends ITHit.LogLevel */{
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Exception for Phrases class.
  * @class ITHit.Exceptions.PhraseException
  * @extends ITHit.Exception
- */
-/*
  * Initializes a new instance of the PhraseException class with a specified error message and a reference to the inner exception that is the cause of this exception.
  * @constructor PhraseException
  * 
@@ -2089,7 +2085,7 @@ ITHit.Extend(ITHit.oNS.PhraseException, ITHit.Exception);
 // Exception name.
 ITHit.oNS.PhraseException.prototype.Name = 'PhraseException';
 
-/*
+/**
  * Class for work with the text. Allows parse transferred JSON text and gives the convenient 
  *    mechanism for returning phrases with an opportunity of replacement placeholders.
  * @struct {static} ITHit.Phrases
@@ -2158,7 +2154,7 @@ ITHit.Phrases = (function() {
 	
 	var Phrases = function() {}
 	
-	/*
+	/**
 	 * A method for transformation JSON text into javascript object.
 	 * @function {Boolean} ITHit.Phrases.loadJSON
 	 * 
@@ -2250,7 +2246,7 @@ ITHit.Phrases = (function() {
 		}
 	}
 	
-	/*
+	/**
 	 * A method for converting phrases into objects.
 	 * @function {private} ITHit.Phrases._AddPhrases
 	 * 
@@ -2292,12 +2288,10 @@ ITHit.Phrases = (function() {
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Exception for XPath class.
  * @class ITHit.Exceptions.XPathException
  * @extends ITHit.Exception
- */
-/*
  * Initializes a new instance of the XPathException class with a specified error message and a reference to the inner exception that is the cause of this exception.
  * @constructor XMLDocException
  * 
@@ -2316,7 +2310,7 @@ ITHit.Extend(ITHit.oNS.XPathException, ITHit.Exception);
 // Exception name.
 ITHit.oNS.XPathException.prototype.Name = 'XPathException';
 
-/*
+/**
  * XPath class.
  * @class ITHit.XPath
  */
@@ -2325,7 +2319,7 @@ ITHit.XPath = {
 	_version: null
 };
 
-/*
+/**
  * Static method for executing search.
  * @constructor XPath
  * 
@@ -2337,8 +2331,6 @@ ITHit.XPath = {
  * @returns Result object or XML DOM element.
  * 
  * @throws ITHit.Exceptions.XPathException &nbsp;
- */
-/*
  * @function {ITHit.XPath.result} ITHit.XPath
  */
 ITHit.XPath.evaluate = function(sExpression, oXmlDom, oResolver, oResult, _bSelectSingle) {
@@ -2540,7 +2532,7 @@ ITHit.XPath.evaluate = function(sExpression, oXmlDom, oResolver, oResult, _bSele
 	throw new ITHit.Exceptions.XPathException('XPath support is not implemented for your browser.');
 }
 
-/*
+/**
  * Find single (first) node.
  * @function {ITHit.XMLDoc} ITHit.XPath.selectSingleNode
  * 
@@ -2552,11 +2544,10 @@ ITHit.XPath.selectSingleNode = function(sExpression, oXmlDom, oResolver) {
 	return ITHit.XPath.evaluate(sExpression, oXmlDom, oResolver, false, true);
 }
 
-/*
+/**
  * Class for creating namespace resolver for XPath.
  * @class ITHit.XPath.resolver
- */
-/*
+ *
  * Create new instance of resolver class.
  * @constructor resolver
  */
@@ -2565,7 +2556,7 @@ ITHit.XPath.resolver = function() {
 	this._length = 0;
 }
 
-/*
+/**
  * Add alias and namespace for it.
  * @function ITHit.XPath.resolver.add
  * 
@@ -2577,7 +2568,7 @@ ITHit.XPath.resolver.prototype.add = function(sAlias, sNs) {
 	this._length++;
 }
 
-/*
+/**
  * Removes alias and namespace corresponding to it.
  * @function ITHit.XPath.resolver.remove
  * 
@@ -2588,7 +2579,7 @@ ITHit.XPath.resolver.prototype.remove = function(sAlias) {
 	this._length--;
 }
 
-/*
+/**
  * Get namespace corresponding to passed alias.
  * @function {String} ITHit.XPath.resolver.get
  *  
@@ -2600,7 +2591,7 @@ ITHit.XPath.resolver.prototype.get = function(sAlias) {
 	return this._ns[sAlias] || null;
 }
 
-/*
+/**
  * Alias for get method.
  * @function {String} ITHit.XPath.resolver.lookupNamespaceURI
  * 
@@ -2608,7 +2599,7 @@ ITHit.XPath.resolver.prototype.get = function(sAlias) {
  */
 ITHit.XPath.resolver.prototype.lookupNamespaceURI = ITHit.XPath.resolver.prototype.get;
 
-/*
+/**
  * Get list of all namespaces.
  * @function {Object} ITHit.XPath.resolver.getAll
  * 
@@ -2624,7 +2615,7 @@ ITHit.XPath.resolver.prototype.getAll = function() {
 	return oOut;
 }
 
-/*
+/**
  * Get count of setted namespaces.
  * @function {Integer} ITHit.XPath.resolver.length
  * 
@@ -2634,11 +2625,10 @@ ITHit.XPath.resolver.prototype.length = function() {
 	return this._length;
 }
 
-/*
+/**
  * Class representing result of XPath query.
  * @class ITHit.XPath.resolver.result
- */
-/*
+ *
  * Create new instance of result class.
  * @constructor result
  * 
@@ -2650,7 +2640,7 @@ ITHit.XPath.result = function(oResult) {
 	this.length = oResult.length ? oResult.length : oResult.snapshotLength;
 }
 
-/*
+/**
  * Constants representing result type.
  */
 ITHit.XPath.result.ANY_TYPE                     = 0;
@@ -2664,7 +2654,7 @@ ITHit.XPath.result.ORDERED_NODE_SNAPSHOT_TYPE   = 7;
 ITHit.XPath.result.ANY_UNORDERED_NODE_TYPE      = 8;
 ITHit.XPath.result.FIRST_ORDERED_NODE_TYPE      = 9;
 
-/*
+/**
  * Iterate through founded nodes.
  * @function ITHit.XPath.resolver.iterateNext
  * 
@@ -2694,7 +2684,7 @@ ITHit.XPath.result.prototype.iterateNext = function(iIndex) {
 	}
 }
 
-/*
+/**
  * Iterate through founded nodes.
  * @function ITHit.XPath.resolver.snapshotItem
  * 
@@ -2704,7 +2694,7 @@ ITHit.XPath.result.prototype.iterateNext = function(iIndex) {
  */
 ITHit.XPath.result.prototype.snapshotItem = ITHit.XPath.result.prototype.iterateNext;
 
-/*
+/**
  * Return type for result.
  * @function {Integer} ITHit.XPath.resolver.type
  * 
@@ -2721,12 +2711,11 @@ ITHit.XPath.result.prototype._get = function() {
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Exception for XMLDoc class.
  * @class ITHit.Exceptions.XMLDocException
  * @extends ITHit.Exception
- */
-/*
+ *
  * Initializes a new instance of the XMLDocException class with a specified error message and a reference to the inner exception that is the cause of this exception.
  * @constructor XMLDocException
  * 
@@ -2745,7 +2734,7 @@ ITHit.Extend(ITHit.oNS.XMLDocException, ITHit.Exception);
 // Exception name.
 ITHit.oNS.XMLDocException.prototype.Name = 'XMLDocException';
 
-/*
+/**
  * Class for manipulating XML document.
  * @class ITHit.XMLDoc
  */
@@ -2771,7 +2760,7 @@ ITHit.XMLDoc = (function() {
 	var NODE_DOCUMENT_FRAGMENT = 11;
 	var NODE_NOTATION = 12;
 	
-	/*
+	/**
 	 * Creates class for working with XML documents.
 	 * @constructor XMLDoc
 	 * 
@@ -2846,7 +2835,7 @@ ITHit.XMLDoc = (function() {
 		}
 	};
 	
-	/*
+	/**
 	 * Holds version of XML DOM GUID.
 	 * @param {Inreger} ITHit.XMLDoc._version
 	 */
@@ -2860,7 +2849,7 @@ ITHit.XMLDoc = (function() {
 		return this._encoding;
 	}
 	
-	/*
+	/**
 	 * Load XML structure from string to specified object.
 	 *  Previous structure will be deleted.
 	 * @function ITHit.XMLDoc.load
@@ -2933,7 +2922,7 @@ ITHit.XMLDoc = (function() {
 		}
 	};
 	
-	/*
+	/**
 	 * Append child element.
 	 * @function ITHit.XMLDoc.appendChild
 	 * 
@@ -2950,7 +2939,7 @@ ITHit.XMLDoc = (function() {
 		this._xml.appendChild(oNode._get());
 	};
 	
-	/*
+	/**
 	 * Create element method.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.createElement
 	 * 
@@ -2962,7 +2951,7 @@ ITHit.XMLDoc = (function() {
 		return new XMLDoc(this._xml.createElement(sElementName));
 	};
 	
-	/*
+	/**
 	 * Create element with namespace.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.createElementNS
 	 * 
@@ -2994,7 +2983,7 @@ ITHit.XMLDoc = (function() {
 		throw new ITHit.Exceptions.XMLDocException('createElementNS for current browser is not implemented.');
 	};
 	
-	/*
+	/**
 	 * Create text node.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.createTextNode
 	 * 
@@ -3006,7 +2995,7 @@ ITHit.XMLDoc = (function() {
 		return new XMLDoc(this._xml.createTextNode(sText));
 	};
 	
-	/*
+	/**
 	 * Get element by it's id.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.getElementById
 	 * 
@@ -3018,7 +3007,7 @@ ITHit.XMLDoc = (function() {
 		return new XMLDoc(this._xml.getElementById(sId));
 	};
 	
-	/*
+	/**
 	 * Get elements by it's tag names
 	 * @function {ITHit.XMLDoc[]} ITHit.XMLDoc.getElementsByTagName
 	 * 
@@ -3030,7 +3019,7 @@ ITHit.XMLDoc = (function() {
 		return new XMLDoc(this._xml.getElementsByTagName(sTagName));
 	};
 	
-	/*
+	/**
 	 * Get element's child nodes.
 	 * @function {ITHit.XMLDoc[]} ITHit.XMLDoc.childNodes
 	 * 
@@ -3048,7 +3037,7 @@ ITHit.XMLDoc = (function() {
 		return oRetNodes;
 	}
 	
-	/*
+	/**
 	 * Get elements by it's tag names with namespace.
 	 * @function {ITHit.XMLDoc[]} ITHit.XMLDoc.getElementsByTagNameNS
 	 * 
@@ -3086,7 +3075,7 @@ ITHit.XMLDoc = (function() {
 		return aRet;
 	};
 	
-	/*
+	/**
 	 * Set attribute.
 	 * @function ITHit.XMLDoc.setAttribute
 	 * 
@@ -3101,7 +3090,7 @@ ITHit.XMLDoc = (function() {
 		this._xml.setAttribute(sName, mValue);
 	};
 	
-	/*
+	/**
 	 * Check whether attribute with specified name is present in element's attributes list.
 	 * @function {Boolean} ITHit.XMLDoc.hasAttribute
 	 * 
@@ -3114,7 +3103,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.hasAttribute(sName);
 	};
 	
-	/*
+	/**
 	 * Get attribute represented by name.
 	 * @function {String} ITHit.XMLDoc.getAttribute
 	 * 
@@ -3127,7 +3116,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.getAttribute(sName);
 	};
 	
-	/*
+	/**
 	 * Remove specified attribute.
 	 * @function ITHit.XMLDoc.removeAttribute
 	 * 
@@ -3138,7 +3127,7 @@ ITHit.XMLDoc = (function() {
 		this._xml.removeAttribute(sName);
 	};
 	
-	/*
+	/**
 	 * Check whether attribute with specified name is present in element's attributes list.
 	 * @function {Boolean} ITHit.XMLDoc.hasAttributeNS
 	 * 
@@ -3151,7 +3140,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.hasAttribute(sName);
 	};
 	
-	/*
+	/**
 	 * Get attribute represented by name.
 	 * @function {String} ITHit.XMLDoc.getAttributeNS
 	 * 
@@ -3164,7 +3153,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.getAttribute(sName);
 	};
 	
-	/*
+	/**
 	 * Remove specified attribute.
 	 * @function ITHit.XMLDoc.removeAttributeNS
 	 * 
@@ -3174,7 +3163,7 @@ ITHit.XMLDoc = (function() {
 		this._xml.removeAttribute(sName);
 	};
 	
-	/*
+	/**
 	 * Remove specified child node with all it's subnodes from current XML DOM tree.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.removeChild
 	 * 
@@ -3195,7 +3184,7 @@ ITHit.XMLDoc = (function() {
 		return new ITHit.XMLDoc(oNode);
 	};
 	
-	/*
+	/**
 	 * Remove specified node with all it's subnodes from current XML DOM tree.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.removeNode
 	 * 
@@ -3220,7 +3209,7 @@ ITHit.XMLDoc = (function() {
 		}
 	};
 	
-	/*
+	/**
 	 * Clone specified node.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.cloneNode
 	 * 
@@ -3240,7 +3229,7 @@ ITHit.XMLDoc = (function() {
 		return new ITHit.XMLDoc(this._xml.cloneNode(bWithChildren));
 	};
 	
-	/*
+	/**
 	 * Get specified property.
 	 * @function {String} ITHit.XMLDoc.getProperty
 	 * 
@@ -3252,7 +3241,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml[sPropName];
 	};
 	
-	/*
+	/**
 	 * Set specified property.
 	 * @function {String} ITHit.XMLDoc.setProperty
 	 * 
@@ -3263,7 +3252,7 @@ ITHit.XMLDoc = (function() {
 		this._xml[sPropName] = mValue;
 	};
 	
-	/*
+	/**
 	 * Get node name with nprefix if specified.
 	 * @function {String} ITHit.XMLDoc.nodeName
 	 * 
@@ -3273,7 +3262,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.nodeName;
 	};
 	
-	/*
+	/**
 	 * Get next sibling.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.nextSibling
 	 * 
@@ -3283,7 +3272,7 @@ ITHit.XMLDoc = (function() {
 		return new ITHit.XMLDoc(this._xml.nextSibling);
 	};
 	
-	/*
+	/**
 	 * Get element's namespace.
 	 * @function {String} ITHit.XMLDoc.namespaceURI
 	 * 
@@ -3293,7 +3282,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.namespaceURI;
 	};
 	
-	/*
+	/**
 	 * Whether element has child nodes.
 	 *  @function {Boolean} ITHit.XMLDoc.hasChildNodes
 	 *  
@@ -3303,7 +3292,7 @@ ITHit.XMLDoc = (function() {
 		return (this._xml && this._xml.hasChildNodes());
 	}
 	
-	/*
+	/**
 	 * Get first child node.
 	 * @function {ITHit.XMLDoc} ITHit.XMLDoc.firstChild
 	 * 
@@ -3313,7 +3302,7 @@ ITHit.XMLDoc = (function() {
 		return new XMLDoc(this._xml.firstChild);
 	}
 	
-	/*
+	/**
 	 * Get local name (without prefix).
 	 * @function {String} ITHit.XMLDoc.localName
 	 * 
@@ -3323,7 +3312,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml.localName || this._xml.baseName;
 	};
 	
-	/*
+	/**
 	 * Get node value.
 	 * @function ITHit.XMLDoc.nodeValue
 	 * 
@@ -3344,7 +3333,7 @@ ITHit.XMLDoc = (function() {
 		}
 	};
 	
-	/*
+	/**
 	 * Get node type.
 	 * @function ITHit.XMLDoc.nodeType
 	 * 
@@ -3358,7 +3347,7 @@ ITHit.XMLDoc = (function() {
 		return this._xml;
 	};
 	
-	/*
+	/**
 	 * Returns XML DOM document as string. 
 	 * @function {String} ITHit.XMLDoc.toString
 	 * 
@@ -3368,7 +3357,7 @@ ITHit.XMLDoc = (function() {
 		return XMLDoc.toString(this._xml, this._encoding, bWithoutDeclaration);
 	};
 	
-	/*
+	/**
 	 * Returns XML DOM document as string. Static method.
 	 * @function {static String} ITHit.XMLDoc.toString
 	 * 
@@ -3423,7 +3412,7 @@ ITHit.XMLDoc = (function() {
 	return XMLDoc;
 })();
 
-/*
+/**
  * XML DOM node types
  */
 ITHit.XMLDoc.nodeTypes = {
@@ -3443,12 +3432,11 @@ ITHit.XMLDoc.nodeTypes = {
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Wrong argument value.
  * @class ITHit.Exceptions.ArgumentException
  * @extends ITHit.Exception
- */
-/*
+ *
  * Initializes a new instance of the ArgumentException class with a specified error message and variable name wrong value of which is caused an exception.
  * @constructor ArgumentException
  * 
@@ -3622,12 +3610,11 @@ ITHit.DefineClass('ITHit.WebDAV.Client.Methods.HttpMethod', null, /** @lends ITH
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Wrong argument value.
  * @class ITHit.Exceptions.ArgumentNullException
  * @extends ITHit.Exception
- */
-/*
+ *
  * Initializes a new instance of the ArgumentNullException class with a variable name caused an exception.
  * @constructor ArgumentNullException
  * 
@@ -6428,8 +6415,7 @@ ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
  * Wrong expression.
  * @class ITHit.Exceptions.ExpressionException
  * @extends ITHit.Exception
- */
-/*
+ *
  * Initializes a new instance of the ExpressionException class with a specified error message.
  * @constructor ExpressionException
  * 
