@@ -6411,7 +6411,7 @@ ITHit.DefineClass('ITHit.WebDAV.Client.Methods.Options', ITHit.WebDAV.Client.Met
 
 ITHit.oNS = ITHit.Declare('ITHit.Exceptions');
 
-/*
+/**
  * Wrong expression.
  * @class ITHit.Exceptions.ExpressionException
  * @extends ITHit.Exception
