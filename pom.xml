@@ -18,9 +18,9 @@
     <module>config</module>
   </modules>
   <scm>
-    <connection>scm:git:git://github.com/exo-addons/remote-edit.git</connection>
-    <developerConnection>scm:git:git@github.com:exo-addons/remote-edit.git</developerConnection>
+    <connection>scm:git:git://github.com/exoplatform/remote-edit.git</connection>
+    <developerConnection>scm:git:git@github.com:exoplatform/remote-edit.git</developerConnection>
     <tag>HEAD</tag>
-    <url>https://github.com/exo-addons/remote-edit</url>
+    <url>https://github.com/exoplatform/remote-edit</url>
   </scm>
 </project>
