@@ -1,30 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <modules>
-    <module>webapp</module>
-    <module>bundle</module>
-    <module>config</module>
-  </modules>
-
   <parent>
     <artifactId>addons-parent-pom</artifactId>
     <groupId>org.exoplatform.addons</groupId>
-    <version>4</version>
+    <version>6</version>
   </parent>
-
   <groupId>org.exoplatform.addons.open-document</groupId>
   <artifactId>open-document-extension</artifactId>
   <version>1.1.x-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Open Document In Office Extension</name>
   <description>A addon to open document in desktop application of eXo.</description>
-
+  <modules>
+    <module>webapp</module>
+    <module>bundle</module>
+    <module>config</module>
+  </modules>
   <scm>
     <connection>scm:git:git://github.com/exo-addons/remote-edit.git</connection>
     <developerConnection>scm:git:git@github.com:exo-addons/remote-edit.git</developerConnection>
-    <url>https://github.com/exo-addons/remote-edit</url>
     <tag>HEAD</tag>
+    <url>https://github.com/exo-addons/remote-edit</url>
   </scm>
-
 </project>
