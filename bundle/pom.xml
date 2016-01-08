@@ -4,7 +4,7 @@
   <parent>
     <artifactId>open-document-extension</artifactId>
     <groupId>org.exoplatform.addons.open-document</groupId>
-    <version>1.1.x-SNAPSHOT</version>
+    <version>1.1.0-RC2-1</version>
   </parent>
   <artifactId>bundle</artifactId>
   <packaging>pom</packaging>
