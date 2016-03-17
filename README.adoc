@@ -1,0 +1,10 @@
+= Remote Edit
+:ci-url: https://ci.exoplatform.org/job/
+:project-name: remote-edit
+:project-branch: develop
+:ci-job-name: addon-{project-name}-{project-branch}-ci
+
+image:https://img.shields.io/badge/eXo%20Addon-supported-blue.svg[title="eXo Addons Supported", alt="eXo Addons Supported"]
+image:https://ci.exoplatform.org/buildStatus/icon?job={ci-job-name}["Build Status", link="{ci-url}{ci-job-name}/"]
+
+Enhanced Compatibility for Open Document in Office
