@@ -1,3 +1,6 @@
+(function() {
+  var ECMWebDav = function() {}
+// Declare ITHit core.
 if ("undefined" === typeof ITHit) {
     (function() {
         this.ITHit = {
@@ -6193,3 +6196,9 @@ ITHit.Phrases.LoadJSON(ITHit.Temp.WebDAV_Phrases);
     });
 })();
 ITHit.Temp = {};
+eXo.ecm.ECMWebDav = ITHit;
+  return {
+    ECMWebDav : eXo.ecm.ECMWebDav
+  };
+
+})();
