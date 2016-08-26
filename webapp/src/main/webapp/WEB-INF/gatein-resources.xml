@@ -13,12 +13,4 @@
     </module>
   </portlet>
 
-  <module>
-    <name>ecm-webdav</name>
-    <as>ecmWebdav</as>
-    <script>
-      <path>/js/ITHitWebDAVClient.js</path>
-    </script>
-  </module>
-
 </gatein-resources>
