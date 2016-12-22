@@ -21,6 +21,7 @@ public class UIOpenDocumentPortlet extends GenericPortlet {
     Element script = response.createElement("script");
     script.setAttribute("type", "text/javascript");
     script.setAttribute("src", request.getContextPath()+"/js/ITHitWebDAVClient.js");
+    script.setTextContent("ITHIT");
     response.addProperty(MimeResponse.MARKUP_HEAD_ELEMENT, script);
   }
 
