@@ -4,10 +4,10 @@
   <parent>
     <artifactId>open-document-extension</artifactId>
     <groupId>org.exoplatform.addons.open-document</groupId>
-    <version>2.0.x-SNAPSHOT</version>
+    <version>2.0.2</version>
   </parent>
   <groupId>org.exoplatform.addons.open-document</groupId>
   <artifactId>conf</artifactId>
-  <version>2.0.x-SNAPSHOT</version>
+  <version>2.0.2</version>
   <name>Open Document In Office Extension Portal Container Config</name>
 </project>
