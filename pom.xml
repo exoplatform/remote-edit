@@ -8,7 +8,7 @@
   </parent>
   <groupId>org.exoplatform.addons.open-document</groupId>
   <artifactId>open-document-extension</artifactId>
-  <version>2.3.x-SNAPSHOT</version>
+  <version>3.0.x-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>eXo Open Document In Office Extension</name>
   <description>A addon to open document in desktop application of eXo.</description>
