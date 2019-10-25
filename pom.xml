@@ -8,7 +8,7 @@
   </parent>
   <groupId>org.exoplatform.addons.open-document</groupId>
   <artifactId>open-document-extension</artifactId>
-  <version>2.3.x-SNAPSHOT</version>
+  <version>2.3.0-RC05</version>
   <packaging>pom</packaging>
   <name>eXo Open Document In Office Extension</name>
   <description>A addon to open document in desktop application of eXo.</description>
@@ -20,7 +20,7 @@
   <scm>
     <connection>scm:git:git://github.com/exoplatform/remote-edit.git</connection>
     <developerConnection>scm:git:git@github.com:exoplatform/remote-edit.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>2.3.0-RC05</tag>
     <url>https://github.com/exoplatform/remote-edit</url>
   </scm>
 </project>
