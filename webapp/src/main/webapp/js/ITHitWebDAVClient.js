@@ -1,4 +1,4 @@
-(function () {
+require(['SHARED/ecm-bootstrap'], function (ecm_bootstrap) {
     if ("undefined" === typeof ITHit) {
         (function () {
             this.ITHit = {
@@ -9612,4 +9612,4 @@
     return {
         ECMWebDav: eXo.ecm.ECMWebDav
     };
-})();
+});
